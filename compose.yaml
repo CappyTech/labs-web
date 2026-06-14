@@ -1,0 +1,11 @@
+services:
+  labs-web:
+    image: ghcr.io/cappytech/labs-web:latest
+    container_name: labs-web
+    restart: unless-stopped
+    networks: [ edge ]
+    # No ports published — only cl-caddy reaches it, over the edge network.
+
+networks:
+  edge:
+    external: true

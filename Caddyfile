@@ -1,0 +1,8 @@
+# Internal server only. Plain HTTP on :80 — no TLS here.
+# TLS + routing for cappylabs.uk is handled by the front-door cl-caddy,
+# which reverse-proxies to this container over the shared 'edge' network.
+:80 {
+	root * /srv
+	file_server
+	encode zstd gzip
+}
