@@ -1,0 +1,42 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Milk-round bill splitter</div>
+      <h1>Milk<span class="amp">·</span>Man</h1>
+      <p class="lede">Track invoices, allocation rules, and per-member splits for the milk round.</p>
+    </header>
+
+    <div class="index-label">Recent invoices</div>
+    <section class="grid">
+      <% if (recentInvoices.length === 0) { %>
+        <p class="empty-state">No invoices yet.</p>
+      <% } else { %>
+        <% recentInvoices.forEach(function(inv) { %>
+        <div class="module">
+          <div class="callsign">[<%= inv.number %>]</div>
+          <div class="name"><%= inv.total %></div>
+          <div class="desc"><%= new Date(inv.receiptDate).toLocaleDateString('en-GB') %></div>
+          <div class="host">
+            <span class="status-badge status-<%= inv.status %>"><%= inv.status %></span>
+          </div>
+        </div>
+        <% }); %>
+      <% } %>
+    </section>
+
+    <div class="index-label">Members</div>
+    <section class="grid">
+      <% if (members.length === 0) { %>
+        <p class="empty-state">No members yet.</p>
+      <% } else { %>
+        <% members.forEach(function(m) { %>
+        <div class="module">
+          <div class="callsign">[MEMBER]</div>
+          <div class="name"><%= m.name %></div>
+          <% if (m.email) { %>
+          <div class="desc"><%= m.email %></div>
+          <% } %>
+        </div>
+        <% }); %>
+      <% } %>
+    </section>
+  </div>

@@ -3,8 +3,30 @@ services:
     image: ghcr.io/cappytech/labs-web:latest
     container_name: labs-web
     restart: unless-stopped
+    env_file: .compose.env
     networks: [ edge ]
+    depends_on:
+      mongo:
+        condition: service_healthy
     # No ports published — only cl-caddy reaches it, over the edge network.
+
+  mongo:
+    image: mongo:8.0
+    container_name: labs-mongo
+    restart: unless-stopped
+    env_file: .compose.env
+    volumes:
+      - mongo_data:/data/db
+    networks: [ edge ]
+    healthcheck:
+      test: [ "CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # No ports published — only labs-web reaches it, over the edge network.
+
+volumes:
+  mongo_data:
 
 networks:
   edge:

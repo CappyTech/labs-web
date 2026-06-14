@@ -1,0 +1,22 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Workbench &amp; signal hut</div>
+      <h1>Cappy<span class="amp">·</span>Labs</h1>
+      <p class="lede">A home for small experiments and the self-hosted things I keep running. Everything below is live on a node somewhere — pick a module.</p>
+    </header>
+
+    <div class="index-label">Active modules</div>
+    <main class="grid">
+      <% modules.forEach(function(m) { %>
+      <a class="module" href="<%= m.url %>">
+        <div class="callsign">[<%= m.callsign %>]</div>
+        <div class="name"><%= m.name %></div>
+        <div class="desc"><%= m.desc %></div>
+        <div class="host">
+          <span><%= m.url.replace(/^https?:\/\//, '') %></span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </a>
+      <% }); %>
+    </main>
+  </div>

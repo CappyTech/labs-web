@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Cappy Labs' %></title>
+  <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'Cappy Labs — a home for small experiments and self-hosted projects.' %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/resources/css/style.css">
+</head>
+<body>
+
+  <div class="rail">
+    <div class="wrap">
+      <span class="led" aria-hidden="true"></span>
+      <span>STATION&nbsp;CAPPYLABS.UK</span>
+      <span class="sep" aria-hidden="true">·</span>
+      <span>NODE ONLINE</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <%- body %>
+
+  <div class="wrap">
+    <footer>
+      <span>cappylabs.uk</span>
+      <span class="sep">·</span>
+      <span>built &amp; broken by cappy</span>
+      <span class="sep">·</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <script>
+    // Station clock (UK time)
+    const clock = document.getElementById('clock');
+    function tick() {
+      clock.textContent = new Date().toLocaleTimeString('en-GB', { timeZone: 'Europe/London' });
+    }
+    tick(); setInterval(tick, 1000);
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>

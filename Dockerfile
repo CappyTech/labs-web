@@ -1,6 +1,15 @@
-FROM caddy:2-alpine
+FROM node:22-alpine
 
-# Static site baked in — the image is self-contained and runs anywhere:
-#   docker run --rm -p 8080:80 ghcr.io/cappytech/labs-web:latest
-COPY site/ /srv/
-COPY Caddyfile /etc/caddy/Caddyfile
+WORKDIR /app
+
+# Install production dependencies first (layer-cache friendly)
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy application source
+COPY app.js ./
+COPY views/ ./views/
+COPY resources/ ./resources/
+
+EXPOSE 3000
+CMD ["node", "app.js"]
