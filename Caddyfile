@@ -1,9 +1,0 @@
-# Internal server only. Plain HTTP on :80 — no TLS here.
-# TLS + routing for cappylabs.uk is handled by the front-door cl-caddy,
-# which reverse-proxies to this container over the shared 'edge' network.
-# NOTE: The app now runs as a Node.js process on port 3000.
-#       Point cl-caddy directly at labs-web:3000 — this Caddyfile
-#       is retained for reference but is not used by the current Dockerfile.
-:80 {
-	reverse_proxy localhost:3000
-}
