@@ -1,0 +1,26 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman/members">Members</a></div>
+      <h1>Edit member</h1>
+      <p class="lede"><%= member.name %></p>
+    </header>
+
+    <form method="POST" action="/milkman/members/<%= member._id %>" style="max-width:28rem;">
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <label>
+          Name<br>
+          <input type="text" name="name" value="<%= member.name %>" required style="padding:.4rem .6rem;width:100%;">
+        </label>
+        <label style="display:flex;align-items:center;gap:.5rem;">
+          <input type="checkbox" name="isBuyer" <%= member.isBuyer ? 'checked' : '' %>> Account holder
+        </label>
+        <label style="display:flex;align-items:center;gap:.5rem;">
+          <input type="checkbox" name="active" <%= member.active ? 'checked' : '' %>> Active
+        </label>
+        <div style="display:flex;gap:.75rem;">
+          <button type="submit" class="btn">Save</button>
+          <a href="/milkman/members" class="btn">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>

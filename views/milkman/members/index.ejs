@@ -1,0 +1,39 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
+      <h1>Members</h1>
+      <p class="lede">People in the milk round.</p>
+    </header>
+
+    <div class="index-label">Add member</div>
+    <form method="POST" action="/milkman/members" style="margin-bottom:2rem;">
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
+        <label>
+          Name<br>
+          <input type="text" name="name" required placeholder="e.g. Alice" style="padding:.4rem .6rem;">
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;padding-bottom:.4rem;">
+          <input type="checkbox" name="isBuyer"> Account holder
+        </label>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+
+    <div class="index-label">All members</div>
+    <section class="grid">
+      <% if (members.length === 0) { %>
+        <p class="empty-state">No members yet.</p>
+      <% } else { %>
+        <% members.forEach(function(m) { %>
+        <div class="module">
+          <div class="callsign"><%= m.active ? '[MEMBER]' : '[INACTIVE]' %></div>
+          <div class="name"><%= m.name %></div>
+          <% if (m.isBuyer) { %><div class="desc">account holder</div><% } %>
+          <div class="host">
+            <a href="/milkman/members/<%= m._id %>/edit" class="btn">Edit</a>
+          </div>
+        </div>
+        <% }); %>
+      <% } %>
+    </section>
+  </div>

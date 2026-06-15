@@ -16,11 +16,21 @@ async function getInvoiceById(invoiceId) {
     .lean();
 }
 
+async function getAllInvoices() {
+  return Invoice.find()
+    .sort({ receiptDate: -1 })
+    .lean();
+}
+
 async function getRecentInvoices(limit = 10) {
   return Invoice.find()
     .sort({ receiptDate: -1 })
     .limit(limit)
     .lean();
+}
+
+async function getInvoiceRaw(invoiceId) {
+  return Invoice.findById(invoiceId).lean();
 }
 
 async function createInvoice(data) {
@@ -206,4 +216,4 @@ async function computeSettlement(invoiceId) {
   return { settlement: raw.value, created };
 }
 
-module.exports = { getInvoiceById, getRecentInvoices, createInvoice, updateInvoice, setInvoiceStatus, computeSettlement };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getRecentInvoices, createInvoice, updateInvoice, setInvoiceStatus, computeSettlement };

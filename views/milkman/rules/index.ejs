@@ -1,0 +1,79 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
+      <h1>Allocation Rules</h1>
+      <p class="lede">Define who pays for each product.</p>
+    </header>
+
+    <div class="index-label">Add rule</div>
+    <form method="POST" action="/milkman/rules" style="margin-bottom:2rem;max-width:40rem;">
+      <div style="display:flex;flex-direction:column;gap:.75rem;">
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
+          <label>
+            Product<br>
+            <select name="productId" required style="padding:.4rem .6rem;">
+              <option value="">— select —</option>
+              <% products.forEach(function(p) { %>
+              <option value="<%= p._id %>"><%= p.name %></option>
+              <% }); %>
+            </select>
+          </label>
+          <label>
+            Member<br>
+            <select name="memberId" required style="padding:.4rem .6rem;">
+              <option value="">— select —</option>
+              <% members.forEach(function(m) { %>
+              <option value="<%= m._id %>"><%= m.name %></option>
+              <% }); %>
+            </select>
+          </label>
+          <label>
+            Type<br>
+            <select name="type" required style="padding:.4rem .6rem;">
+              <option value="WHOLE">WHOLE — full line to this member</option>
+              <option value="FRACTION">FRACTION — share of line</option>
+              <option value="FIXED">FIXED — fixed quantity</option>
+            </select>
+          </label>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
+          <label>
+            Fraction (FRACTION type only, 0–1)<br>
+            <input type="number" name="fraction" min="0" max="1" step="0.01" placeholder="e.g. 0.5" style="padding:.4rem .6rem;width:10rem;">
+          </label>
+          <label>
+            Fixed qty (FIXED type only)<br>
+            <input type="number" name="fixedQty" min="0" step="0.5" placeholder="e.g. 2" style="padding:.4rem .6rem;width:10rem;">
+          </label>
+          <button type="submit" class="btn">Add rule</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="index-label">Current rules</div>
+    <% if (groupedRules.length === 0) { %>
+      <p class="empty-state">No rules yet.</p>
+    <% } else { %>
+      <% groupedRules.forEach(function(group) { %>
+      <div class="index-label" style="font-size:.8em;opacity:.7;"><%= group.name %></div>
+      <section class="grid" style="margin-bottom:1rem;">
+        <% group.rules.forEach(function(rule) { %>
+        <div class="module">
+          <div class="callsign">[<%= rule.type %>]</div>
+          <div class="name"><%= rule.member.name %></div>
+          <% if (rule.type === 'FRACTION') { %>
+          <div class="desc"><%= (rule.fraction * 100).toFixed(0) %>%</div>
+          <% } else if (rule.type === 'FIXED') { %>
+          <div class="desc">qty: <%= rule.fixedQty %></div>
+          <% } %>
+          <div class="host">
+            <form method="POST" action="/milkman/rules/<%= rule._id %>/delete" style="display:inline;">
+              <button type="submit" class="btn">Remove</button>
+            </form>
+          </div>
+        </div>
+        <% }); %>
+      </section>
+      <% }); %>
+    <% } %>
+  </div>

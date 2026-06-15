@@ -1,0 +1,35 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman/products">Products</a></div>
+      <h1>Edit product</h1>
+      <p class="lede"><%= product.name %></p>
+    </header>
+
+    <form method="POST" action="/milkman/products/<%= product._id %>" style="max-width:28rem;">
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <label>
+          Name<br>
+          <input type="text" name="name" value="<%= product.name %>" required style="padding:.4rem .6rem;width:100%;">
+        </label>
+        <label>
+          Price (pence)<br>
+          <input type="number" name="priceP" value="<%= product.priceP %>" required min="0" step="1" style="padding:.4rem .6rem;width:100%;">
+        </label>
+        <label>
+          Pints per bottle (leave blank if not applicable)<br>
+          <input type="number" name="pintsPerBottle" value="<%= product.pintsPerBottle != null ? product.pintsPerBottle : '' %>" min="0" step="0.5" style="padding:.4rem .6rem;width:100%;">
+        </label>
+        <label>
+          Category<br>
+          <input type="text" name="category" value="<%= product.category || '' %>" style="padding:.4rem .6rem;width:100%;">
+        </label>
+        <label style="display:flex;align-items:center;gap:.5rem;">
+          <input type="checkbox" name="active" <%= product.active ? 'checked' : '' %>> Active
+        </label>
+        <div style="display:flex;gap:.75rem;">
+          <button type="submit" class="btn">Save</button>
+          <a href="/milkman/products" class="btn">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>

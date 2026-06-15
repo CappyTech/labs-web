@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] - 2026-06-15
+
+### Added
+- **Members UI** — `GET /milkman/members` (list + inline create form), `GET /milkman/members/:id/edit` (edit name, isBuyer, active flag).
+- **Products UI** — `GET /milkman/products` (list + inline create form), `GET /milkman/products/:id/edit` (edit all fields).
+- **Allocation Rules UI** — `GET /milkman/rules` lists rules grouped by product with a create form and per-rule delete button.
+- **Invoice list** — `GET /milkman/invoices` shows all invoices; `GET /milkman/invoices/new` is a creation form for the invoice header.
+- **Invoice detail edit forms** (pending invoices only) — add/remove delivery days, add/remove line items per day, add/remove communal events per day (with member checkboxes for participants), add/remove adjustments.
+- **Settlements UI** — `GET /milkman/settlements` lists all window settlements with per-member balances.
+- Landing page (`/milkman`) now has a navigation grid linking to all sections.
+- `express.urlencoded` middleware added to `app.js` to handle HTML form submissions.
+- `InvoiceService.getAllInvoices` and `InvoiceService.getInvoiceRaw` (non-populated lean fetch for server-side mutation).
+- Controllers: `milkmanMembersController`, `milkmanProductsController`, `milkmanRulesController`, `milkmanInvoicesController`, `milkmanSettlementsController`.
+
+### Changed
+- `milkmanInvoiceController.show` now loads active products and members and passes them to the invoice detail view for dropdown population.
+- `views/milkman/invoice.ejs` — extended with inline edit forms for pending invoices and back-link to invoice list.
+- `routes/milkman.js` — expanded with all new HTML routes.
+
 ## [2.1.0] - 2026-06-15
 
 ### Added

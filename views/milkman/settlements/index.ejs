@@ -1,0 +1,27 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
+      <h1>Settlements</h1>
+      <p class="lede">Per-window member payment summaries.</p>
+    </header>
+
+    <% if (settlements.length === 0) { %>
+      <p class="empty-state">No settlements yet.</p>
+    <% } else { %>
+      <% settlements.forEach(function(s) { %>
+      <div class="index-label"><%= s.cadence %> &nbsp;·&nbsp; <%= s.windowStartFormatted %> – <%= s.windowEndFormatted %></div>
+      <section class="grid" style="margin-bottom:1.5rem;">
+        <% s.balances.forEach(function(b) { %>
+        <div class="module">
+          <div class="callsign">[OWES]</div>
+          <div class="name"><%= b.owed %></div>
+          <div class="desc"><%= b.memberName %></div>
+        </div>
+        <% }); %>
+        <% if (s.balances.length === 0) { %>
+          <p class="empty-state">No balances.</p>
+        <% } %>
+      </section>
+      <% }); %>
+    <% } %>
+  </div>

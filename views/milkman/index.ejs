@@ -5,6 +5,35 @@
       <p class="lede">Track invoices, allocation rules, and per-member splits for the milk round.</p>
     </header>
 
+    <div class="index-label">Manage</div>
+    <section class="grid" style="margin-bottom:2rem;">
+      <a href="/milkman/invoices" class="module">
+        <div class="callsign">[NAV]</div>
+        <div class="name">Invoices</div>
+        <div class="desc">Create and manage invoices</div>
+      </a>
+      <a href="/milkman/members" class="module">
+        <div class="callsign">[NAV]</div>
+        <div class="name">Members</div>
+        <div class="desc">Add or edit members</div>
+      </a>
+      <a href="/milkman/products" class="module">
+        <div class="callsign">[NAV]</div>
+        <div class="name">Products</div>
+        <div class="desc">Manage milk-round products</div>
+      </a>
+      <a href="/milkman/rules" class="module">
+        <div class="callsign">[NAV]</div>
+        <div class="name">Allocation Rules</div>
+        <div class="desc">Define who pays for what</div>
+      </a>
+      <a href="/milkman/settlements" class="module">
+        <div class="callsign">[NAV]</div>
+        <div class="name">Settlements</div>
+        <div class="desc">View payment summaries</div>
+      </a>
+    </section>
+
     <div class="index-label">Recent invoices</div>
     <section class="grid">
       <% if (recentInvoices.length === 0) { %>

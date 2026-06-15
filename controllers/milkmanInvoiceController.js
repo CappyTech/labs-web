@@ -2,6 +2,8 @@
 
 const InvoiceService    = require('../services/InvoiceService');
 const SettlementService = require('../services/SettlementService');
+const ProductService    = require('../services/ProductService');
+const MemberService     = require('../services/MemberService');
 const { formatMoney }   = require('./dto');
 
 function formatInvoice(invoice) {
@@ -20,7 +22,7 @@ function formatInvoice(invoice) {
       })),
       communalEvents: (day.communalEvents || []).map(evt => ({
         ...evt,
-        productName:   evt.product?.name || String(evt.product),
+        productName:      evt.product?.name || String(evt.product),
         participantNames: (evt.participants || []).map(p => p.name || String(p)),
       })),
     })),
@@ -38,7 +40,11 @@ function formatInvoice(invoice) {
  */
 async function show(req, res, next) {
   try {
-    const raw = await InvoiceService.getInvoiceById(req.params.id);
+    const [raw, products, members] = await Promise.all([
+      InvoiceService.getInvoiceById(req.params.id),
+      ProductService.getActiveProducts(),
+      MemberService.getActiveMembers(),
+    ]);
     if (!raw) return res.status(404).render('error', { title: '404', message: 'Invoice not found' });
 
     const invoice = formatInvoice(raw);
@@ -63,6 +69,8 @@ async function show(req, res, next) {
       description: `Milkman invoice ${raw.number} — ${formatMoney(raw.totalP)}`,
       invoice,
       settlement,
+      products,
+      members,
     });
   } catch (err) {
     next(err);
@@ -71,7 +79,6 @@ async function show(req, res, next) {
 
 /**
  * POST /milkman/invoices/:id/split
- * Triggers settlement computation and redirects back to the invoice page.
  */
 async function split(req, res, next) {
   try {
@@ -84,7 +91,6 @@ async function split(req, res, next) {
 
 /**
  * POST /milkman/invoices/:id/settle
- * Marks the invoice as settled and redirects back to the invoice page.
  */
 async function settle(req, res, next) {
   try {

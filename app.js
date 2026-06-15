@@ -18,8 +18,9 @@ app.set('layout', 'layout');
 // Static files served under /resources/
 app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
-// JSON body parser for API routes
+// Body parsers
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // ── Routes ────────────────────────────────────────────────────────────
 app.use('/', require('./routes/index'));
