@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-06-15
+
+### Added
+- `GET /api/v1/settlements` — list all settlements; accepts optional `?from=&to=` query params to filter by overlapping window.
+- `PUT /api/v1/invoices/:id` — update a pending invoice (number, receiptDate, totalP, deliveryDays, adjustments); returns 404 if the invoice is not in pending status.
+- `PATCH /api/v1/invoices/:id/status` — set invoice status to `pending`, `computed`, or `settled`.
+- `SettlementService.getAllSettlements` — query all settlements without a date filter.
+- `SettlementService.getSettlementForInvoice` — look up the settlement for a specific invoice by ID.
+- `InvoiceService.updateInvoice` / `setInvoiceStatus` — service functions for the new API endpoints.
+- `POST /milkman/invoices/:id/split` and `POST /milkman/invoices/:id/settle` — HTML form actions that trigger split computation and status update, then redirect.
+- `GET /milkman/invoices/:id` — invoice detail page showing delivery days, line items, adjustments, split results, and contextual action buttons.
+- `test/splitEngine.test.js` — 21 unit tests for `SplitEngine` using `node:test`; run with `npm test`.
+
+### Changed
+- `SettlementService.createWindowSettlement` — now marks all included invoices as `settled` after creating the window settlement.
+- `SplitController.split` — returns 201 on first computation, 200 on re-computation. Now also catches `FractionsDoNotSumError` (→ 400 `FRACTIONS_ERROR`) and `UnknownMemberError` (→ 400 `UNKNOWN_MEMBER`).
+- `milkmanController.index` — formats `receiptDate` at the controller edge as `receiptDateFormatted`; adds `id` string to each invoice object.
+- `views/milkman/index.ejs` — uses pre-formatted date; invoice cards are now clickable links to the detail page; member cards show "account holder" label for buyers.
+- `package.json` — added `test` script (`node --test test/**/*.test.js`).
+
+### Fixed
+- `InvoiceService.computeSettlement` — throws `UnknownProductError` if a communal event's product cannot be found in any line item (previously produced silent `NaN` in cost-per-pint calculation).
+- `InvoiceController.create` — `totalP` validation now rejects non-integers (e.g. `1.5`) via `Number.isInteger` check.
+- `SplitEngine.applyAdjustments` — throws `UnknownMemberError` for any adjustment referencing a member not in the active shares map (previously silently created a phantom entry).
+
 ## [2.0.0] - 2026-06-14
 
 ### Added

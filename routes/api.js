@@ -33,14 +33,17 @@ router.put('/allocation-rules/:id',     RuleController.update);
 router.delete('/allocation-rules/:id',  RuleController.remove);
 
 // ── Invoices ──────────────────────────────────────────────────────────
-router.get('/invoices',         InvoiceController.list);
-router.post('/invoices',        InvoiceController.create);
-router.get('/invoices/:id',     InvoiceController.get);
+router.get('/invoices',              InvoiceController.list);
+router.post('/invoices',             InvoiceController.create);
+router.get('/invoices/:id',          InvoiceController.get);
+router.put('/invoices/:id',          InvoiceController.update);
+router.patch('/invoices/:id/status', InvoiceController.setStatus);
 
 // ── Split (communal events must be stored on the invoice beforehand) ──
-router.post('/invoices/:id/split', SplitController.split);
+router.post('/invoices/:id/split',   SplitController.split);
 
 // ── Settlements ───────────────────────────────────────────────────────
+router.get('/settlements',      SettlementController.list);
 router.post('/settlements',     SettlementController.create);
 router.get('/settlements/:id',  SettlementController.get);
 

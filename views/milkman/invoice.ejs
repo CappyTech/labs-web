@@ -1,0 +1,91 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
+      <h1>Invoice <span class="amp">[</span><%= invoice.number %><span class="amp">]</span></h1>
+      <p class="lede">
+        <%= invoice.total %> &nbsp;·&nbsp; <%= invoice.receiptDateFormatted %>
+        &nbsp;·&nbsp; <span class="status-badge status-<%= invoice.status %>"><%= invoice.status %></span>
+      </p>
+    </header>
+
+    <% if (invoice.deliveryDays && invoice.deliveryDays.length > 0) { %>
+    <div class="index-label">Delivery days</div>
+    <% invoice.deliveryDays.forEach(function(day) { %>
+    <div class="module" style="display:block;margin-bottom:1rem;">
+      <div class="callsign"><%= day.dateFormatted %></div>
+
+      <% if (day.lineItems && day.lineItems.length > 0) { %>
+      <table style="width:100%;border-collapse:collapse;margin-top:.5rem;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:.25rem .5rem;">Product</th>
+            <th style="text-align:right;padding:.25rem .5rem;">Qty</th>
+            <th style="text-align:right;padding:.25rem .5rem;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% day.lineItems.forEach(function(item) { %>
+          <tr>
+            <td style="padding:.25rem .5rem;"><%= item.productName %></td>
+            <td style="text-align:right;padding:.25rem .5rem;"><%= item.qty %></td>
+            <td style="text-align:right;padding:.25rem .5rem;"><%= item.total %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } %>
+
+      <% if (day.communalEvents && day.communalEvents.length > 0) { %>
+      <div class="desc" style="margin-top:.5rem;">Communal:</div>
+      <% day.communalEvents.forEach(function(evt) { %>
+      <div class="desc"><%= evt.productName %> &times; <%= evt.units %> units — <%= evt.participantNames.join(', ') %></div>
+      <% }); %>
+      <% } %>
+    </div>
+    <% }); %>
+    <% } %>
+
+    <% if (invoice.adjustments && invoice.adjustments.length > 0) { %>
+    <div class="index-label">Adjustments</div>
+    <section class="grid">
+      <% invoice.adjustments.forEach(function(adj) { %>
+      <div class="module">
+        <div class="callsign"><%= adj.isCredit ? '[CREDIT]' : '[CHARGE]' %></div>
+        <div class="name"><%= adj.isCredit ? '-' : '+' %><%= adj.amount %></div>
+        <div class="desc"><%= adj.memberName %></div>
+        <% if (adj.description) { %><div class="host"><%= adj.description %></div><% } %>
+      </div>
+      <% }); %>
+    </section>
+    <% } %>
+
+    <% if (settlement) { %>
+    <div class="index-label">Split result</div>
+    <section class="grid">
+      <% settlement.balances.forEach(function(b) { %>
+      <div class="module">
+        <div class="callsign">[OWES]</div>
+        <div class="name"><%= b.owed %></div>
+        <div class="desc"><%= b.memberName %></div>
+      </div>
+      <% }); %>
+    </section>
+    <% } %>
+
+    <div class="index-label">Actions</div>
+    <section style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;">
+      <% if (invoice.status === 'pending') { %>
+      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/split">
+        <button type="submit" class="btn">Compute split</button>
+      </form>
+      <% } %>
+      <% if (invoice.status === 'computed') { %>
+      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/split">
+        <button type="submit" class="btn">Re-compute split</button>
+      </form>
+      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/settle">
+        <button type="submit" class="btn">Mark settled</button>
+      </form>
+      <% } %>
+    </section>
+  </div>

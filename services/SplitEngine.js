@@ -15,7 +15,7 @@
  *  5. Rounding via largest-remainder — never lose or invent a penny.
  */
 
-const { FractionsDoNotSumError, UnknownProductError, ReconciliationError } = require('./errors');
+const { FractionsDoNotSumError, UnknownProductError, ReconciliationError, UnknownMemberError } = require('./errors');
 
 // ── Rounding ──────────────────────────────────────────────────────────────────
 
@@ -123,7 +123,10 @@ function allocateLines(lines, rules, members) {
 function applyAdjustments(shares, adjustments) {
   const result = new Map(shares);
   for (const adj of adjustments) {
-    result.set(adj.memberId, (result.get(adj.memberId) || 0) + adj.amountPence);
+    if (!result.has(adj.memberId)) {
+      throw new UnknownMemberError(`Adjustment references unknown member ${adj.memberId}`);
+    }
+    result.set(adj.memberId, result.get(adj.memberId) + adj.amountPence);
   }
   return result;
 }

@@ -4,6 +4,17 @@ const Settlement = require('../models/Settlement');
 const Invoice    = require('../models/Invoice');
 
 /**
+ * Return all settlements, newest first.
+ */
+async function getAllSettlements() {
+  return Settlement.find()
+    .populate('invoiceIds', 'number receiptDate totalP')
+    .populate('balances.member', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+/**
  * Return all settlements whose window overlaps the given range, newest first.
  */
 async function getSettlementsInWindow(from, to) {
@@ -14,6 +25,16 @@ async function getSettlementsInWindow(from, to) {
     .populate('invoiceIds', 'number receiptDate totalP')
     .populate('balances.member', 'name')
     .sort({ createdAt: -1 })
+    .lean();
+}
+
+/**
+ * Return the settlement that covers a specific invoice, if one exists.
+ */
+async function getSettlementForInvoice(invoiceId) {
+  return Settlement.findOne({ invoiceIds: invoiceId })
+    .populate('invoiceIds', 'number receiptDate totalP')
+    .populate('balances.member', 'name')
     .lean();
 }
 
@@ -30,6 +51,7 @@ async function getSettlementById(id) {
 /**
  * Create a window-level Settlement by aggregating per-invoice Settlements
  * that were already computed (invoice status = 'computed' | 'settled').
+ * Marks all included invoices as 'settled'.
  *
  * @param {{ cadence: string, windowStart: Date, windowEnd: Date }} opts
  */
@@ -63,7 +85,14 @@ async function createWindowSettlement({ cadence, windowStart, windowEnd }) {
   }));
 
   const settlement = new Settlement({ cadence, windowStart, windowEnd, invoiceIds, balances });
-  return settlement.save();
+  await settlement.save();
+
+  // Mark all included invoices as settled.
+  if (invoiceIds.length > 0) {
+    await Invoice.updateMany({ _id: { $in: invoiceIds } }, { status: 'settled' });
+  }
+
+  return settlement;
 }
 
-module.exports = { getSettlementsInWindow, getSettlementById, createWindowSettlement };
+module.exports = { getAllSettlements, getSettlementsInWindow, getSettlementForInvoice, getSettlementById, createWindowSettlement };

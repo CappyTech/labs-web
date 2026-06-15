@@ -14,10 +14,12 @@ async function index(req, res, next) {
       InvoiceService.getRecentInvoices(5),
     ]);
 
-    // Format money at the controller edge before passing to the view.
+    // Format money and date at the controller edge before passing to the view.
     const recentInvoices = rawInvoices.map(inv => ({
       ...inv,
-      total: formatMoney(inv.totalP),
+      id:                  String(inv._id),
+      total:               formatMoney(inv.totalP),
+      receiptDateFormatted: new Date(inv.receiptDate).toLocaleDateString('en-GB'),
     }));
 
     res.render('milkman/index', {

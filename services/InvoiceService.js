@@ -28,6 +28,18 @@ async function createInvoice(data) {
   return invoice.save();
 }
 
+async function updateInvoice(id, data) {
+  return Invoice.findOneAndUpdate(
+    { _id: id, status: 'pending' },
+    data,
+    { new: true, runValidators: true }
+  ).lean();
+}
+
+async function setInvoiceStatus(id, status) {
+  return Invoice.findByIdAndUpdate(id, { status }, { new: true, runValidators: true }).lean();
+}
+
 /**
  * Compute the per-member split for an invoice and persist a Settlement.
  *
@@ -45,7 +57,7 @@ async function createInvoice(data) {
  * 10. Mark invoice status = 'computed'.
  *
  * @param {string} invoiceId
- * @returns {import('../models/Settlement')}
+ * @returns {{ settlement: import('../models/Settlement'), created: boolean }}
  */
 async function computeSettlement(invoiceId) {
   const invoice = await Invoice.findById(invoiceId)
@@ -132,11 +144,17 @@ async function computeSettlement(invoiceId) {
       outer: for (const day2 of invoice.deliveryDays) {
         for (const item of day2.lineItems) {
           if (String(item.product._id) === pid) {
-            lineQty   = item.qty;
+            lineQty    = item.qty;
             lineTotalP = item.totalP;
             break outer;
           }
         }
+      }
+
+      if (lineQty === null) {
+        throw new UnknownProductError(
+          `CommunalEvent product ${evt.product.name || pid} not found in any lineItem`
+        );
       }
 
       const costPerPint = Math.floor(lineTotalP / (lineQty * evt.product.pintsPerBottle));
@@ -157,7 +175,7 @@ async function computeSettlement(invoiceId) {
   // 3. Apply invoice-level member adjustments (backdated credits etc.).
   if (invoice.adjustments.length > 0) {
     const adjs = invoice.adjustments.map(a => ({
-      memberId:   String(a.member._id || a.member),
+      memberId:    String(a.member._id || a.member),
       amountPence: a.amountP,
     }));
     shares = SplitEngine.applyAdjustments(shares, adjs);
@@ -166,10 +184,10 @@ async function computeSettlement(invoiceId) {
   // 4. Reconcile — throws if totals don't match.
   SplitEngine.reconcile(shares, invoice.totalP);
 
-  // 5. Persist Settlement.
+  // 5. Persist Settlement (upsert so re-splitting overwrites the previous result).
   const balances = [...shares.entries()].map(([memberId, owedP]) => ({ member: memberId, owedP }));
 
-  const settlement = await Settlement.findOneAndUpdate(
+  const raw = await Settlement.findOneAndUpdate(
     { invoiceIds: invoice._id },
     {
       cadence:     'ad-hoc',
@@ -178,12 +196,14 @@ async function computeSettlement(invoiceId) {
       invoiceIds:  [invoice._id],
       balances,
     },
-    { new: true, upsert: true }
+    { new: true, upsert: true, rawResult: true }
   );
+
+  const created = !raw.lastErrorObject?.updatedExisting;
 
   await Invoice.findByIdAndUpdate(invoiceId, { status: 'computed' });
 
-  return settlement;
+  return { settlement: raw.value, created };
 }
 
-module.exports = { getInvoiceById, getRecentInvoices, createInvoice, computeSettlement };
+module.exports = { getInvoiceById, getRecentInvoices, createInvoice, updateInvoice, setInvoiceStatus, computeSettlement };

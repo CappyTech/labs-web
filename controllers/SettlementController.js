@@ -14,6 +14,20 @@ function toSettlementDTO(s) {
 }
 
 /**
+ * GET /settlements
+ * Optional query params: ?from=ISO&to=ISO  — filter by overlapping window.
+ */
+async function list(req, res, next) {
+  try {
+    const { from, to } = req.query;
+    const settlements = (from && to)
+      ? await SettlementService.getSettlementsInWindow(new Date(from), new Date(to))
+      : await SettlementService.getAllSettlements();
+    res.json(settlements.map(toSettlementDTO));
+  } catch (e) { next(e); }
+}
+
+/**
  * POST /settlements
  * Body: { cadence, windowStart, windowEnd }
  */
@@ -46,4 +60,4 @@ async function get(req, res, next) {
   } catch (e) { next(e); }
 }
 
-module.exports = { create, get };
+module.exports = { list, create, get };

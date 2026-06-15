@@ -11,14 +11,14 @@
         <p class="empty-state">No invoices yet.</p>
       <% } else { %>
         <% recentInvoices.forEach(function(inv) { %>
-        <div class="module">
+        <a href="/milkman/invoices/<%= inv.id %>" class="module">
           <div class="callsign">[<%= inv.number %>]</div>
           <div class="name"><%= inv.total %></div>
-          <div class="desc"><%= new Date(inv.receiptDate).toLocaleDateString('en-GB') %></div>
+          <div class="desc"><%= inv.receiptDateFormatted %></div>
           <div class="host">
             <span class="status-badge status-<%= inv.status %>"><%= inv.status %></span>
           </div>
-        </div>
+        </a>
         <% }); %>
       <% } %>
     </section>
@@ -32,8 +32,8 @@
         <div class="module">
           <div class="callsign">[MEMBER]</div>
           <div class="name"><%= m.name %></div>
-          <% if (m.email) { %>
-          <div class="desc"><%= m.email %></div>
+          <% if (m.isBuyer) { %>
+          <div class="desc">account holder</div>
           <% } %>
         </div>
         <% }); %>

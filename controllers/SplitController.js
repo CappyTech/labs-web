@@ -2,7 +2,7 @@
 
 const InvoiceService = require('../services/InvoiceService');
 const { toDTO, formatMoney, err } = require('./dto');
-const { ReconciliationError, UnknownProductError } = require('../services/errors');
+const { ReconciliationError, UnknownProductError, FractionsDoNotSumError, UnknownMemberError } = require('../services/errors');
 
 /**
  * POST /invoices/:id/split
@@ -10,10 +10,11 @@ const { ReconciliationError, UnknownProductError } = require('../services/errors
  * Triggers the SplitEngine for an invoice and persists the Settlement.
  * Communal events must already be stored on the invoice's deliveryDays before calling.
  * Returns the per-member breakdown with money formatted at the edge.
+ * Returns 201 on first computation, 200 on re-computation.
  */
 async function split(req, res, next) {
   try {
-    const settlement = await InvoiceService.computeSettlement(req.params.id);
+    const { settlement, created } = await InvoiceService.computeSettlement(req.params.id);
 
     // Shape response: balances with formatted money, no raw _id/pence bleed.
     const dto = {
@@ -29,14 +30,19 @@ async function split(req, res, next) {
       })),
     };
 
-    res.status(201).json(dto);
+    res.status(created ? 201 : 200).json(dto);
   } catch (e) {
     if (e instanceof ReconciliationError) {
-      // Reconciliation failures are invariant violations — surface loudly as 500.
       return err(res, 500, 'RECONCILIATION_ERROR', e.message);
     }
     if (e instanceof UnknownProductError) {
       return err(res, 400, 'UNKNOWN_PRODUCT', e.message);
+    }
+    if (e instanceof FractionsDoNotSumError) {
+      return err(res, 400, 'FRACTIONS_ERROR', e.message);
+    }
+    if (e instanceof UnknownMemberError) {
+      return err(res, 400, 'UNKNOWN_MEMBER', e.message);
     }
     next(e);
   }
