@@ -56,6 +56,7 @@
           </thead>
           <tbody>
             <% day.lineItems.forEach(function(item, i) { %>
+            <input type="hidden" name="day_<%= d %>_item_<%= i %>_parsedName" value="<%= item.baseName %>">
             <tr>
               <td class="max-w-[14rem] break-words">
                 <% if (item.isAdjustment) { %>
@@ -63,7 +64,7 @@
                 <% } %>
                 <%= item.name %>
                 <% if (!item.matchedId) { %>
-                  <br><span class="text-[#c0392b] text-xs">&#9888; no product match</span>
+                  <br><span class="text-accent text-xs">&#9888; no match — will auto-create</span>
                 <% } %>
               </td>
               <td>

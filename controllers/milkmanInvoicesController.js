@@ -272,14 +272,27 @@ async function confirmParse(req, res, next) {
       const lineItems = [];
       for (let i = 0; i < itemCount; i++) {
         if (body[`day_${d}_item_${i}_skip`] === 'on') continue;
-        const productId = body[`day_${d}_item_${i}_productId`];
-        if (!productId) continue;
+
+        let productId = body[`day_${d}_item_${i}_productId`];
+        const qty    = parseFloat(body[`day_${d}_item_${i}_qty`]);
+        const totalP = parseInt(body[`day_${d}_item_${i}_totalP`], 10);
+
+        if (!productId) {
+          const parsedName = (body[`day_${d}_item_${i}_parsedName`] || '').trim();
+          if (parsedName && !isNaN(qty) && qty > 0 && !isNaN(totalP)) {
+            const newProduct = await ProductService.createProduct({
+              name:   parsedName,
+              priceP: Math.round(totalP / qty),
+              active: true,
+            });
+            productId = String(newProduct._id);
+          } else {
+            continue;
+          }
+        }
+
         const memberId = body[`day_${d}_item_${i}_memberId`];
-        lineItems.push({
-          product: productId,
-          qty:     parseFloat(body[`day_${d}_item_${i}_qty`]),
-          totalP:  parseInt(body[`day_${d}_item_${i}_totalP`], 10),
-        });
+        lineItems.push({ product: productId, qty, totalP });
         if (memberId && !productMemberMap.has(productId)) {
           productMemberMap.set(productId, memberId);
         }

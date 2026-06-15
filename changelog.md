@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.0] - 2026-06-16
+
+### Added
+- **Auto-create products on invoice parse** — if a line item on the paste-and-parse review page has no matching product, `confirmParse` now creates one automatically using the parsed item name and a unit price derived from `round(totalP / qty)`. The product is marked active. The review page labels these items "⚠ will auto-create" (was "⚠ no product match") so the user knows what will happen.
+- A hidden `parsedName` field is included per line item in the preview form so `confirmParse` can use the base name (stripped of any "Adjustment " prefix) when creating the product.
+- A "Paste invoice text instead →" shortcut link added to the `invoices/new` form.
+- "Paste invoice" renamed to "Paste new invoice" on the invoices list page.
+
+---
+
 ## [2.4.1] - 2026-06-16
 
 ### Fixed
