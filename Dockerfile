@@ -7,9 +7,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 # Copy application source
-COPY app.js ./
-COPY views/ ./views/
-COPY resources/ ./resources/
+COPY . .
 
 EXPOSE 3000
 CMD ["node", "app.js"]
