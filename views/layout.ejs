@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <%# CDN must load first so tailwind global exists before config is set %>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -34,81 +37,195 @@
       },
     }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style type="text/tailwindcss">
-    @layer base {
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
-        @apply bg-bg text-ink font-display leading-normal min-h-screen;
-        background-image:
-          linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
-          radial-gradient(ellipse at 50% -10%, rgba(95,184,196,0.06), transparent 60%);
-        background-size: 48px 48px, 48px 48px, 100% 100%;
-      }
-      h1 {
-        @apply font-bold tracking-tight;
-        font-size: clamp(44px, 9vw, 88px);
-        line-height: 0.96;
-      }
-      input[type="text"],
-      input[type="number"],
-      input[type="date"],
-      textarea,
-      select {
-        @apply bg-bg border border-hairline text-ink rounded px-2.5 py-1.5 text-sm font-mono;
-      }
-      input[type="text"]:focus,
-      input[type="number"]:focus,
-      input[type="date"]:focus,
-      textarea:focus,
-      select:focus { outline: none; border-color: rgba(95,184,196,0.5); }
-      input[type="checkbox"] { @apply accent-signal w-4 h-4 cursor-pointer; }
-      table { @apply w-full border-collapse; }
-      th { @apply text-left py-1 px-2 text-xs opacity-60 font-mono uppercase tracking-wide; }
-      td { @apply py-1 px-2 text-sm; }
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation: none !important; transition: none !important; }
-      }
+
+  <%# Component styles in a plain <style> tag — no @apply, no timing dependency on Tailwind config %>
+  <style>
+    /* ── Reset ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Body / page chrome ──────────────────────────────────────── */
+    body {
+      background-color: #0e1a1f;
+      color: #dde9e7;
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+        radial-gradient(ellipse at 50% -10%, rgba(95,184,196,0.06), transparent 60%);
+      background-size: 48px 48px, 48px 48px, 100% 100%;
     }
-    @layer components {
-      .wrap { @apply max-w-[920px] mx-auto px-6; }
-      .btn {
-        @apply inline-flex items-center gap-1.5 px-3 py-[6px] text-[11px] font-mono tracking-[0.06em] uppercase
-               bg-surface-2 border border-hairline text-ink rounded no-underline cursor-pointer
-               transition-colors duration-150 hover:border-accent hover:text-accent;
-      }
-      .module {
-        @apply relative block no-underline text-ink bg-surface border border-hairline rounded-[10px] p-5
-               transition-all duration-[180ms] ease-out hover:-translate-y-[3px]
-               hover:border-accent hover:bg-surface-2
-               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
-      }
-      .module .callsign { @apply font-mono text-[11px] tracking-[0.12em] text-signal; }
-      .module .name { @apply mt-[10px] text-[21px] font-medium tracking-[-0.01em]; }
-      .module .desc { @apply mt-1.5 text-sm text-muted; }
-      .module .host { @apply mt-4 flex items-center gap-2 font-mono text-xs text-muted; }
-      .module .arrow { @apply ml-auto text-accent transition-transform duration-[180ms]; }
-      .module:hover .arrow { transform: translateX(3px); }
-      .card-grid {
-        @apply grid gap-[14px];
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      }
-      .hero { @apply pt-[76px] pb-10; }
-      .eyebrow { @apply font-mono text-xs tracking-[0.32em] uppercase text-accent mb-[18px]; }
-      .eyebrow a { @apply text-accent no-underline hover:opacity-75; }
-      .lede { @apply mt-5 max-w-[46ch] text-muted; font-size: 17px; }
-      .section-label {
-        @apply flex items-baseline gap-[14px] font-mono text-xs tracking-[0.18em] uppercase text-muted mt-10 mb-4;
-      }
-      .section-label::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
-      .status-badge {
-        @apply font-mono text-[11px] tracking-[0.08em] uppercase px-[7px] py-0.5 rounded bg-surface-2 text-muted;
-      }
-      .status-badge.status-pending { @apply text-accent; }
-      .status-badge.status-computed { @apply text-signal; }
-      .status-badge.status-settled { @apply text-settled; }
-      .empty-state { @apply text-muted font-mono text-[13px]; }
+
+    h1 {
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      font-size: clamp(44px, 9vw, 88px);
+      line-height: 0.96;
+    }
+
+    /* ── Form elements ───────────────────────────────────────────── */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea,
+    select {
+      background-color: #0e1a1f;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #dde9e7;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    textarea:focus,
+    select:focus { outline: none; border-color: rgba(95,184,196,0.5); }
+    input[type="checkbox"] { accent-color: #5fb8c4; width: 16px; height: 16px; cursor: pointer; }
+
+    /* ── Tables ──────────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      padding: 4px 8px;
+      font-size: 11px;
+      opacity: 0.6;
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td { padding: 4px 8px; font-size: 13px; }
+
+    /* ── LED pulse ───────────────────────────────────────────────── */
+    @keyframes led { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .animate-led { animation: led 2.6s ease-in-out infinite; }
+
+    /* ── Layout atoms ────────────────────────────────────────────── */
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────── */
+    .hero { padding: 76px 0 40px; }
+
+    .eyebrow {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 12px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #e8a13c;
+      margin-bottom: 18px;
+    }
+    .eyebrow a { color: #e8a13c; text-decoration: none; }
+    .eyebrow a:hover { opacity: 0.75; }
+
+    .lede { margin-top: 20px; max-width: 46ch; color: #6f8d90; font-size: 17px; }
+
+    /* ── Section label ───────────────────────────────────────────── */
+    .section-label {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #6f8d90;
+      margin-top: 40px;
+      margin-bottom: 16px;
+    }
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ── Module card ─────────────────────────────────────────────── */
+    .module {
+      position: relative;
+      display: block;
+      text-decoration: none;
+      color: #dde9e7;
+      background: #14252c;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 20px;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .module:hover, .module:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(232,161,60,0.5);
+      background: #193037;
+      outline: none;
+    }
+    .module:focus-visible { box-shadow: 0 0 0 2px #e8a13c; }
+    .module .callsign {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: #5fb8c4;
+    }
+    .module .name { margin-top: 10px; font-size: 21px; font-weight: 500; letter-spacing: -0.01em; }
+    .module .desc { margin-top: 6px; font-size: 14px; color: #6f8d90; }
+    .module .host {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: #6f8d90;
+    }
+    .module .arrow { margin-left: auto; color: #e8a13c; transition: transform 0.18s ease; }
+    .module:hover .arrow { transform: translateX(3px); }
+
+    /* ── Button ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background-color: #193037;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #dde9e7;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { border-color: rgba(232,161,60,0.5); color: #e8a13c; }
+
+    /* ── Status badge ────────────────────────────────────────────── */
+    .status-badge {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: #193037;
+      color: #6f8d90;
+    }
+    .status-badge.status-pending  { color: #e8a13c; }
+    .status-badge.status-computed { color: #5fb8c4; }
+    .status-badge.status-settled  { color: #7ecb7e; }
+
+    /* ── Utility ─────────────────────────────────────────────────── */
+    .empty-state { color: #6f8d90; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>

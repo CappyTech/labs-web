@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.4.1] - 2026-06-16
+
+### Fixed
+- `views/layout.ejs` — Tailwind Play CDN script now loads **before** the `tailwind.config` assignment, resolving `ReferenceError: tailwind is not defined`.
+- `views/layout.ejs` — Replaced `<style type="text/tailwindcss">` / `@apply` block with a plain `<style>` tag containing raw CSS. The `@apply bg-bg` pattern caused `CssSyntaxError: bg-bg class does not exist` because the Play CDN processed the style tag before the config script had run. Component classes (`.btn`, `.module`, `.section-label`, etc.) are now defined in plain CSS with no Tailwind dependency.
+
+---
+
 ## [2.4.0] - 2026-06-16
 
 ### Changed
