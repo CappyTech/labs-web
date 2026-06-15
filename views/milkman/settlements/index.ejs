@@ -6,11 +6,11 @@
     </header>
 
     <% if (settlements.length === 0) { %>
-      <p class="empty-state">No settlements yet.</p>
+      <p class="empty-state pb-16">No settlements yet.</p>
     <% } else { %>
       <% settlements.forEach(function(s) { %>
-      <div class="index-label"><%= s.cadence %> &nbsp;·&nbsp; <%= s.windowStartFormatted %> – <%= s.windowEndFormatted %></div>
-      <section class="grid" style="margin-bottom:1.5rem;">
+      <div class="section-label"><%= s.cadence %> &nbsp;·&nbsp; <%= s.windowStartFormatted %> – <%= s.windowEndFormatted %></div>
+      <section class="card-grid mb-6">
         <% s.balances.forEach(function(b) { %>
         <div class="module">
           <div class="callsign">[OWES]</div>
@@ -23,5 +23,6 @@
         <% } %>
       </section>
       <% }); %>
+      <div class="pb-16"></div>
     <% } %>
   </div>

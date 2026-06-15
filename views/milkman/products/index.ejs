@@ -5,31 +5,31 @@
       <p class="lede">Items ordered from the milkman.</p>
     </header>
 
-    <div class="index-label">Add product</div>
-    <form method="POST" action="/milkman/products" style="margin-bottom:2rem;">
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
-        <label>
-          Name<br>
-          <input type="text" name="name" required placeholder="e.g. Semi-skimmed milk" style="padding:.4rem .6rem;">
+    <div class="section-label">Add product</div>
+    <form method="POST" action="/milkman/products" class="mb-8">
+      <div class="flex gap-3 flex-wrap items-end">
+        <label class="flex flex-col gap-1">
+          Name
+          <input type="text" name="name" required placeholder="e.g. Semi-skimmed milk">
         </label>
-        <label>
-          Price (pence)<br>
-          <input type="number" name="priceP" required min="0" step="1" placeholder="e.g. 120" style="padding:.4rem .6rem;width:9rem;">
+        <label class="flex flex-col gap-1">
+          Price (pence)
+          <input type="number" name="priceP" required min="0" step="1" placeholder="e.g. 120" style="width:9rem;">
         </label>
-        <label>
-          Pints/bottle<br>
-          <input type="number" name="pintsPerBottle" min="0" step="0.5" placeholder="e.g. 4" style="padding:.4rem .6rem;width:8rem;">
+        <label class="flex flex-col gap-1">
+          Pints/bottle
+          <input type="number" name="pintsPerBottle" min="0" step="0.5" placeholder="e.g. 4" style="width:8rem;">
         </label>
-        <label>
-          Category<br>
-          <input type="text" name="category" placeholder="e.g. milk" style="padding:.4rem .6rem;">
+        <label class="flex flex-col gap-1">
+          Category
+          <input type="text" name="category" placeholder="e.g. milk">
         </label>
         <button type="submit" class="btn">Add</button>
       </div>
     </form>
 
-    <div class="index-label">All products</div>
-    <section class="grid">
+    <div class="section-label">All products</div>
+    <section class="card-grid pb-16">
       <% if (products.length === 0) { %>
         <p class="empty-state">No products yet.</p>
       <% } else { %>

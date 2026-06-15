@@ -1,7 +1,7 @@
   <div class="wrap">
     <header class="hero">
       <div class="eyebrow"><a href="/milkman/invoices">Invoices</a></div>
-      <h1>Invoice <span class="amp">[</span><%= invoice.number %><span class="amp">]</span></h1>
+      <h1>Invoice <span class="text-accent">[</span><%= invoice.number %><span class="text-accent">]</span></h1>
       <p class="lede">
         <%= invoice.total %> &nbsp;·&nbsp; <%= invoice.receiptDateFormatted %>
         &nbsp;·&nbsp; <span class="status-badge status-<%= invoice.status %>"><%= invoice.status %></span>
@@ -10,10 +10,10 @@
 
     <%# ── Delivery days ──────────────────────────────────────────────────── %>
     <% if (invoice.deliveryDays && invoice.deliveryDays.length > 0) { %>
-    <div class="index-label">Delivery days</div>
+    <div class="section-label">Delivery days</div>
     <% invoice.deliveryDays.forEach(function(day, dayIdx) { %>
-    <div class="module" style="display:block;margin-bottom:1.5rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+    <div class="module mb-6">
+      <div class="flex justify-between items-center flex-wrap gap-2">
         <div class="callsign"><%= day.dateFormatted %></div>
         <% if (invoice.status === 'pending') { %>
         <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/delete">
@@ -24,23 +24,23 @@
 
       <%# Line items %>
       <% if (day.lineItems && day.lineItems.length > 0) { %>
-      <table style="width:100%;border-collapse:collapse;margin-top:.75rem;">
+      <table class="mt-3">
         <thead>
           <tr>
-            <th style="text-align:left;padding:.25rem .5rem;">Product</th>
-            <th style="text-align:right;padding:.25rem .5rem;">Qty</th>
-            <th style="text-align:right;padding:.25rem .5rem;">Total</th>
+            <th>Product</th>
+            <th class="text-right">Qty</th>
+            <th class="text-right">Total</th>
             <% if (invoice.status === 'pending') { %><th></th><% } %>
           </tr>
         </thead>
         <tbody>
           <% day.lineItems.forEach(function(item, itemIdx) { %>
           <tr>
-            <td style="padding:.25rem .5rem;"><%= item.productName %></td>
-            <td style="text-align:right;padding:.25rem .5rem;"><%= item.qty %></td>
-            <td style="text-align:right;padding:.25rem .5rem;"><%= item.total %></td>
+            <td><%= item.productName %></td>
+            <td class="text-right"><%= item.qty %></td>
+            <td class="text-right"><%= item.total %></td>
             <% if (invoice.status === 'pending') { %>
-            <td style="padding:.25rem .5rem;">
+            <td class="text-right">
               <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/line-items/<%= itemIdx %>/delete">
                 <button type="submit" class="btn">×</button>
               </form>
@@ -54,11 +54,11 @@
 
       <%# Add line item form (pending only) %>
       <% if (invoice.status === 'pending') { %>
-      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/line-items" style="margin-top:.75rem;">
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;">
-          <label style="flex:1;min-width:10rem;">
+      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/line-items" class="mt-3">
+        <div class="flex gap-2 flex-wrap items-end">
+          <label class="flex-1 min-w-[10rem]">
             Product<br>
-            <select name="productId" required style="padding:.35rem .5rem;width:100%;">
+            <select name="productId" required class="w-full">
               <option value="">— select —</option>
               <% products.forEach(function(p) { %>
               <option value="<%= p._id %>"><%= p.name %></option>
@@ -67,11 +67,11 @@
           </label>
           <label>
             Qty<br>
-            <input type="number" name="qty" required step="0.5" min="0" placeholder="1" style="padding:.35rem .5rem;width:5rem;">
+            <input type="number" name="qty" required step="0.5" min="0" placeholder="1" style="width:5rem;">
           </label>
           <label>
             Total (p)<br>
-            <input type="number" name="totalP" required step="1" placeholder="120" style="padding:.35rem .5rem;width:7rem;">
+            <input type="number" name="totalP" required step="1" placeholder="120" style="width:7rem;">
           </label>
           <button type="submit" class="btn">Add item</button>
         </div>
@@ -80,10 +80,10 @@
 
       <%# Communal events %>
       <% if (day.communalEvents && day.communalEvents.length > 0) { %>
-      <div style="margin-top:.75rem;">
-        <strong>Communal events</strong>
+      <div class="mt-3">
+        <strong class="font-mono text-xs tracking-wide uppercase text-muted">Communal events</strong>
         <% day.communalEvents.forEach(function(evt, evtIdx) { %>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.25rem;">
+        <div class="flex justify-between items-center gap-2 mt-1">
           <span class="desc"><%= evt.productName %> &times; <%= evt.units %> units — <%= evt.participantNames.join(', ') %></span>
           <% if (invoice.status === 'pending') { %>
           <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/communal-events/<%= evtIdx %>/delete">
@@ -97,12 +97,12 @@
 
       <%# Add communal event form (pending only) %>
       <% if (invoice.status === 'pending') { %>
-      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/communal-events" style="margin-top:.75rem;">
-        <div style="display:flex;flex-direction:column;gap:.5rem;">
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;">
-            <label style="flex:1;min-width:10rem;">
+      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days/<%= dayIdx %>/communal-events" class="mt-3">
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-2 flex-wrap items-end">
+            <label class="flex-1 min-w-[10rem]">
               Product<br>
-              <select name="productId" required style="padding:.35rem .5rem;width:100%;">
+              <select name="productId" required class="w-full">
                 <option value="">— select —</option>
                 <% products.forEach(function(p) { %>
                 <option value="<%= p._id %>"><%= p.name %></option>
@@ -111,14 +111,14 @@
             </label>
             <label>
               Units<br>
-              <input type="number" name="units" required min="1" step="1" placeholder="2" style="padding:.35rem .5rem;width:5rem;">
+              <input type="number" name="units" required min="1" step="1" placeholder="2" style="width:5rem;">
             </label>
           </div>
-          <fieldset style="border:none;padding:0;margin:0;">
-            <legend style="font-size:.85em;margin-bottom:.25rem;">Participants</legend>
-            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <fieldset class="border-0 p-0 m-0">
+            <legend class="text-[.85em] mb-1">Participants</legend>
+            <div class="flex gap-3 flex-wrap">
               <% members.forEach(function(m) { %>
-              <label style="display:flex;align-items:center;gap:.3rem;">
+              <label class="flex items-center gap-1.5 cursor-pointer">
                 <input type="checkbox" name="participants" value="<%= m._id %>"> <%= m.name %>
               </label>
               <% }); %>
@@ -134,12 +134,12 @@
 
     <%# ── Add delivery day (pending only) ───────────────────────────────── %>
     <% if (invoice.status === 'pending') { %>
-    <div class="index-label">Add delivery day</div>
-    <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days" style="margin-bottom:2rem;">
-      <div style="display:flex;gap:.75rem;align-items:flex-end;">
+    <div class="section-label">Add delivery day</div>
+    <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delivery-days" class="mb-8">
+      <div class="flex gap-3 items-end">
         <label>
           Date<br>
-          <input type="date" name="date" required style="padding:.4rem .6rem;">
+          <input type="date" name="date" required>
         </label>
         <button type="submit" class="btn">Add day</button>
       </div>
@@ -148,10 +148,10 @@
 
     <%# ── Adjustments ────────────────────────────────────────────────────── %>
     <% if ((invoice.adjustments && invoice.adjustments.length > 0) || invoice.status === 'pending') { %>
-    <div class="index-label">Adjustments</div>
+    <div class="section-label">Adjustments</div>
     <% } %>
     <% if (invoice.adjustments && invoice.adjustments.length > 0) { %>
-    <section class="grid" style="margin-bottom:1rem;">
+    <section class="card-grid mb-4">
       <% invoice.adjustments.forEach(function(adj, adjIdx) { %>
       <div class="module">
         <div class="callsign"><%= adj.isCredit ? '[CREDIT]' : '[CHARGE]' %></div>
@@ -171,12 +171,12 @@
     <% } %>
 
     <% if (invoice.status === 'pending') { %>
-    <form method="POST" action="/milkman/invoices/<%= invoice.id %>/adjustments" style="margin-bottom:2rem;max-width:40rem;">
-      <div style="display:flex;flex-direction:column;gap:.75rem;">
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;">
-          <label style="flex:1;min-width:10rem;">
+    <form method="POST" action="/milkman/invoices/<%= invoice.id %>/adjustments" class="mb-8 max-w-[40rem]">
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-2 flex-wrap items-end">
+          <label class="flex-1 min-w-[10rem]">
             Member<br>
-            <select name="memberId" required style="padding:.35rem .5rem;width:100%;">
+            <select name="memberId" required class="w-full">
               <option value="">— select —</option>
               <% members.forEach(function(m) { %>
               <option value="<%= m._id %>"><%= m.name %></option>
@@ -185,17 +185,17 @@
           </label>
           <label>
             Amount (pence, negative for credit)<br>
-            <input type="number" name="amountP" required step="1" placeholder="-50" style="padding:.35rem .5rem;width:9rem;">
+            <input type="number" name="amountP" required step="1" placeholder="-50" style="width:9rem;">
           </label>
           <label>
             Date<br>
-            <input type="date" name="date" required style="padding:.35rem .5rem;">
+            <input type="date" name="date" required>
           </label>
         </div>
-        <div style="display:flex;gap:.5rem;align-items:flex-end;">
-          <label style="flex:1;">
+        <div class="flex gap-2 items-end">
+          <label class="flex-1">
             Description (optional)<br>
-            <input type="text" name="description" placeholder="e.g. Backdated credit from last week" style="padding:.35rem .5rem;width:100%;">
+            <input type="text" name="description" placeholder="e.g. Backdated credit from last week" class="w-full">
           </label>
           <button type="submit" class="btn">Add adjustment</button>
         </div>
@@ -205,8 +205,8 @@
 
     <%# ── Split result ────────────────────────────────────────────────────── %>
     <% if (settlement) { %>
-    <div class="index-label">Split result</div>
-    <section class="grid" style="margin-bottom:2rem;">
+    <div class="section-label">Split result</div>
+    <section class="card-grid mb-8">
       <% settlement.balances.forEach(function(b) { %>
       <div class="module">
         <div class="callsign">[OWES]</div>
@@ -218,8 +218,8 @@
     <% } %>
 
     <%# ── Actions ─────────────────────────────────────────────────────────── %>
-    <div class="index-label">Actions</div>
-    <section style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;">
+    <div class="section-label">Actions</div>
+    <section class="flex gap-3 flex-wrap mb-16">
       <% if (invoice.status === 'pending') { %>
       <form method="POST" action="/milkman/invoices/<%= invoice.id %>/split">
         <button type="submit" class="btn">Compute split</button>

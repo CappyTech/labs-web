@@ -5,22 +5,22 @@
       <p class="lede">People in the milk round.</p>
     </header>
 
-    <div class="index-label">Add member</div>
-    <form method="POST" action="/milkman/members" style="margin-bottom:2rem;">
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
-        <label>
-          Name<br>
-          <input type="text" name="name" required placeholder="e.g. Alice" style="padding:.4rem .6rem;">
+    <div class="section-label">Add member</div>
+    <form method="POST" action="/milkman/members" class="mb-8">
+      <div class="flex gap-3 flex-wrap items-end">
+        <label class="flex flex-col gap-1">
+          Name
+          <input type="text" name="name" required placeholder="e.g. Alice">
         </label>
-        <label style="display:flex;align-items:center;gap:.4rem;padding-bottom:.4rem;">
+        <label class="flex items-center gap-2 cursor-pointer pb-[6px]">
           <input type="checkbox" name="isBuyer"> Account holder
         </label>
         <button type="submit" class="btn">Add</button>
       </div>
     </form>
 
-    <div class="index-label">All members</div>
-    <section class="grid">
+    <div class="section-label">All members</div>
+    <section class="card-grid pb-16">
       <% if (members.length === 0) { %>
         <p class="empty-state">No members yet.</p>
       <% } else { %>

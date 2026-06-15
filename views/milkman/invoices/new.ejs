@@ -5,26 +5,26 @@
       <p class="lede">Enter the invoice header. Add delivery days and line items after saving.</p>
     </header>
 
-    <form method="POST" action="/milkman/invoices" style="max-width:28rem;">
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <label>
-          Invoice number<br>
-          <input type="text" name="number" required placeholder="e.g. 39875277" style="padding:.4rem .6rem;width:100%;">
+    <form method="POST" action="/milkman/invoices" class="max-w-sm">
+      <div class="flex flex-col gap-4 pb-16">
+        <label class="flex flex-col gap-1">
+          Invoice number
+          <input type="text" name="number" required placeholder="e.g. 39875277">
         </label>
-        <label>
-          Receipt date<br>
-          <input type="date" name="receiptDate" required style="padding:.4rem .6rem;width:100%;">
+        <label class="flex flex-col gap-1">
+          Receipt date
+          <input type="date" name="receiptDate" required>
         </label>
-        <label>
-          Transaction ID (optional)<br>
-          <input type="text" name="transactionId" placeholder="e.g. TXN-001" style="padding:.4rem .6rem;width:100%;">
+        <label class="flex flex-col gap-1">
+          Transaction ID (optional)
+          <input type="text" name="transactionId" placeholder="e.g. TXN-001">
         </label>
-        <label>
-          Invoice total (pence)<br>
-          <input type="number" name="totalP" required min="0" step="1" placeholder="e.g. 1250" style="padding:.4rem .6rem;width:100%;">
-          <small style="opacity:.7;">Enter the grand total as shown on the invoice in pence (e.g. £12.50 → 1250).</small>
+        <label class="flex flex-col gap-1">
+          Invoice total (pence)
+          <input type="number" name="totalP" required min="0" step="1" placeholder="e.g. 1250">
+          <small class="text-muted font-mono text-[11px]">Enter the grand total as shown on the invoice in pence (e.g. £12.50 → 1250).</small>
         </label>
-        <div style="display:flex;gap:.75rem;">
+        <div class="flex gap-3">
           <button type="submit" class="btn">Create invoice</button>
           <a href="/milkman/invoices" class="btn">Cancel</a>
         </div>

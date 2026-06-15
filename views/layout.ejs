@@ -8,36 +8,137 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/resources/css/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0e1a1f',
+            surface: { DEFAULT: '#14252c', 2: '#193037' },
+            ink: '#dde9e7',
+            muted: '#6f8d90',
+            hairline: 'rgba(255,255,255,0.08)',
+            accent: '#e8a13c',
+            signal: '#5fb8c4',
+            settled: '#7ecb7e',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+          },
+          animation: { led: 'led 2.6s ease-in-out infinite' },
+          keyframes: {
+            led: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.35' } },
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style type="text/tailwindcss">
+    @layer base {
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        @apply bg-bg text-ink font-display leading-normal min-h-screen;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+          radial-gradient(ellipse at 50% -10%, rgba(95,184,196,0.06), transparent 60%);
+        background-size: 48px 48px, 48px 48px, 100% 100%;
+      }
+      h1 {
+        @apply font-bold tracking-tight;
+        font-size: clamp(44px, 9vw, 88px);
+        line-height: 0.96;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="date"],
+      textarea,
+      select {
+        @apply bg-bg border border-hairline text-ink rounded px-2.5 py-1.5 text-sm font-mono;
+      }
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      input[type="date"]:focus,
+      textarea:focus,
+      select:focus { outline: none; border-color: rgba(95,184,196,0.5); }
+      input[type="checkbox"] { @apply accent-signal w-4 h-4 cursor-pointer; }
+      table { @apply w-full border-collapse; }
+      th { @apply text-left py-1 px-2 text-xs opacity-60 font-mono uppercase tracking-wide; }
+      td { @apply py-1 px-2 text-sm; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+      }
+    }
+    @layer components {
+      .wrap { @apply max-w-[920px] mx-auto px-6; }
+      .btn {
+        @apply inline-flex items-center gap-1.5 px-3 py-[6px] text-[11px] font-mono tracking-[0.06em] uppercase
+               bg-surface-2 border border-hairline text-ink rounded no-underline cursor-pointer
+               transition-colors duration-150 hover:border-accent hover:text-accent;
+      }
+      .module {
+        @apply relative block no-underline text-ink bg-surface border border-hairline rounded-[10px] p-5
+               transition-all duration-[180ms] ease-out hover:-translate-y-[3px]
+               hover:border-accent hover:bg-surface-2
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+      }
+      .module .callsign { @apply font-mono text-[11px] tracking-[0.12em] text-signal; }
+      .module .name { @apply mt-[10px] text-[21px] font-medium tracking-[-0.01em]; }
+      .module .desc { @apply mt-1.5 text-sm text-muted; }
+      .module .host { @apply mt-4 flex items-center gap-2 font-mono text-xs text-muted; }
+      .module .arrow { @apply ml-auto text-accent transition-transform duration-[180ms]; }
+      .module:hover .arrow { transform: translateX(3px); }
+      .card-grid {
+        @apply grid gap-[14px];
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+      .hero { @apply pt-[76px] pb-10; }
+      .eyebrow { @apply font-mono text-xs tracking-[0.32em] uppercase text-accent mb-[18px]; }
+      .eyebrow a { @apply text-accent no-underline hover:opacity-75; }
+      .lede { @apply mt-5 max-w-[46ch] text-muted; font-size: 17px; }
+      .section-label {
+        @apply flex items-baseline gap-[14px] font-mono text-xs tracking-[0.18em] uppercase text-muted mt-10 mb-4;
+      }
+      .section-label::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+      .status-badge {
+        @apply font-mono text-[11px] tracking-[0.08em] uppercase px-[7px] py-0.5 rounded bg-surface-2 text-muted;
+      }
+      .status-badge.status-pending { @apply text-accent; }
+      .status-badge.status-computed { @apply text-signal; }
+      .status-badge.status-settled { @apply text-settled; }
+      .empty-state { @apply text-muted font-mono text-[13px]; }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="rail">
-    <div class="wrap">
-      <span class="led" aria-hidden="true"></span>
+  <div class="sticky top-0 z-10 border-b border-hairline bg-bg/60 backdrop-blur-sm">
+    <div class="wrap flex items-center gap-3 h-11 font-mono text-xs tracking-[0.04em] text-muted">
+      <span class="w-2 h-2 rounded-full bg-signal shadow-[0_0_8px_#5fb8c4] animate-led" aria-hidden="true"></span>
       <span>STATION&nbsp;CAPPYLABS.UK</span>
-      <span class="sep" aria-hidden="true">·</span>
+      <span class="opacity-40" aria-hidden="true">·</span>
       <span>NODE ONLINE</span>
-      <span class="clock" id="clock">--:--:--</span>
+      <span class="ml-auto text-ink" id="clock">--:--:--</span>
     </div>
   </div>
 
   <%- body %>
 
   <div class="wrap">
-    <footer>
+    <footer class="border-t border-hairline pt-5 pb-10 mt-16 font-mono text-xs text-muted flex gap-2.5 flex-wrap">
       <span>cappylabs.uk</span>
-      <span class="sep">·</span>
+      <span class="opacity-40">·</span>
       <span>built &amp; broken by cappy</span>
-      <span class="sep">·</span>
+      <span class="opacity-40">·</span>
       <span id="year"></span>
-      <span class="sep">·</span>
+      <span class="opacity-40">·</span>
       <span>v<%= appVersion %></span>
     </footer>
   </div>
 
   <script>
-    // Station clock (UK time)
     const clock = document.getElementById('clock');
     function tick() {
       clock.textContent = new Date().toLocaleTimeString('en-GB', { timeZone: 'Europe/London' });

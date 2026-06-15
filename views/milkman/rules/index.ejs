@@ -5,58 +5,58 @@
       <p class="lede">Define who pays for each product.</p>
     </header>
 
-    <div class="index-label">Add rule</div>
-    <form method="POST" action="/milkman/rules" style="margin-bottom:2rem;max-width:40rem;">
-      <div style="display:flex;flex-direction:column;gap:.75rem;">
-        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
-          <label>
-            Product<br>
-            <select name="productId" required style="padding:.4rem .6rem;">
+    <div class="section-label">Add rule</div>
+    <form method="POST" action="/milkman/rules" class="mb-8 max-w-[40rem]">
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-3 flex-wrap items-end">
+          <label class="flex flex-col gap-1">
+            Product
+            <select name="productId" required>
               <option value="">— select —</option>
               <% products.forEach(function(p) { %>
               <option value="<%= p._id %>"><%= p.name %></option>
               <% }); %>
             </select>
           </label>
-          <label>
-            Member<br>
-            <select name="memberId" required style="padding:.4rem .6rem;">
+          <label class="flex flex-col gap-1">
+            Member
+            <select name="memberId" required>
               <option value="">— select —</option>
               <% members.forEach(function(m) { %>
               <option value="<%= m._id %>"><%= m.name %></option>
               <% }); %>
             </select>
           </label>
-          <label>
-            Type<br>
-            <select name="type" required style="padding:.4rem .6rem;">
+          <label class="flex flex-col gap-1">
+            Type
+            <select name="type" required>
               <option value="WHOLE">WHOLE — full line to this member</option>
               <option value="FRACTION">FRACTION — share of line</option>
               <option value="FIXED">FIXED — fixed quantity</option>
             </select>
           </label>
         </div>
-        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
-          <label>
-            Fraction (FRACTION type only, 0–1)<br>
-            <input type="number" name="fraction" min="0" max="1" step="0.01" placeholder="e.g. 0.5" style="padding:.4rem .6rem;width:10rem;">
+        <div class="flex gap-3 flex-wrap items-end">
+          <label class="flex flex-col gap-1">
+            Fraction (FRACTION only, 0–1)
+            <input type="number" name="fraction" min="0" max="1" step="0.01" placeholder="e.g. 0.5" style="width:10rem;">
           </label>
-          <label>
-            Fixed qty (FIXED type only)<br>
-            <input type="number" name="fixedQty" min="0" step="0.5" placeholder="e.g. 2" style="padding:.4rem .6rem;width:10rem;">
+          <label class="flex flex-col gap-1">
+            Fixed qty (FIXED only)
+            <input type="number" name="fixedQty" min="0" step="0.5" placeholder="e.g. 2" style="width:10rem;">
           </label>
           <button type="submit" class="btn">Add rule</button>
         </div>
       </div>
     </form>
 
-    <div class="index-label">Current rules</div>
+    <div class="section-label">Current rules</div>
     <% if (groupedRules.length === 0) { %>
-      <p class="empty-state">No rules yet.</p>
+      <p class="empty-state pb-16">No rules yet.</p>
     <% } else { %>
       <% groupedRules.forEach(function(group) { %>
-      <div class="index-label" style="font-size:.8em;opacity:.7;"><%= group.name %></div>
-      <section class="grid" style="margin-bottom:1rem;">
+      <div class="section-label" style="font-size:.75em;opacity:.6;"><%= group.name %></div>
+      <section class="card-grid mb-4">
         <% group.rules.forEach(function(rule) { %>
         <div class="module">
           <div class="callsign">[<%= rule.type %>]</div>
@@ -67,7 +67,7 @@
           <div class="desc">qty: <%= rule.fixedQty %></div>
           <% } %>
           <div class="host">
-            <form method="POST" action="/milkman/rules/<%= rule._id %>/delete" style="display:inline;">
+            <form method="POST" action="/milkman/rules/<%= rule._id %>/delete" class="inline">
               <button type="submit" class="btn">Remove</button>
             </form>
           </div>
@@ -75,5 +75,6 @@
         <% }); %>
       </section>
       <% }); %>
+      <div class="pb-16"></div>
     <% } %>
   </div>

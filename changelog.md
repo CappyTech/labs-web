@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.4.0] - 2026-06-16
+
+### Changed
+- Migrated all styling from custom CSS (`resources/css/style.css`) to **Tailwind CSS Play CDN** via a `<script>` tag in `views/layout.ejs`. No build step required.
+- Custom design tokens (dark-mode palette, Space Grotesk / IBM Plex Mono fonts, LED animation, grid-line background) are preserved through a `tailwind.config` block extending the theme with named tokens (`bg`, `surface`, `ink`, `muted`, `accent`, `signal`, `settled`, `hairline`).
+- All EJS views converted to Tailwind utility classes. Shared patterns (`.btn`, `.module`, `.card-grid`, `.section-label`, `.status-badge`, `.empty-state`, `.hero`, `.eyebrow`, `.lede`, `.wrap`) defined in `@layer components` via `@apply`; input/table base styles defined in `@layer base`.
+- `resources/css/style.css` is now empty (stub kept so the static route doesn't 404 on stale caches).
+
+---
+
 ## [2.3.1] - 2026-06-16
 
 ### Changed

@@ -5,19 +5,19 @@
       <p class="lede"><%= member.name %></p>
     </header>
 
-    <form method="POST" action="/milkman/members/<%= member._id %>" style="max-width:28rem;">
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <label>
-          Name<br>
-          <input type="text" name="name" value="<%= member.name %>" required style="padding:.4rem .6rem;width:100%;">
+    <form method="POST" action="/milkman/members/<%= member._id %>" class="max-w-sm">
+      <div class="flex flex-col gap-4 pb-16">
+        <label class="flex flex-col gap-1">
+          Name
+          <input type="text" name="name" value="<%= member.name %>" required>
         </label>
-        <label style="display:flex;align-items:center;gap:.5rem;">
+        <label class="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" name="isBuyer" <%= member.isBuyer ? 'checked' : '' %>> Account holder
         </label>
-        <label style="display:flex;align-items:center;gap:.5rem;">
+        <label class="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" name="active" <%= member.active ? 'checked' : '' %>> Active
         </label>
-        <div style="display:flex;gap:.75rem;">
+        <div class="flex gap-3">
           <button type="submit" class="btn">Save</button>
           <a href="/milkman/members" class="btn">Cancel</a>
         </div>

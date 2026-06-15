@@ -6,15 +6,15 @@
     </header>
 
     <form method="POST" action="/milkman/invoices/parse">
-      <div style="display:flex;flex-direction:column;gap:1rem;max-width:56rem;">
-        <label>
-          Invoice text<br>
+      <div class="flex flex-col gap-4 max-w-[56rem]">
+        <label class="flex flex-col gap-1">
+          Invoice text
           <textarea
             name="rawText"
             rows="24"
             required
             placeholder="Invoice #: 39875277&#10;Receipt date: 12/06/2026&#10;Paid&#10;Tuesday, 9 June 2026&#10;Item&#9;Qty&#9;Total&#10;..."
-            style="width:100%;padding:.5rem .6rem;font-family:monospace;font-size:.85em;resize:vertical;"
+            class="w-full resize-y"
           ></textarea>
         </label>
         <div>
@@ -23,8 +23,8 @@
       </div>
     </form>
 
-    <div class="index-label" style="margin-top:2rem;">How to copy</div>
-    <div class="module" style="display:block;max-width:56rem;">
+    <div class="section-label mt-8">How to copy</div>
+    <div class="module max-w-[56rem] pb-16">
       <div class="desc">
         1. Open your invoice on the milkman website.<br>
         2. Select all the text on the page (Ctrl+A / Cmd+A).<br>

@@ -1,12 +1,12 @@
   <div class="wrap">
     <header class="hero">
       <div class="eyebrow">Milk-round bill splitter</div>
-      <h1>Milk<span class="amp">·</span>Man</h1>
+      <h1>Milk<span class="text-accent">·</span>Man</h1>
       <p class="lede">Track invoices, allocation rules, and per-member splits for the milk round.</p>
     </header>
 
-    <div class="index-label">Manage</div>
-    <section class="grid" style="margin-bottom:2rem;">
+    <div class="section-label">Manage</div>
+    <section class="card-grid mb-8">
       <a href="/milkman/invoices" class="module">
         <div class="callsign">[NAV]</div>
         <div class="name">Invoices</div>
@@ -34,8 +34,8 @@
       </a>
     </section>
 
-    <div class="index-label">Recent invoices</div>
-    <section class="grid">
+    <div class="section-label">Recent invoices</div>
+    <section class="card-grid mb-8">
       <% if (recentInvoices.length === 0) { %>
         <p class="empty-state">No invoices yet.</p>
       <% } else { %>
@@ -52,8 +52,8 @@
       <% } %>
     </section>
 
-    <div class="index-label">Members</div>
-    <section class="grid">
+    <div class="section-label">Members</div>
+    <section class="card-grid pb-16">
       <% if (members.length === 0) { %>
         <p class="empty-state">No members yet.</p>
       <% } else { %>

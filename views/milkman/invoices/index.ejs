@@ -5,12 +5,12 @@
       <p class="lede">All milk-round invoices.</p>
     </header>
 
-    <div style="display:flex;gap:.75rem;margin-bottom:1.5rem;">
+    <div class="flex gap-3 mb-6">
       <a href="/milkman/invoices/new" class="btn">New invoice</a>
       <a href="/milkman/invoices/parse" class="btn">Paste invoice</a>
     </div>
 
-    <section class="grid">
+    <section class="card-grid pb-16">
       <% if (invoices.length === 0) { %>
         <p class="empty-state">No invoices yet.</p>
       <% } else { %>

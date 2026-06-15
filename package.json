@@ -1,6 +1,6 @@
 {
   "name": "labs-web",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "cappylabs.uk — a home for small experiments and self-hosted projects.",
   "main": "app.js",
   "scripts": {
