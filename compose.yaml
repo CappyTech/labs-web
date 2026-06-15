@@ -10,6 +10,16 @@ services:
         condition: service_healthy
     # No ports published — only cl-caddy reaches it, over the edge network.
 
+  mongo-express:
+    image: mongo-express:latest
+    container_name: labs-mongo-express
+    restart: unless-stopped
+    env_file: .compose.env
+    networks: [ edge ]
+    depends_on:
+      mongo:
+        condition: service_healthy
+
   mongo:
     image: mongo:8.0
     container_name: labs-mongo
