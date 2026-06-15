@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2026-06-15
+
+### Added
+- `services/invoiceParser.js` — pure parser for copy-pasted milkman invoice text. Extracts invoice number, receipt date, transaction ID, grand total (pence), and per-delivery-day line items. Handles negative lines ("Adjustment …" prefix), fee rows without a qty column (e.g. "Weekly Delivery Fee"), and skips zero-value fee rows.
+- `GET /milkman/invoices/parse` — textarea form for pasting raw invoice text.
+- `POST /milkman/invoices/parse` — parses the text server-side, attempts case-insensitive name matching against existing products, and renders a review page.
+- `POST /milkman/invoices/confirm` — accepts the reviewed form and creates the invoice with all delivery days and line items in a single step.
+- Review page (`views/milkman/invoices/preview.ejs`) — shows parsed header fields (editable), a table per delivery day with product dropdowns pre-selected on name matches, editable qty/pence fields, and a per-item skip checkbox. Unmatched products are flagged with a warning. A `<details>` element lets the user re-paste and re-parse without losing context.
+- "Paste invoice" button added to the invoice list page alongside "New invoice".
+
 ## [2.2.0] - 2026-06-15
 
 ### Added

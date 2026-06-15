@@ -1,0 +1,36 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman/invoices">Invoices</a></div>
+      <h1>Paste invoice</h1>
+      <p class="lede">Copy the invoice page from the milkman website and paste it below.</p>
+    </header>
+
+    <form method="POST" action="/milkman/invoices/parse">
+      <div style="display:flex;flex-direction:column;gap:1rem;max-width:56rem;">
+        <label>
+          Invoice text<br>
+          <textarea
+            name="rawText"
+            rows="24"
+            required
+            placeholder="Invoice #: 39875277&#10;Receipt date: 12/06/2026&#10;Paid&#10;Tuesday, 9 June 2026&#10;Item&#9;Qty&#9;Total&#10;..."
+            style="width:100%;padding:.5rem .6rem;font-family:monospace;font-size:.85em;resize:vertical;"
+          ></textarea>
+        </label>
+        <div>
+          <button type="submit" class="btn">Parse invoice</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="index-label" style="margin-top:2rem;">How to copy</div>
+    <div class="module" style="display:block;max-width:56rem;">
+      <div class="desc">
+        1. Open your invoice on the milkman website.<br>
+        2. Select all the text on the page (Ctrl+A / Cmd+A).<br>
+        3. Copy (Ctrl+C / Cmd+C).<br>
+        4. Paste into the box above.<br>
+        5. Hit <strong>Parse invoice</strong> — you'll get a chance to review and correct product matches before anything is saved.
+      </div>
+    </div>
+  </div>

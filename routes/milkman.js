@@ -16,10 +16,13 @@ const router = Router();
 router.get('/', milkmanController.index);
 
 // ── Invoices ───────────────────────────────────────────────────────────────
-// /new must be declared before /:id to prevent "new" matching as an id.
+// Static paths (/new, /parse, /confirm) must come before /:id.
 router.get('/invoices',              milkmanInvoicesController.list);
 router.get('/invoices/new',          milkmanInvoicesController.newForm);
 router.post('/invoices',             milkmanInvoicesController.create);
+router.get('/invoices/parse',        milkmanInvoicesController.parseForm);
+router.post('/invoices/parse',       milkmanInvoicesController.parsePreview);
+router.post('/invoices/confirm',     milkmanInvoicesController.confirmParse);
 
 // Single invoice detail + status actions.
 router.get('/invoices/:id',          milkmanInvoiceController.show);

@@ -1,0 +1,127 @@
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow"><a href="/milkman/invoices/parse">Parse</a></div>
+      <h1>Review parsed invoice</h1>
+      <p class="lede">Check product and member assignments, then create the invoice.</p>
+    </header>
+
+    <form method="POST" action="/milkman/invoices/confirm">
+
+      <%# ── Invoice header ─────────────────────────────────────────────── %>
+      <div class="index-label">Invoice header</div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:2rem;">
+        <label>
+          Invoice number<br>
+          <input type="text" name="number" value="<%= parsed.number || '' %>" required style="padding:.4rem .6rem;">
+        </label>
+        <label>
+          Receipt date<br>
+          <input type="date" name="receiptDate" value="<%= receiptDateInput %>" required style="padding:.4rem .6rem;">
+        </label>
+        <label>
+          Transaction ID<br>
+          <input type="text" name="transactionId" value="<%= parsed.transactionId || '' %>" style="padding:.4rem .6rem;">
+        </label>
+        <label>
+          Total (pence)<br>
+          <input type="number" name="totalP" value="<%= parsed.totalP != null ? parsed.totalP : '' %>" required step="1" style="padding:.4rem .6rem;width:9rem;">
+        </label>
+      </div>
+
+      <%# ── Delivery days ───────────────────────────────────────────────── %>
+      <input type="hidden" name="dayCount" value="<%= previewDays.length %>">
+
+      <% previewDays.forEach(function(day, d) { %>
+      <input type="hidden" name="day_<%= d %>_itemCount" value="<%= day.lineItems.length %>">
+
+      <div class="index-label">
+        Day <%= d + 1 %> &nbsp;·&nbsp;
+        <input type="date" name="day_<%= d %>_date" value="<%= day.dateInput %>" required style="padding:.2rem .4rem;font-size:inherit;">
+      </div>
+
+      <% if (day.lineItems.length === 0) { %>
+        <p class="empty-state" style="margin-bottom:1rem;">No line items parsed for this day.</p>
+      <% } else { %>
+      <div style="overflow-x:auto;margin-bottom:1.5rem;">
+        <table style="width:100%;border-collapse:collapse;min-width:52rem;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:.3rem .5rem;font-size:.8em;opacity:.7;">Parsed name</th>
+              <th style="text-align:left;padding:.3rem .5rem;font-size:.8em;opacity:.7;">Product</th>
+              <th style="text-align:left;padding:.3rem .5rem;font-size:.8em;opacity:.7;">Member</th>
+              <th style="text-align:right;padding:.3rem .5rem;font-size:.8em;opacity:.7;">Qty</th>
+              <th style="text-align:right;padding:.3rem .5rem;font-size:.8em;opacity:.7;">Total (p)</th>
+              <th style="text-align:center;padding:.3rem .5rem;font-size:.8em;opacity:.7;">Skip</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% day.lineItems.forEach(function(item, i) { %>
+            <tr>
+              <td style="padding:.3rem .5rem;font-size:.85em;max-width:14rem;word-break:break-word;">
+                <% if (item.isAdjustment) { %>
+                  <span class="status-badge status-pending" style="font-size:.7em;">ADJ</span>&nbsp;
+                <% } %>
+                <%= item.name %>
+                <% if (!item.matchedId) { %>
+                  <br><span style="color:#c0392b;font-size:.75em;">&#9888; no product match</span>
+                <% } %>
+              </td>
+              <td style="padding:.3rem .5rem;">
+                <select name="day_<%= d %>_item_<%= i %>_productId" style="padding:.3rem .4rem;width:100%;min-width:12rem;">
+                  <option value="">— skip —</option>
+                  <% products.forEach(function(p) { %>
+                  <option value="<%= p._id %>" <%= item.matchedId === String(p._id) ? 'selected' : '' %>>
+                    <%= p.name %><% if (!p.active) { %> (inactive)<% } %>
+                  </option>
+                  <% }); %>
+                </select>
+              </td>
+              <td style="padding:.3rem .5rem;">
+                <select name="day_<%= d %>_item_<%= i %>_memberId" style="padding:.3rem .4rem;width:100%;min-width:9rem;">
+                  <option value="">— no rule —</option>
+                  <% members.forEach(function(m) { %>
+                  <option value="<%= m._id %>" <%= item.preMatchedMemberId === String(m._id) ? 'selected' : '' %>>
+                    <%= m.name %>
+                  </option>
+                  <% }); %>
+                </select>
+              </td>
+              <td style="padding:.3rem .5rem;text-align:right;">
+                <input type="number" name="day_<%= d %>_item_<%= i %>_qty" value="<%= item.qty %>" step="0.5" required style="padding:.3rem .4rem;width:5rem;text-align:right;">
+              </td>
+              <td style="padding:.3rem .5rem;text-align:right;">
+                <input type="number" name="day_<%= d %>_item_<%= i %>_totalP" value="<%= item.totalP %>" step="1" required style="padding:.3rem .4rem;width:7rem;text-align:right;">
+              </td>
+              <td style="padding:.3rem .5rem;text-align:center;">
+                <input type="checkbox" name="day_<%= d %>_item_<%= i %>_skip">
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+      <% }); %>
+
+      <% if (previewDays.length === 0) { %>
+        <p class="empty-state">No delivery days could be parsed from the text.</p>
+      <% } %>
+
+      <%# ── Actions ─────────────────────────────────────────────────────── %>
+      <div style="display:flex;gap:1rem;margin-top:1rem;margin-bottom:2rem;">
+        <button type="submit" class="btn">Create invoice</button>
+        <a href="/milkman/invoices/parse" class="btn">Back — re-paste</a>
+      </div>
+
+    </form>
+
+    <%# Re-paste without losing context %>
+    <details style="margin-bottom:2rem;">
+      <summary style="cursor:pointer;opacity:.7;font-size:.9em;">Edit raw text and re-parse</summary>
+      <form method="POST" action="/milkman/invoices/parse" style="margin-top:.75rem;">
+        <textarea name="rawText" rows="12" style="width:100%;padding:.5rem;font-family:monospace;font-size:.8em;resize:vertical;"><%= rawText %></textarea>
+        <br>
+        <button type="submit" class="btn" style="margin-top:.5rem;">Re-parse</button>
+      </form>
+    </details>
+  </div>

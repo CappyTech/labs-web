@@ -1,8 +1,10 @@
 'use strict';
 
-const InvoiceService = require('../services/InvoiceService');
-const ProductService = require('../services/ProductService');
-const MemberService  = require('../services/MemberService');
+const InvoiceService  = require('../services/InvoiceService');
+const ProductService  = require('../services/ProductService');
+const MemberService   = require('../services/MemberService');
+const InvoiceParser   = require('../services/invoiceParser');
+const AllocationRule  = require('../models/AllocationRule');
 const { formatMoney } = require('./dto');
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -190,8 +192,133 @@ async function removeAdjustment(req, res, next) {
   } catch (err) { next(err); }
 }
 
+// ── Invoice paste-and-parse ────────────────────────────────────────────────
+
+async function parseForm(req, res, next) {
+  try {
+    res.render('milkman/invoices/parse', {
+      title:       'Paste invoice',
+      description: 'Paste a milkman invoice to import it.',
+    });
+  } catch (err) { next(err); }
+}
+
+async function parsePreview(req, res, next) {
+  try {
+    const rawText = req.body.rawText || '';
+    const parsed  = InvoiceParser.parse(rawText);
+
+    const [products, members] = await Promise.all([
+      ProductService.getAllProducts(),
+      MemberService.getActiveMembers(),
+    ]);
+
+    // Match each line item to a known product by case-insensitive name.
+    const productsByLower = new Map(
+      products.map(p => [p.name.toLowerCase().trim(), String(p._id)])
+    );
+
+    const previewDays = parsed.deliveryDays.map(day => ({
+      dateInput: day.date ? day.date.toISOString().slice(0, 10) : '',
+      lineItems: day.lineItems.map(item => ({
+        ...item,
+        matchedId: productsByLower.get(item.baseName.toLowerCase().trim()) || null,
+      })),
+    }));
+
+    // Pre-select members from existing WHOLE/FIXED rules for matched products.
+    const matchedProductIds = [
+      ...new Set(previewDays.flatMap(d => d.lineItems.map(i => i.matchedId).filter(Boolean))),
+    ];
+    const existingRules = matchedProductIds.length > 0
+      ? await AllocationRule.find({
+          product: { $in: matchedProductIds },
+          type:    { $in: ['WHOLE', 'FIXED'] },
+        }).lean()
+      : [];
+    const ruleByProduct = new Map(existingRules.map(r => [String(r.product), String(r.member)]));
+
+    // Attach pre-matched member ID to each line item.
+    for (const day of previewDays) {
+      for (const item of day.lineItems) {
+        item.preMatchedMemberId = item.matchedId ? (ruleByProduct.get(item.matchedId) || null) : null;
+      }
+    }
+
+    res.render('milkman/invoices/preview', {
+      title:       'Review parsed invoice',
+      description: 'Confirm the parsed invoice before creating it.',
+      parsed,
+      receiptDateInput: parsed.receiptDate ? parsed.receiptDate.toISOString().slice(0, 10) : '',
+      previewDays,
+      products,
+      members,
+      rawText,
+    });
+  } catch (err) { next(err); }
+}
+
+async function confirmParse(req, res, next) {
+  try {
+    const body     = req.body;
+    const dayCount = parseInt(body.dayCount, 10) || 0;
+
+    const deliveryDays = [];
+    // product → member map for rule creation (first assignment wins per product).
+    const productMemberMap = new Map();
+
+    for (let d = 0; d < dayCount; d++) {
+      const itemCount = parseInt(body[`day_${d}_itemCount`], 10) || 0;
+      const lineItems = [];
+      for (let i = 0; i < itemCount; i++) {
+        if (body[`day_${d}_item_${i}_skip`] === 'on') continue;
+        const productId = body[`day_${d}_item_${i}_productId`];
+        if (!productId) continue;
+        const memberId = body[`day_${d}_item_${i}_memberId`];
+        lineItems.push({
+          product: productId,
+          qty:     parseFloat(body[`day_${d}_item_${i}_qty`]),
+          totalP:  parseInt(body[`day_${d}_item_${i}_totalP`], 10),
+        });
+        if (memberId && !productMemberMap.has(productId)) {
+          productMemberMap.set(productId, memberId);
+        }
+      }
+      deliveryDays.push({
+        date:           new Date(body[`day_${d}_date`]),
+        lineItems,
+        communalEvents: [],
+      });
+    }
+
+    const invoice = await InvoiceService.createInvoice({
+      number:        body.number?.trim(),
+      receiptDate:   new Date(body.receiptDate),
+      transactionId: body.transactionId?.trim() || undefined,
+      totalP:        parseInt(body.totalP, 10),
+      deliveryDays,
+      adjustments:   [],
+    });
+
+    // Create WHOLE AllocationRules for any product that has no rule yet.
+    if (productMemberMap.size > 0) {
+      const productIds  = [...productMemberMap.keys()];
+      const existing    = await AllocationRule.find({ product: { $in: productIds } }).lean();
+      const hasRule     = new Set(existing.map(r => String(r.product)));
+      for (const [productId, memberId] of productMemberMap) {
+        if (!hasRule.has(productId)) {
+          await AllocationRule.create({ product: productId, member: memberId, type: 'WHOLE' });
+        }
+      }
+    }
+
+    res.redirect(`/milkman/invoices/${invoice._id}`);
+  } catch (err) { next(err); }
+}
+
 module.exports = {
   list, newForm, create,
+  parseForm, parsePreview, confirmParse,
   addDay, removeDay,
   addLineItem, removeLineItem,
   addCommunalEvent, removeCommunalEvent,
