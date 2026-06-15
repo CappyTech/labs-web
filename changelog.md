@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.1] - 2026-06-16
+
+### Changed
+- `views/layout.ejs` — footer now displays the app version number (`vX.Y.Z`), sourced from `package.json` via `res.locals.appVersion` set in `app.js`.
+
 ## [2.3.0] - 2026-06-15
 
 ### Added

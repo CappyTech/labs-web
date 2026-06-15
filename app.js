@@ -6,6 +6,8 @@ const path = require('path');
 const db = require('./services/db');
 
 const app = express();
+const { version } = require('./package.json');
+app.use((req, res, next) => { res.locals.appVersion = version; next(); });
 
 // View engine
 app.set('view engine', 'ejs');
