@@ -16,6 +16,9 @@ services:
     restart: unless-stopped
     env_file: .compose.env
     networks: [ edge ]
+    labels:
+      - wud.watch=true
+      - wud.watch.digest=true
     depends_on:
       mongo:
         condition: service_healthy
