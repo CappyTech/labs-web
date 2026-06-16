@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.9] - 2026-06-16
+
+### Changed
+- `ProductService.checkDuplicates()` — now auto-fixes duplicates instead of only logging them. On startup, if any duplicate product groups are found (same name + `priceP`), the function automatically rewrites all Invoice line-item, communal-event, and AllocationRule references to the canonical ID (lowest ObjectId), then deletes the duplicates. No manual script run needed.
+- Removed `scripts/dedup-products.js` and `npm run dedup-products` — superseded by the startup auto-fix.
+
+---
+
+## [2.5.8] - 2026-06-16
+
+### Added
+- `scripts/dedup-products.js` — one-time migration script that finds all products sharing the same name + `priceP`, keeps the oldest (lowest ObjectId), rewrites all Invoice line-item, communal-event, and AllocationRule references to the canonical ID, then deletes the duplicates. Run with `npm run dedup-products`.
+
+---
+
 ## [2.5.7] - 2026-06-16
 
 ### Changed

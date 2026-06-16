@@ -29,6 +29,9 @@ async function updateProduct(id, data) {
 }
 
 async function checkDuplicates() {
+  const AllocationRule = require('../models/AllocationRule');
+  const Invoice        = require('../models/Invoice');
+
   const products = await Product.find().lean();
   const groups = new Map();
   for (const p of products) {
@@ -36,17 +39,42 @@ async function checkDuplicates() {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(p);
   }
-  const dupes = [...groups.values()].filter(g => g.length > 1);
-  if (dupes.length === 0) {
+  const dupeGroups = [...groups.values()].filter(g => g.length > 1);
+  if (dupeGroups.length === 0) {
     console.log('[milkman] product check OK — no duplicates');
     return;
   }
-  console.warn(`[milkman] ⚠ ${dupes.length} duplicate product group(s):`);
-  for (const group of dupes) {
-    const { name, priceP } = group[0];
-    const ids = group.map(p => String(p._id)).join(', ');
-    console.warn(`  "${name}" £${(priceP / 100).toFixed(2)} — ${group.length} copies [${ids}]`);
+
+  console.warn(`[milkman] ⚠ ${dupeGroups.length} duplicate product group(s) — auto-fixing...`);
+
+  for (const group of dupeGroups) {
+    group.sort((a, b) => a._id.toString().localeCompare(b._id.toString()));
+    const [canonical, ...dupes] = group;
+    const dupeIds = dupes.map(p => p._id);
+
+    console.warn(`  "${canonical.name}" £${(canonical.priceP / 100).toFixed(2)} — keeping ${canonical._id}, removing ${dupeIds.join(', ')}`);
+
+    await Invoice.updateMany(
+      { 'deliveryDays.lineItems.product': { $in: dupeIds } },
+      { $set: { 'deliveryDays.$[].lineItems.$[item].product': canonical._id } },
+      { arrayFilters: [{ 'item.product': { $in: dupeIds } }] }
+    );
+
+    await Invoice.updateMany(
+      { 'deliveryDays.communalEvents.product': { $in: dupeIds } },
+      { $set: { 'deliveryDays.$[].communalEvents.$[evt].product': canonical._id } },
+      { arrayFilters: [{ 'evt.product': { $in: dupeIds } }] }
+    );
+
+    await AllocationRule.updateMany(
+      { product: { $in: dupeIds } },
+      { $set: { product: canonical._id } }
+    );
+
+    await Product.deleteMany({ _id: { $in: dupeIds } });
   }
+
+  console.log('[milkman] product dedup complete');
 }
 
 module.exports = { getActiveProducts, getAllProducts, getProductById, findByNameAndPrice, createProduct, updateProduct, checkDuplicates };
