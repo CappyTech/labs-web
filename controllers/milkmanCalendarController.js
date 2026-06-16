@@ -150,11 +150,19 @@ async function calendar(req, res, next) {
 
     months.reverse(); // newest month first
 
+    const today = new Date();
+    const todayKey = dk(today);
+    const todayFormatted = today.toLocaleDateString('en-GB', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
+
     res.render('milkman/calendar', {
       title:       'Delivery Calendar',
       description: 'Deliveries, adjustments, and invoice status at a glance.',
       months,
       dayDetails,
+      todayKey,
+      todayFormatted,
     });
   } catch (err) { next(err); }
 }

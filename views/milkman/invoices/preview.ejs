@@ -58,23 +58,23 @@
       <% if (day.lineItems.length === 0) { %>
         <p class="empty-state mb-4">No line items parsed for this day.</p>
       <% } else { %>
-      <div class="overflow-x-auto mb-6">
-        <table style="min-width:52rem;">
+      <div class="mb-6">
+        <table class="w-full">
           <thead>
             <tr>
-              <th>Parsed name</th>
-              <th>Product</th>
-              <th>Member</th>
-              <th class="text-right">Qty</th>
-              <th class="text-right">Total (p)</th>
-              <th class="text-center">Skip</th>
+              <th style="width:22%">Parsed name</th>
+              <th style="width:36%">Product</th>
+              <th style="width:20%">Member</th>
+              <th class="text-right" style="width:8%">Qty</th>
+              <th class="text-right" style="width:10%">Total (p)</th>
+              <th class="text-center" style="width:4%">Skip</th>
             </tr>
           </thead>
           <tbody>
             <% day.lineItems.forEach(function(item, i) { %>
             <input type="hidden" name="day_<%= d %>_item_<%= i %>_parsedName" value="<%= item.baseName %>">
             <tr>
-              <td class="max-w-[14rem] break-words">
+              <td class="break-words">
                 <% if (item.isAdjustment) { %>
                   <span class="status-badge status-pending" style="font-size:.7em;">ADJ</span>&nbsp;
                 <% } %>
@@ -84,7 +84,7 @@
                 <% } %>
               </td>
               <td>
-                <select name="day_<%= d %>_item_<%= i %>_productId" style="min-width:12rem;">
+                <select name="day_<%= d %>_item_<%= i %>_productId" class="w-full">
                   <option value="">— skip —</option>
                   <% products.forEach(function(p) { %>
                   <option value="<%= p._id %>" <%= item.matchedId === String(p._id) ? 'selected' : '' %>>
@@ -94,7 +94,7 @@
                 </select>
               </td>
               <td>
-                <select name="day_<%= d %>_item_<%= i %>_memberId" style="min-width:9rem;">
+                <select name="day_<%= d %>_item_<%= i %>_memberId" class="w-full">
                   <option value="">— no rule —</option>
                   <% members.forEach(function(m) { %>
                   <option value="<%= m._id %>" <%= item.preMatchedMemberId === String(m._id) ? 'selected' : '' %>>
@@ -104,7 +104,7 @@
                 </select>
               </td>
               <td class="text-right">
-                <input type="number" name="day_<%= d %>_item_<%= i %>_qty" value="<%= item.qty %>" step="0.5" required style="width:5rem;text-align:right;">
+                <input type="number" name="day_<%= d %>_item_<%= i %>_qty" value="<%= item.qty %>" step="0.5" required style="width:4.5rem;text-align:right;">
               </td>
               <td class="text-right">
                 <input type="number" name="day_<%= d %>_item_<%= i %>_totalP" value="<%= item.totalP %>" step="1" required style="width:7rem;text-align:right;">
@@ -128,8 +128,8 @@
       <input type="hidden" name="chargeCount" value="<%= parsed.charges.length %>">
       <% if (parsed.charges.length > 0) { %>
       <div class="section-label">Invoice charges</div>
-      <div class="overflow-x-auto mb-6">
-        <table style="min-width:36rem;">
+      <div class="mb-6">
+        <table class="w-full">
           <thead>
             <tr>
               <th>Type</th>

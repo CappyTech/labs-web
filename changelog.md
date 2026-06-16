@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.7.3] - 2026-06-16
+
+### Fixed
+- Invoice preview table no longer causes a horizontal scrollbar. Removed `min-width:52rem` and `overflow-x-auto` wrapper; table now fills the container with percentage-based column widths. Product and member dropdowns use `w-full` to fill their cells.
+- Charges table on the preview page also made full-width.
+
+---
+
+## [2.7.2] - 2026-06-16
+
+### Changed
+- Calendar header now shows today's full date next to the `h1` in muted monospace.
+- Today's cell in the month grid is highlighted with a teal outline and bold day number when the current month is visible.
+
+---
+
 ## [2.7.1] - 2026-06-16
 
 ### Added

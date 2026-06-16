@@ -19,6 +19,8 @@
   .cal-cell  { min-height: 2.4rem; padding: .25rem .35rem; border-radius: .25rem; background: var(--surface2, #193037); }
   .cal-cell.empty { background: transparent; }
   .cal-day-num { font-size: .75rem; line-height: 1; opacity: .5; }
+  .cal-cell.today { background: #1e3540; outline: 1px solid #5fb8c4; outline-offset: -1px; }
+  .cal-cell.today .cal-day-num { opacity: 1; color: #5fb8c4; font-weight: 700; }
   .cal-dot { width: .45rem; height: .45rem; border-radius: 50%; margin-top: .2rem; }
   .cal-dow { font-size: .65rem; text-align: center; opacity: .4; padding-bottom: .25rem; letter-spacing: .04em; }
   .detail-card { border-left: 3px solid; padding: .75rem 1rem; margin-bottom: 1rem; border-radius: 0 .35rem .35rem 0; background: #193037; }
@@ -38,7 +40,7 @@
 <div class="wrap">
   <header class="hero">
     <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
-    <h1>Delivery Calendar</h1>
+    <h1>Delivery Calendar <span class="text-muted text-base font-normal font-mono"><%= todayFormatted %></span></h1>
     <p class="lede">Deliveries, adjustments, and invoice status at a glance.</p>
   </header>
 
@@ -71,9 +73,11 @@
             <% if (!cell) { %>
             <div class="cal-cell empty"></div>
             <% } else if (!cell.state) { %>
-            <div class="cal-cell"><div class="cal-day-num"><%= cell.day %></div></div>
+            <div class="cal-cell <%= cell.key === todayKey ? 'today' : '' %>">
+              <div class="cal-day-num"><%= cell.day %></div>
+            </div>
             <% } else { %>
-            <div class="cal-cell" title="<%= cell.state %>">
+            <div class="cal-cell <%= cell.key === todayKey ? 'today' : '' %>" title="<%= cell.state %>">
               <div class="cal-day-num"><%= cell.day %></div>
               <div class="cal-dot <%= STATE_DOT[cell.state] || 'bg-muted' %>"></div>
             </div>
