@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.10] - 2026-06-16
+
+### Fixed
+- `ProductService.checkDuplicates()` — AllocationRule repoint now handles the case where both the canonical and the duplicate already have a rule for the same member. Previously this threw `E11000 duplicate key error` on the `product_1_member_1` unique index. Fix: fetch the canonical's existing member IDs first; for each duplicate rule, delete it if the canonical already covers that member, otherwise repoint it and track the member as covered.
+
+---
+
 ## [2.5.9] - 2026-06-16
 
 ### Changed

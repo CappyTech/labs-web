@@ -66,10 +66,22 @@ async function checkDuplicates() {
       { arrayFilters: [{ 'evt.product': { $in: dupeIds } }] }
     );
 
-    await AllocationRule.updateMany(
-      { product: { $in: dupeIds } },
-      { $set: { product: canonical._id } }
-    );
+    // For each dupe's allocation rules: repoint to canonical unless canonical
+    // already has a rule for that member (unique index would conflict → delete instead).
+    const canonicalMemberIds = (await AllocationRule.find({ product: canonical._id }, 'member').lean())
+      .map(r => String(r.member));
+
+    for (const dupeId of dupeIds) {
+      const dupeRules = await AllocationRule.find({ product: dupeId }).lean();
+      for (const rule of dupeRules) {
+        if (canonicalMemberIds.includes(String(rule.member))) {
+          await AllocationRule.deleteOne({ _id: rule._id });
+        } else {
+          await AllocationRule.updateOne({ _id: rule._id }, { $set: { product: canonical._id } });
+          canonicalMemberIds.push(String(rule.member));
+        }
+      }
+    }
 
     await Product.deleteMany({ _id: { $in: dupeIds } });
   }
