@@ -174,6 +174,53 @@ function applyCommunalEvents(shares, communalEvents) {
 }
 
 /**
+ * Apply invoice-level charges (fees, discounts, membership, balance carry-forwards).
+ *
+ * splitType 'equal'        — divided evenly across all members.
+ * splitType 'proportional' — divided in proportion to each member's current positive share,
+ *                            so whoever ordered more of the delivery absorbs more of a coupon.
+ *                            Falls back to equal if no member has a positive share.
+ *
+ * @param {Map<string, number>} shares
+ * @param {{ amountP: number, splitType: 'equal'|'proportional' }[]} charges
+ * @param {{ id: string }[]} members
+ * @returns {Map<string, number>}
+ */
+function applyCharges(shares, charges, members) {
+  const result = new Map(shares);
+
+  for (const charge of charges) {
+    let parts;
+
+    if (charge.splitType === 'proportional') {
+      const positiveTotal = [...result.values()].filter(v => v > 0).reduce((s, v) => s + v, 0);
+      if (positiveTotal > 0) {
+        parts = members.map(m => {
+          const share = result.get(m.id) || 0;
+          return { id: m.id, weight: share > 0 ? share / positiveTotal : 0 };
+        });
+        // Weights may not sum to exactly 1 due to float arithmetic; normalize.
+        const wSum = parts.reduce((s, p) => s + p.weight, 0);
+        if (wSum > 0) parts = parts.map(p => ({ id: p.id, weight: p.weight / wSum }));
+        // Fall through using these weights.
+      } else {
+        // No positive shares — fall back to equal.
+        parts = members.map(m => ({ id: m.id, weight: 1 / members.length }));
+      }
+    } else {
+      parts = members.map(m => ({ id: m.id, weight: 1 / members.length }));
+    }
+
+    const split = largestRemainder(charge.amountP, parts);
+    for (const [mid, pence] of split) {
+      result.set(mid, (result.get(mid) || 0) + pence);
+    }
+  }
+
+  return result;
+}
+
+/**
  * Assert that the sum of all member shares equals grandTotalPence exactly.
  * Throws ReconciliationError otherwise.
  *
@@ -196,5 +243,6 @@ module.exports = {
   allocateLines,
   applyAdjustments,
   applyCommunalEvents,
+  applyCharges,
   reconcile,
 };

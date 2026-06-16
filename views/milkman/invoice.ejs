@@ -146,6 +146,65 @@
     </form>
     <% } %>
 
+    <%# ── Charges ───────────────────────────────────────────────────────── %>
+    <% if ((invoice.charges && invoice.charges.length > 0) || invoice.status === 'pending') { %>
+    <div class="section-label">Charges</div>
+    <% } %>
+    <% if (invoice.charges && invoice.charges.length > 0) { %>
+    <section class="card-grid mb-4">
+      <% invoice.charges.forEach(function(charge, chargeIdx) { %>
+      <div class="module">
+        <div class="callsign">[<%= charge.type.toUpperCase() %>]</div>
+        <div class="name"><%= charge.isCredit ? '−' : '+' %><%= charge.amount %></div>
+        <div class="desc"><%= charge.label %></div>
+        <div class="host"><%= charge.splitType %></div>
+        <% if (invoice.status === 'pending') { %>
+        <div class="host">
+          <form method="POST" action="/milkman/invoices/<%= invoice.id %>/charges/<%= chargeIdx %>/delete">
+            <button type="submit" class="btn">Remove</button>
+          </form>
+        </div>
+        <% } %>
+      </div>
+      <% }); %>
+    </section>
+    <% } %>
+
+    <% if (invoice.status === 'pending') { %>
+    <form method="POST" action="/milkman/invoices/<%= invoice.id %>/charges" class="mb-8 max-w-[40rem]">
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-2 flex-wrap items-end">
+          <label class="flex flex-col gap-1">
+            Type
+            <select name="type" required>
+              <option value="fee">fee</option>
+              <option value="discount">discount</option>
+              <option value="membership">membership</option>
+              <option value="balance">balance</option>
+              <option value="other">other</option>
+            </select>
+          </label>
+          <label class="flex-1 min-w-[10rem] flex flex-col gap-1">
+            Label
+            <input type="text" name="label" required placeholder="e.g. Coupon:FREEMILKHUT">
+          </label>
+          <label class="flex flex-col gap-1">
+            Amount (pence, negative for credits)
+            <input type="number" name="amountP" required step="1" placeholder="-1500" style="width:9rem;">
+          </label>
+          <label class="flex flex-col gap-1">
+            Split
+            <select name="splitType">
+              <option value="equal">equal</option>
+              <option value="proportional">proportional</option>
+            </select>
+          </label>
+          <button type="submit" class="btn">Add charge</button>
+        </div>
+      </div>
+    </form>
+    <% } %>
+
     <%# ── Adjustments ────────────────────────────────────────────────────── %>
     <% if ((invoice.adjustments && invoice.adjustments.length > 0) || invoice.status === 'pending') { %>
     <div class="section-label">Adjustments</div>

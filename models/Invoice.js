@@ -32,6 +32,21 @@ const deliveryDaySchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Invoice-level charges: fees, discounts, membership, balance carry-forwards.
+// amountP is negative for credits/discounts, positive for fees.
+// splitType 'equal'       — divided evenly across all active members.
+// splitType 'proportional'— divided in proportion to each member's product-line share
+//                           (so whoever ordered more absorbs more of a coupon saving).
+const chargeSchema = new mongoose.Schema(
+  {
+    type:      { type: String, enum: ['fee', 'discount', 'membership', 'balance', 'other'], required: true },
+    label:     { type: String, required: true, trim: true },
+    amountP:   { type: Number, required: true },
+    splitType: { type: String, enum: ['equal', 'proportional'], default: 'equal' },
+  },
+  { _id: false }
+);
+
 // Member-specific backdated credits or manual adjustments. amountP is negative for credits.
 const adjustmentSchema = new mongoose.Schema(
   {
@@ -52,6 +67,7 @@ const invoiceSchema = new mongoose.Schema(
     // Grand total as stated on the invoice — integer pence.
     totalP:        { type: Number, required: true, min: 0 },
     deliveryDays:  { type: [deliveryDaySchema], default: [] },
+    charges:       { type: [chargeSchema], default: [] },
     adjustments:   { type: [adjustmentSchema], default: [] },
     status:        { type: String, enum: ['pending', 'computed', 'settled'], default: 'pending' },
   },

@@ -108,6 +108,46 @@
         <p class="empty-state">No delivery days could be parsed from the text.</p>
       <% } %>
 
+      <%# ── Invoice-level charges ───────────────────────────────────────── %>
+      <input type="hidden" name="chargeCount" value="<%= parsed.charges.length %>">
+      <% if (parsed.charges.length > 0) { %>
+      <div class="section-label">Invoice charges</div>
+      <div class="overflow-x-auto mb-6">
+        <table style="min-width:36rem;">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Label</th>
+              <th class="text-right">Amount (p)</th>
+              <th>Split</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% parsed.charges.forEach(function(charge, c) { %>
+            <input type="hidden" name="charge_<%= c %>_type"    value="<%= charge.type %>">
+            <input type="hidden" name="charge_<%= c %>_label"   value="<%= charge.label %>">
+            <input type="hidden" name="charge_<%= c %>_amountP" value="<%= charge.amountP %>">
+            <tr>
+              <td><span class="status-badge status-<%= charge.type === 'discount' ? 'settled' : 'pending' %>"><%= charge.type %></span></td>
+              <td><%= charge.label %></td>
+              <td class="text-right <%= charge.amountP < 0 ? 'text-settled' : '' %>"><%= charge.amountP %></td>
+              <td>
+                <select name="charge_<%= c %>_splitType" style="min-width:9rem;">
+                  <option value="equal"        <%= charge.splitType === 'equal'        ? 'selected' : '' %>>equal</option>
+                  <option value="proportional" <%= charge.splitType === 'proportional' ? 'selected' : '' %>>proportional</option>
+                </select>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-muted text-xs mb-6">
+        <strong>equal</strong> — split evenly across all members.
+        <strong>proportional</strong> — split in proportion to each member's delivery share (useful for coupons).
+      </p>
+      <% } %>
+
       <%# ── Actions ─────────────────────────────────────────────────────── %>
       <div class="flex gap-4 mt-4 mb-8">
         <button type="submit" class="btn">Create invoice</button>

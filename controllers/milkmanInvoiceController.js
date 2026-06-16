@@ -26,6 +26,11 @@ function formatInvoice(invoice) {
         participantNames: (evt.participants || []).map(p => p.name || String(p)),
       })),
     })),
+    charges: (invoice.charges || []).map(charge => ({
+      ...charge,
+      amount:   formatMoney(Math.abs(charge.amountP)),
+      isCredit: charge.amountP < 0,
+    })),
     adjustments: (invoice.adjustments || []).map(adj => ({
       ...adj,
       memberName: adj.member?.name || String(adj.member),

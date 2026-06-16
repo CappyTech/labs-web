@@ -60,13 +60,30 @@ function stripAdjPrefix(name) {
 }
 
 /**
+ * If the line is an invoice-level charge (not a per-member delivery), return
+ * its charge descriptor; otherwise return null.
+ *
+ * Charge lines never need AllocationRules — they are split across all members
+ * either equally or proportionally to their delivery shares.
+ */
+function classifyCharge(name) {
+  if (/^Coupon:/i.test(name))                                    return { type: 'discount',    splitType: 'proportional' };
+  if (/^Weekly Delivery Fee$/i.test(name))                       return { type: 'fee',         splitType: 'equal' };
+  if (/^Balance$/i.test(name))                                   return { type: 'balance',     splitType: 'equal' };
+  if (/^\d+\s+Membership\b/i.test(name) || /\bmonth\b/i.test(name)) return { type: 'membership', splitType: 'equal' };
+  if (/^Collect my empties$/i.test(name))                        return { type: 'fee',         splitType: 'equal' };
+  return null;
+}
+
+/**
  * @param {string} text   Raw copy-pasted invoice text.
  * @returns {{
  *   number:       string|null,
  *   receiptDate:  Date|null,
  *   transactionId:string|null,
  *   totalP:       number|null,
- *   deliveryDays: { date: Date, lineItems: { name: string, baseName: string, isAdjustment: boolean, qty: number, totalP: number }[] }[]
+ *   deliveryDays: { date: Date, lineItems: { name: string, baseName: string, isAdjustment: boolean, qty: number, totalP: number }[] }[],
+ *   charges:      { type: string, label: string, amountP: number, splitType: string }[]
  * }}
  */
 function parse(text) {
@@ -78,6 +95,7 @@ function parse(text) {
     transactionId: null,
     totalP:        null,
     deliveryDays:  [],
+    charges:       [],
   };
 
   let currentDay = null;
@@ -113,33 +131,39 @@ function parse(text) {
       continue;
     }
 
-    // Regular line item: "name\tqty\t£total"
-    if (parts.length >= 3 && currentDay) {
+    // Two-column rows: "Label\t£amount" — always invoice-level (coupon, fee, etc.)
+    if (parts.length === 2 && /^-?£/.test(parts[1])) {
       const name    = parts[0].trim();
-      const qty     = parseFloat(parts[1]);
-      const totalP  = parsePence(parts[parts.length - 1]);
-      const isAdj   = /^Adjustment\s+/i.test(name);
-      currentDay.lineItems.push({
-        name,
-        baseName:     stripAdjPrefix(name),
-        isAdjustment: isAdj,
-        qty,
-        totalP,
-      });
+      const amountP = parsePence(parts[1]);
+      const charge  = classifyCharge(name);
+      if (charge && amountP !== 0) {
+        result.charges.push({ ...charge, label: name, amountP });
+      }
+      // Silently drop zero-value fees (Weekly Delivery Fee £0.00) and unknown 2-col lines.
       continue;
     }
 
-    // Fee row (no qty column): "Weekly Delivery Fee\t£0.00"
-    if (parts.length === 2 && currentDay && /^-?£/.test(parts[1])) {
+    // Three-or-more column rows: "name\tqty\t£total"
+    if (parts.length >= 3) {
       const name   = parts[0].trim();
-      const totalP = parsePence(parts[1]);
-      if (totalP !== 0) {
+      const amountP = parsePence(parts[parts.length - 1]);
+      const charge  = classifyCharge(name);
+
+      if (charge) {
+        // Invoice-level charge (Balance, membership, empties) — not a delivery line item.
+        if (amountP !== 0) result.charges.push({ ...charge, label: name, amountP });
+        continue;
+      }
+
+      if (currentDay) {
+        const qty    = parseFloat(parts[1]);
+        const isAdj  = /^Adjustment\s+/i.test(name);
         currentDay.lineItems.push({
           name,
-          baseName:     name,
-          isAdjustment: false,
-          qty:          1,
-          totalP,
+          baseName:     stripAdjPrefix(name),
+          isAdjustment: isAdj,
+          qty,
+          totalP:       amountP,
         });
       }
     }

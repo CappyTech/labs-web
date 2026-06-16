@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.0] - 2026-06-16
+
+### Added
+- `Invoice.charges[]` — new schema field `{ type, label, amountP, splitType }` for invoice-level items that aren't per-member product deliveries: fees (`Weekly Delivery Fee`), discounts (`Coupon:*`), membership, balance carry-forwards, and other.
+- `SplitEngine.applyCharges(shares, charges, members)` — distributes each charge across all members either `equal` (evenly) or `proportional` (in proportion to each member's pre-charge delivery share, so whoever ordered more absorbs more of a coupon saving). Falls back to equal when no member has a positive delivery share.
+- Invoice parser now classifies all real-world milkman line types: coupons, delivery fees, balance carry-forwards, membership fees, and "Collect my empties" are routed into `parsed.charges[]` instead of being silently turned into junk products. Membership-only invoices (no delivery days) are now parsed correctly.
+- Preview page shows a "Invoice charges" table with a per-charge `equal`/`proportional` split selector.
+- Invoice detail page shows a "Charges" card grid (type, amount, label, split) with add/remove forms for pending invoices.
+- `POST /milkman/invoices/:id/charges` and `POST /milkman/invoices/:id/charges/:idx/delete` routes.
+
+### Changed
+- `InvoiceService.computeSettlement` — calls `applyCharges` after adjustments, before reconciliation. Invoices with coupons and delivery fees now reconcile correctly: `sum(product lines) + sum(charges) === invoice.totalP`.
+
+### Fixed
+- Coupons and delivery fees no longer create spurious Product documents when parsing via the paste flow.
+- `SplitEngine.reconcile` no longer throws on invoices that include coupons, fees, or membership lines.
+
+---
+
 ## [2.5.10] - 2026-06-16
 
 ### Fixed

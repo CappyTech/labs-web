@@ -191,7 +191,12 @@ async function computeSettlement(invoiceId) {
     shares = SplitEngine.applyAdjustments(shares, adjs);
   }
 
-  // 4. Reconcile — throws if totals don't match.
+  // 4. Apply invoice-level charges (fees, discounts, membership, balance).
+  if (invoice.charges && invoice.charges.length > 0) {
+    shares = SplitEngine.applyCharges(shares, invoice.charges, memberList);
+  }
+
+  // 5. Reconcile — throws if totals don't match.
   SplitEngine.reconcile(shares, invoice.totalP);
 
   // 5. Persist Settlement (upsert so re-splitting overwrites the previous result).

@@ -320,12 +320,24 @@ async function confirmParse(req, res, next) {
       });
     }
 
+    // Collect invoice-level charges from the preview form.
+    const chargeCount = parseInt(body.chargeCount, 10) || 0;
+    const charges = [];
+    for (let c = 0; c < chargeCount; c++) {
+      const type      = body[`charge_${c}_type`];
+      const label     = (body[`charge_${c}_label`] || '').trim();
+      const amountP   = parseInt(body[`charge_${c}_amountP`], 10);
+      const splitType = body[`charge_${c}_splitType`] || 'equal';
+      if (label && !isNaN(amountP)) charges.push({ type, label, amountP, splitType });
+    }
+
     const invoice = await InvoiceService.createInvoice({
       number:        body.number?.trim(),
       receiptDate:   new Date(body.receiptDate),
       transactionId: body.transactionId?.trim() || undefined,
       totalP:        parseInt(body.totalP, 10),
       deliveryDays,
+      charges,
       adjustments:   [],
     });
 
@@ -345,6 +357,39 @@ async function confirmParse(req, res, next) {
   } catch (err) { next(err); }
 }
 
+// ── Charge mutations ───────────────────────────────────────────────────────
+
+async function addCharge(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { type, label, amountP, splitType } = req.body;
+    const invoice = await InvoiceService.getInvoiceRaw(id);
+    if (!invoice || invoice.status !== 'pending') return res.redirect(`/milkman/invoices/${id}`);
+    invoice.charges.push({
+      type:      type || 'other',
+      label:     label?.trim(),
+      amountP:   parseInt(amountP, 10),
+      splitType: splitType || 'equal',
+    });
+    await InvoiceService.updateInvoice(id, { charges: invoice.charges });
+    res.redirect(`/milkman/invoices/${id}`);
+  } catch (err) { next(err); }
+}
+
+async function removeCharge(req, res, next) {
+  try {
+    const { id, chargeIndex } = req.params;
+    const invoice = await InvoiceService.getInvoiceRaw(id);
+    if (!invoice || invoice.status !== 'pending') return res.redirect(`/milkman/invoices/${id}`);
+    const idx = parseInt(chargeIndex, 10);
+    if (!isNaN(idx)) {
+      invoice.charges.splice(idx, 1);
+      await InvoiceService.updateInvoice(id, { charges: invoice.charges });
+    }
+    res.redirect(`/milkman/invoices/${id}`);
+  } catch (err) { next(err); }
+}
+
 module.exports = {
   list, newForm, create,
   parseForm, parsePreview, confirmParse,
@@ -352,4 +397,5 @@ module.exports = {
   addLineItem, removeLineItem,
   addCommunalEvent, removeCommunalEvent,
   addAdjustment, removeAdjustment,
+  addCharge, removeCharge,
 };

@@ -38,8 +38,12 @@ router.post('/invoices/:id/delivery-days/:dayIndex/communal-events',            
 router.post('/invoices/:id/delivery-days/:dayIndex/communal-events/:eventIndex/delete', milkmanInvoicesController.removeCommunalEvent);
 
 // Adjustment mutations.
-router.post('/invoices/:id/adjustments',                    milkmanInvoicesController.addAdjustment);
-router.post('/invoices/:id/adjustments/:adjIndex/delete',   milkmanInvoicesController.removeAdjustment);
+router.post('/invoices/:id/adjustments',                      milkmanInvoicesController.addAdjustment);
+router.post('/invoices/:id/adjustments/:adjIndex/delete',     milkmanInvoicesController.removeAdjustment);
+
+// Charge mutations.
+router.post('/invoices/:id/charges',                          milkmanInvoicesController.addCharge);
+router.post('/invoices/:id/charges/:chargeIndex/delete',      milkmanInvoicesController.removeCharge);
 
 // ── Members ────────────────────────────────────────────────────────────────
 router.get('/members',             milkmanMembersController.list);
