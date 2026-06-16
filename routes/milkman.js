@@ -3,6 +3,7 @@
 const { Router } = require('express');
 
 const milkmanController            = require('../controllers/milkmanController');
+const milkmanCalendarController    = require('../controllers/milkmanCalendarController');
 const milkmanInvoiceController     = require('../controllers/milkmanInvoiceController');
 const milkmanInvoicesController    = require('../controllers/milkmanInvoicesController');
 const milkmanMembersController     = require('../controllers/milkmanMembersController');
@@ -13,7 +14,8 @@ const milkmanSettlementsController = require('../controllers/milkmanSettlementsC
 const router = Router();
 
 // ── Landing ────────────────────────────────────────────────────────────────
-router.get('/', milkmanController.index);
+router.get('/',          milkmanController.index);
+router.get('/calendar',  milkmanCalendarController.calendar);
 
 // ── Invoices ───────────────────────────────────────────────────────────────
 // Static paths (/new, /parse, /confirm) must come before /:id.

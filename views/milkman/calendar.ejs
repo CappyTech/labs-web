@@ -1,0 +1,128 @@
+<%
+  const STATE_DOT = {
+    settled:     'bg-settled',
+    computed:    'bg-signal',
+    adjusted:    'bg-accent',
+    confirmable: 'bg-signal opacity-50',
+    awaiting:    'bg-muted opacity-50',
+  };
+  const STATE_BADGE = {
+    settled:     'status-settled',
+    computed:    'status-computed',
+    adjusted:    'status-pending',
+    confirmable: 'status-pending',
+    awaiting:    'status-pending',
+  };
+%>
+<style>
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-cell  { min-height: 2.4rem; padding: .25rem .35rem; border-radius: .25rem; background: var(--surface2, #193037); }
+  .cal-cell.empty { background: transparent; }
+  .cal-day-num { font-size: .75rem; line-height: 1; opacity: .5; }
+  .cal-dot { width: .45rem; height: .45rem; border-radius: 50%; margin-top: .2rem; }
+  .cal-dow { font-size: .65rem; text-align: center; opacity: .4; padding-bottom: .25rem; letter-spacing: .04em; }
+  .detail-card { border-left: 3px solid; padding: .75rem 1rem; margin-bottom: 1rem; border-radius: 0 .35rem .35rem 0; background: #193037; }
+  .detail-card.settled     { border-color: #7ecb7e; }
+  .detail-card.computed    { border-color: #5fb8c4; }
+  .detail-card.adjusted    { border-color: #e8a13c; }
+  .detail-card.confirmable { border-color: #5fb8c480; }
+  .detail-card.awaiting    { border-color: #6f8d90; }
+  .line-item-row { display: flex; gap: .5rem; align-items: baseline; font-size: .8rem; padding: .1rem 0; }
+  .line-item-row .li-name  { flex: 1; color: #dde9e7; }
+  .line-item-row .li-qty   { width: 2.5rem; text-align: right; opacity: .6; }
+  .line-item-row .li-total { width: 4.5rem; text-align: right; font-family: 'IBM Plex Mono', monospace; }
+  .li-credit { color: #e8a13c; }
+  .li-charge { color: #dde9e7; }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
+    <h1>Delivery Calendar</h1>
+    <p class="lede">Deliveries, adjustments, and invoice status at a glance.</p>
+  </header>
+
+  <%# ── Legend ────────────────────────────────────────────────────────────── %>
+  <div class="flex flex-wrap gap-4 mb-8 text-xs text-muted items-center">
+    <span class="flex items-center gap-1.5"><span class="cal-dot bg-muted opacity-50 inline-block"></span> Awaiting next invoice</span>
+    <span class="flex items-center gap-1.5"><span class="cal-dot bg-signal opacity-50 inline-block"></span> Ready to split</span>
+    <span class="flex items-center gap-1.5"><span class="cal-dot bg-accent inline-block"></span> Adjusted by later invoice</span>
+    <span class="flex items-center gap-1.5"><span class="cal-dot bg-signal inline-block"></span> Split computed</span>
+    <span class="flex items-center gap-1.5"><span class="cal-dot bg-settled inline-block"></span> Settled</span>
+  </div>
+
+  <% if (months.length === 0) { %>
+    <p class="empty-state pb-16">No delivery days to show yet.</p>
+  <% } else { %>
+
+  <%# ── Month grids ────────────────────────────────────────────────────────── %>
+  <div class="flex flex-wrap gap-8 mb-10">
+    <% months.forEach(function(m) { %>
+    <div style="min-width:16rem;flex:1;max-width:22rem;">
+      <div class="section-label mb-2"><%= m.label %></div>
+      <div class="cal-grid mb-1">
+        <% ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(function(d) { %>
+        <div class="cal-dow"><%= d %></div>
+        <% }); %>
+      </div>
+      <div class="cal-grid">
+        <% m.weeks.forEach(function(week) { %>
+          <% week.forEach(function(cell) { %>
+            <% if (!cell) { %>
+            <div class="cal-cell empty"></div>
+            <% } else if (!cell.state) { %>
+            <div class="cal-cell"><div class="cal-day-num"><%= cell.day %></div></div>
+            <% } else { %>
+            <div class="cal-cell" title="<%= cell.state %>">
+              <div class="cal-day-num"><%= cell.day %></div>
+              <div class="cal-dot <%= STATE_DOT[cell.state] || 'bg-muted' %>"></div>
+            </div>
+            <% } %>
+          <% }); %>
+        <% }); %>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <%# ── Timeline ───────────────────────────────────────────────────────────── %>
+  <div class="section-label">Timeline</div>
+  <div class="mt-4 pb-16">
+    <% dayDetails.forEach(function(day) { %>
+    <div class="detail-card <%= day.state %>">
+      <div class="flex flex-wrap gap-2 items-center mb-2">
+        <span class="font-semibold text-ink text-sm"><%= day.dateFormatted %></span>
+        <span class="status-badge <%= STATE_BADGE[day.state] || 'status-pending' %> text-xs"><%= day.stateLabel %></span>
+      </div>
+
+      <% day.entries.forEach(function(entry) { %>
+      <div class="mb-2">
+        <div class="flex gap-2 items-center mb-1">
+          <span class="text-muted text-xs font-mono">#<%= entry.invoiceNumber %></span>
+          <span class="status-badge status-<%= entry.invoiceStatus %> text-xs" style="font-size:.65rem;"><%= entry.invoiceStatus %></span>
+          <% if (entry.hasNegative && !entry.hasPositive) { %>
+            <span class="text-accent text-xs">adjustment</span>
+          <% } else if (entry.hasNegative) { %>
+            <span class="text-accent text-xs">delivery + adjustment</span>
+          <% } %>
+        </div>
+        <% entry.lineItems.forEach(function(item) { %>
+        <div class="line-item-row">
+          <span class="li-name <%= item.isCredit ? 'opacity-60' : '' %>">
+            <% if (item.isCredit) { %><span class="text-accent text-xs mr-1">−</span><% } %>
+            <%= item.productName %>
+          </span>
+          <span class="li-qty"><%= item.qty > 0 ? '+' : '' %><%= item.qty %></span>
+          <span class="li-total <%= item.isCredit ? 'li-credit' : 'li-charge' %>">
+            <%= item.isCredit ? '−' : '' %><%= item.total %>
+          </span>
+        </div>
+        <% }); %>
+      </div>
+      <% }); %>
+    </div>
+    <% }); %>
+  </div>
+
+  <% } %>
+</div>

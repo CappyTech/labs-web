@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.7.0] - 2026-06-16
+
+### Added
+- `/milkman/calendar` — delivery calendar view showing every delivery date across all invoices.
+  - **Month grid** at the top: coloured dot per delivery day, multiple months side by side.
+  - **Timeline** below: each delivery date expanded with product line items, invoice number, and status. Adjustment items (negative qty/total) are clearly distinguished from regular deliveries.
+  - **Five states** per calendar date, derived from invoice status and position relative to the most recent invoice:
+    - `awaiting` (grey) — delivery is in the most recent invoice; next invoice hasn't arrived yet.
+    - `ready to split` (teal, faded) — a newer invoice has since been received but made no adjustment for this date; safe to compute.
+    - `adjusted` (amber) — a later invoice has line items (negative) on this same date; correction captured.
+    - `split computed` (teal) — parent invoice has been split.
+    - `settled` (green) — parent invoice is fully settled.
+  - Calendar nav card added to the dashboard Manage section.
+
+---
+
 ## [2.6.3] - 2026-06-16
 
 ### Added
