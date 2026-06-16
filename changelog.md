@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.7] - 2026-06-16
+
+### Changed
+- `views/milkman/rules/index.ejs` — product dropdown now appends `✓` to any product that already has at least one allocation rule, making it easy to spot unconfigured products at a glance.
+- `milkmanRulesController.list` — passes `productsWithRules` (a `Set` of product ID strings) to the view, derived from the already-fetched grouped rules map at no extra DB cost.
+
+---
+
 ## [2.5.6] - 2026-06-16
 
 ### Added

@@ -14,7 +14,9 @@
             <select name="productId" required>
               <option value="">— select —</option>
               <% products.forEach(function(p) { %>
-              <option value="<%= p._id %>"><%= p.name %></option>
+              <option value="<%= p._id %>">
+                <%= p.name %><% if (productsWithRules.has(String(p._id))) { %> ✓<% } %>
+              </option>
               <% }); %>
             </select>
           </label>

@@ -21,9 +21,10 @@ async function list(req, res, next) {
     }
 
     res.render('milkman/rules/index', {
-      title:       'Allocation Rules',
-      description: 'Per-member product allocation rules.',
-      groupedRules: [...grouped.values()],
+      title:            'Allocation Rules',
+      description:      'Per-member product allocation rules.',
+      groupedRules:     [...grouped.values()],
+      productsWithRules: new Set(grouped.keys()),
       products,
       members,
     });
