@@ -10,20 +10,24 @@
       <a href="/milkman/invoices/parse" class="btn">Paste new invoice</a>
     </div>
 
-    <section class="card-grid pb-16">
-      <% if (invoices.length === 0) { %>
-        <p class="empty-state">No invoices yet.</p>
-      <% } else { %>
-        <% invoices.forEach(function(inv) { %>
+    <% if (groups.length === 0) { %>
+      <p class="empty-state pb-16">No invoices yet.</p>
+    <% } else { %>
+      <% groups.forEach(function(group) { %>
+      <div class="section-label"><%= group.label %></div>
+      <section class="card-grid mb-8">
+        <% group.invoices.forEach(function(inv) { %>
         <a href="/milkman/invoices/<%= inv.id %>" class="module">
-          <div class="callsign">[<%= inv.number %>]</div>
+          <div class="callsign"><%= inv.kind === 'membership' ? '[SUB]' : '[INV]' %></div>
           <div class="name"><%= inv.total %></div>
-          <div class="desc"><%= inv.receiptDateFormatted %></div>
+          <div class="desc"><%= inv.receiptDateFormatted %> &nbsp;·&nbsp; #<%= inv.number %></div>
           <div class="host">
             <span class="status-badge status-<%= inv.status %>"><%= inv.status %></span>
           </div>
         </a>
         <% }); %>
-      <% } %>
-    </section>
+      </section>
+      <% }); %>
+      <div class="pb-8"></div>
+    <% } %>
   </div>

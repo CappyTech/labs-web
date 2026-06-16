@@ -64,6 +64,9 @@ const invoiceSchema = new mongoose.Schema(
     number:        { type: String, required: true, trim: true },
     receiptDate:   { type: Date, required: true },
     transactionId: { type: String, trim: true },
+    // 'delivery' — standard delivery invoice with one or more delivery days.
+    // 'membership' — subscription fee, no delivery days.
+    kind:          { type: String, enum: ['delivery', 'membership'], default: 'delivery' },
     // Grand total as stated on the invoice — integer pence.
     totalP:        { type: Number, required: true, min: 0 },
     deliveryDays:  { type: [deliveryDaySchema], default: [] },

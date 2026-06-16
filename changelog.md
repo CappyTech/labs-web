@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.3] - 2026-06-16
+
+### Added
+- `Invoice.kind` field (`'delivery'` | `'membership'`, default `'delivery'`). Parser auto-detects: no delivery days + membership charge → `membership`, everything else → `delivery`.
+- Invoice list (`/milkman/invoices`) now groups by kind with section labels ("Deliveries", "Membership"). Delivery cards show `[INV]`, membership cards show `[SUB]`. Empty groups are omitted.
+- Dashboard subtitle is now live: shows pending invoice count (amber, only when >0), total outstanding balance (amber when non-zero, grey when clear), and member count.
+
+### Changed
+- Invoice list cards now show date and invoice number together in the description line.
+
+---
+
 ## [2.6.2] - 2026-06-16
 
 ### Changed

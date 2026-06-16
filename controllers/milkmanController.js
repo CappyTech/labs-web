@@ -3,6 +3,7 @@
 const MemberService     = require('../services/MemberService');
 const InvoiceService    = require('../services/InvoiceService');
 const SettlementService = require('../services/SettlementService');
+const Invoice           = require('../models/Invoice');
 const { formatMoney }   = require('./dto');
 
 /**
@@ -10,10 +11,11 @@ const { formatMoney }   = require('./dto');
  */
 async function index(req, res, next) {
   try {
-    const [members, rawInvoices, rawBalances] = await Promise.all([
+    const [members, rawInvoices, rawBalances, pendingCount] = await Promise.all([
       MemberService.getActiveMembers(),
       InvoiceService.getRecentInvoices(5),
       SettlementService.getOutstandingBalances(),
+      Invoice.countDocuments({ status: 'pending' }),
     ]);
 
     const recentInvoices = rawInvoices.map(inv => ({
@@ -35,12 +37,16 @@ async function index(req, res, next) {
       owed:  formatMoney(balanceByMember.get(String(m._id)) || 0),
     }));
 
+    const totalOwedP = rawBalances.reduce((s, b) => s + b.owedP, 0);
+
     res.render('milkman/index', {
       title: 'Milkman',
       description: 'Milk-round bill splitter.',
       members: membersWithBalance,
       recentInvoices,
       outstandingBalances,
+      pendingCount,
+      totalOwed: formatMoney(totalOwedP),
     });
   } catch (err) {
     next(err);

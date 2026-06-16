@@ -169,6 +169,10 @@ function parse(text) {
     }
   }
 
+  result.kind = (result.deliveryDays.length === 0 && result.charges.some(c => c.type === 'membership'))
+    ? 'membership'
+    : 'delivery';
+
   return result;
 }
 

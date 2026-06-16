@@ -19,16 +19,23 @@ function safeIdx(invoice, key, rawIdx) {
 async function list(req, res, next) {
   try {
     const raw = await InvoiceService.getAllInvoices();
-    const invoices = raw.map(inv => ({
+    const all = raw.map(inv => ({
       ...inv,
       id:                   String(inv._id),
+      kind:                 inv.kind || 'delivery',
       total:                formatMoney(inv.totalP),
       receiptDateFormatted: new Date(inv.receiptDate).toLocaleDateString('en-GB'),
     }));
+
+    const groups = [
+      { kind: 'delivery',   label: 'Deliveries',  invoices: all.filter(i => i.kind === 'delivery') },
+      { kind: 'membership', label: 'Membership',   invoices: all.filter(i => i.kind === 'membership') },
+    ].filter(g => g.invoices.length > 0);
+
     res.render('milkman/invoices/index', {
       title:       'Invoices',
       description: 'All milk-round invoices.',
-      invoices,
+      groups,
     });
   } catch (err) { next(err); }
 }
@@ -335,6 +342,7 @@ async function confirmParse(req, res, next) {
       number:        body.number?.trim(),
       receiptDate:   new Date(body.receiptDate),
       transactionId: body.transactionId?.trim() || undefined,
+      kind:          body.kind === 'membership' ? 'membership' : 'delivery',
       totalP:        parseInt(body.totalP, 10),
       deliveryDays,
       charges,
