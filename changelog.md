@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.1] - 2026-06-16
+
+### Fixed
+- Settlements now sort by `windowStart` descending (receipt date of the invoice period) instead of `createdAt`. Previously a backdated April invoice computed today floated to the top of the settlements list because it was parsed most recently.
+- Invoices list and dashboard "recent invoices" use `receiptDate: -1, _id: -1` so two invoices with the same receipt date appear in a stable, predictable order.
+
+---
+
 ## [2.6.0] - 2026-06-16
 
 ### Added

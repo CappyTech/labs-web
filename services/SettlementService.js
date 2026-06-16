@@ -10,7 +10,7 @@ async function getAllSettlements() {
   return Settlement.find()
     .populate('invoiceIds', 'number receiptDate totalP')
     .populate('balances.member', 'name')
-    .sort({ createdAt: -1 })
+    .sort({ windowStart: -1, _id: -1 })
     .lean();
 }
 
@@ -24,7 +24,7 @@ async function getSettlementsInWindow(from, to) {
   })
     .populate('invoiceIds', 'number receiptDate totalP')
     .populate('balances.member', 'name')
-    .sort({ createdAt: -1 })
+    .sort({ windowStart: -1, _id: -1 })
     .lean();
 }
 

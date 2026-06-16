@@ -18,13 +18,13 @@ async function getInvoiceById(invoiceId) {
 
 async function getAllInvoices() {
   return Invoice.find()
-    .sort({ receiptDate: -1 })
+    .sort({ receiptDate: -1, _id: -1 })
     .lean();
 }
 
 async function getRecentInvoices(limit = 10) {
   return Invoice.find()
-    .sort({ receiptDate: -1 })
+    .sort({ receiptDate: -1, _id: -1 })
     .limit(limit)
     .lean();
 }
