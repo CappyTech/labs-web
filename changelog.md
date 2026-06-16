@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.7.6] - 2026-06-16
+
+### Changed
+- `Member` model now enforces the single account holder rule at the database layer via Mongoose `pre('save')` and `pre('findOneAndUpdate')` middleware. Any write that sets `isBuyer: true` automatically clears the flag on all other members, preventing a second account holder from being persisted even if the service layer is bypassed.
+
+---
+
+## [2.7.5] - 2026-06-16
+
+### Changed
+- `MemberService.createMember` and `updateMember` now enforce a single account holder: when `isBuyer: true` is set on any member, all other members have `isBuyer` cleared atomically before the save. Prevents the `account-holder` charge split from being non-deterministic.
+
+---
+
+## [2.7.4] - 2026-06-16
+
+### Added
+- Charge `splitType` now supports `'account-holder'` — the full charge amount is assigned to the member flagged `isBuyer: true`. Falls back to equal split if no account holder is set. Available in the paste-preview splitType dropdown and the manual add-charge form on the invoice detail page.
+
+---
+
 ## [2.7.3] - 2026-06-16
 
 ### Fixed

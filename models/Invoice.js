@@ -42,7 +42,8 @@ const chargeSchema = new mongoose.Schema(
     type:      { type: String, enum: ['fee', 'discount', 'membership', 'balance', 'other'], required: true },
     label:     { type: String, required: true, trim: true },
     amountP:   { type: Number, required: true },
-    splitType: { type: String, enum: ['equal', 'proportional'], default: 'equal' },
+    // 'account-holder' — full charge goes to the member flagged isBuyer.
+    splitType: { type: String, enum: ['equal', 'proportional', 'account-holder'], default: 'equal' },
   },
   { _id: false }
 );

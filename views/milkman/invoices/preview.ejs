@@ -149,8 +149,9 @@
               <td class="text-right <%= charge.amountP < 0 ? 'text-settled' : '' %>"><%= charge.amountP %></td>
               <td>
                 <select name="charge_<%= c %>_splitType" style="min-width:9rem;">
-                  <option value="equal"        <%= charge.splitType === 'equal'        ? 'selected' : '' %>>equal</option>
-                  <option value="proportional" <%= charge.splitType === 'proportional' ? 'selected' : '' %>>proportional</option>
+                  <option value="equal"          <%= charge.splitType === 'equal'          ? 'selected' : '' %>>equal</option>
+                  <option value="proportional"   <%= charge.splitType === 'proportional'   ? 'selected' : '' %>>proportional</option>
+                  <option value="account-holder" <%= charge.splitType === 'account-holder' ? 'selected' : '' %>>account holder</option>
                 </select>
               </td>
             </tr>
@@ -161,6 +162,7 @@
       <p class="text-muted text-xs mb-6">
         <strong>equal</strong> — split evenly across all members.
         <strong>proportional</strong> — split in proportion to each member's delivery share (useful for coupons).
+        <strong>account holder</strong> — full charge goes to the account holder.
       </p>
       <% } %>
 

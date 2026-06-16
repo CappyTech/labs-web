@@ -85,7 +85,7 @@ async function computeSettlement(invoiceId) {
 
   // Load all active members.
   const members = await Member.find({ active: true }).lean();
-  const memberList = members.map(m => ({ id: String(m._id) }));
+  const memberList = members.map(m => ({ id: String(m._id), isBuyer: m.isBuyer || false }));
 
   // Collect unique product IDs from all line items.
   const productIdSet = new Set();

@@ -15,11 +15,13 @@ async function getMemberById(id) {
 }
 
 async function createMember(data) {
+  if (data.isBuyer) await Member.updateMany({}, { isBuyer: false });
   const member = new Member(data);
   return member.save();
 }
 
 async function updateMember(id, data) {
+  if (data.isBuyer) await Member.updateMany({ _id: { $ne: id } }, { isBuyer: false });
   return Member.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
 }
 

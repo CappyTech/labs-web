@@ -176,14 +176,15 @@ function applyCommunalEvents(shares, communalEvents) {
 /**
  * Apply invoice-level charges (fees, discounts, membership, balance carry-forwards).
  *
- * splitType 'equal'        — divided evenly across all members.
- * splitType 'proportional' — divided in proportion to each member's current positive share,
- *                            so whoever ordered more of the delivery absorbs more of a coupon.
- *                            Falls back to equal if no member has a positive share.
+ * splitType 'equal'          — divided evenly across all members.
+ * splitType 'proportional'   — divided in proportion to each member's current positive share.
+ *                              Falls back to equal if no member has a positive share.
+ * splitType 'account-holder' — entire charge assigned to the member flagged isBuyer.
+ *                              Falls back to equal if no buyer found.
  *
  * @param {Map<string, number>} shares
- * @param {{ amountP: number, splitType: 'equal'|'proportional' }[]} charges
- * @param {{ id: string }[]} members
+ * @param {{ amountP: number, splitType: 'equal'|'proportional'|'account-holder' }[]} charges
+ * @param {{ id: string, isBuyer?: boolean }[]} members
  * @returns {Map<string, number>}
  */
 function applyCharges(shares, charges, members) {
@@ -191,6 +192,15 @@ function applyCharges(shares, charges, members) {
 
   for (const charge of charges) {
     let parts;
+
+    if (charge.splitType === 'account-holder') {
+      const buyer = members.find(m => m.isBuyer);
+      if (buyer) {
+        result.set(buyer.id, (result.get(buyer.id) || 0) + charge.amountP);
+        continue;
+      }
+      // No buyer found — fall through to equal.
+    }
 
     if (charge.splitType === 'proportional') {
       const positiveTotal = [...result.values()].filter(v => v > 0).reduce((s, v) => s + v, 0);
