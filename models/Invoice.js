@@ -61,7 +61,7 @@ const adjustmentSchema = new mongoose.Schema(
 const invoiceSchema = new mongoose.Schema(
   {
     // External invoice reference from the milkman (e.g. '39875277').
-    number:        { type: String, required: true, trim: true },
+    number:        { type: String, required: true, trim: true, unique: true },
     receiptDate:   { type: Date, required: true },
     transactionId: { type: String, trim: true },
     // 'delivery' — standard delivery invoice with one or more delivery days.

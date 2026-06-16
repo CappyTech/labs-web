@@ -8,6 +8,21 @@
     <form method="POST" action="/milkman/invoices/confirm">
 
       <input type="hidden" name="kind" value="<%= parsed.kind || 'delivery' %>">
+
+      <%# ── Duplicate warning ──────────────────────────────────────────── %>
+      <% if (duplicate) { %>
+      <div class="mb-6 p-4 rounded" style="background:#3a1f0a;border:1px solid #e8a13c;">
+        <p class="text-accent font-semibold mb-1">&#9888; Invoice #<%= duplicate.number %> already exists</p>
+        <p class="text-muted text-sm">
+          Received <%= duplicate.date %> &nbsp;·&nbsp;
+          <span class="status-badge status-<%= duplicate.status %>"><%= duplicate.status %></span>
+          &nbsp;·&nbsp;
+          <a href="/milkman/invoices/<%= duplicate.id %>" class="text-signal underline">View existing invoice</a>
+        </p>
+        <p class="text-muted text-sm mt-2">Creating this invoice will fail. Go back and re-paste a different invoice, or view the existing one.</p>
+      </div>
+      <% } %>
+
       <%# ── Invoice header ─────────────────────────────────────────────── %>
       <div class="section-label">Invoice header</div>
       <div class="flex gap-3 flex-wrap items-end mb-8">

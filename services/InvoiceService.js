@@ -33,6 +33,10 @@ async function getInvoiceRaw(invoiceId) {
   return Invoice.findById(invoiceId).lean();
 }
 
+async function findByNumber(number) {
+  return Invoice.findOne({ number: number?.trim() }, '_id number receiptDate status').lean();
+}
+
 async function createInvoice(data) {
   const invoice = new Invoice(data);
   return invoice.save();
@@ -221,4 +225,4 @@ async function computeSettlement(invoiceId) {
   return { settlement: raw.value, created };
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getRecentInvoices, createInvoice, updateInvoice, setInvoiceStatus, computeSettlement };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getRecentInvoices, findByNumber, createInvoice, updateInvoice, setInvoiceStatus, computeSettlement };

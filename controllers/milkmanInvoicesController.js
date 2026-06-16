@@ -59,7 +59,13 @@ async function create(req, res, next) {
       totalP:        parseInt(totalP, 10),
     });
     res.redirect(`/milkman/invoices/${invoice._id}`);
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err.code === 11000) {
+      const existing = await InvoiceService.findByNumber(req.body.number);
+      if (existing) return res.redirect(`/milkman/invoices/${existing._id}`);
+    }
+    next(err);
+  }
 }
 
 // ── Delivery day mutations ─────────────────────────────────────────────────
@@ -252,6 +258,10 @@ async function parsePreview(req, res, next) {
       }
     }
 
+    const duplicate = parsed.number
+      ? await InvoiceService.findByNumber(parsed.number)
+      : null;
+
     res.render('milkman/invoices/preview', {
       title:       'Review parsed invoice',
       description: 'Confirm the parsed invoice before creating it.',
@@ -261,6 +271,12 @@ async function parsePreview(req, res, next) {
       products,
       members,
       rawText,
+      duplicate: duplicate ? {
+        id:     String(duplicate._id),
+        number: duplicate.number,
+        status: duplicate.status,
+        date:   new Date(duplicate.receiptDate).toLocaleDateString('en-GB'),
+      } : null,
     });
   } catch (err) { next(err); }
 }
@@ -362,7 +378,13 @@ async function confirmParse(req, res, next) {
     }
 
     res.redirect(`/milkman/invoices/${invoice._id}`);
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err.code === 11000) {
+      const existing = await InvoiceService.findByNumber(req.body.number);
+      if (existing) return res.redirect(`/milkman/invoices/${existing._id}`);
+    }
+    next(err);
+  }
 }
 
 // ── Charge mutations ───────────────────────────────────────────────────────

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.7.1] - 2026-06-16
+
+### Added
+- `Invoice.number` is now a unique index — the database will reject any duplicate at the storage layer.
+- Parse preview shows a prominent amber warning banner when the parsed invoice number already exists in the system, with a direct link to the existing invoice and instructions not to proceed.
+- `InvoiceService.findByNumber(number)` helper.
+
+### Changed
+- `confirmParse` and `create` now catch MongoDB E11000 duplicate-key errors and redirect to the existing invoice instead of crashing with a 500.
+
+---
+
 ## [2.7.0] - 2026-06-16
 
 ### Added
