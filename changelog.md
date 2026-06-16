@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.7.7] - 2026-06-16
+
+### Added
+- Pending invoices can now be deleted. A "Delete invoice" button appears in the Actions section when status is `pending`. The service uses `findOneAndDelete` with a `status: 'pending'` guard so computed/settled invoices are never removed this way. If deletion fails (wrong status), the user is returned to the invoice page unchanged.
+
+---
+
 ## [2.7.6] - 2026-06-16
 
 ### Changed

@@ -284,6 +284,9 @@
       <form method="POST" action="/milkman/invoices/<%= invoice.id %>/split">
         <button type="submit" class="btn">Compute split</button>
       </form>
+      <form method="POST" action="/milkman/invoices/<%= invoice.id %>/delete">
+        <button type="submit" class="btn text-signal">Delete invoice</button>
+      </form>
       <% } %>
       <% if (invoice.status === 'computed') { %>
       <form method="POST" action="/milkman/invoices/<%= invoice.id %>/split">

@@ -42,6 +42,10 @@ async function createInvoice(data) {
   return invoice.save();
 }
 
+async function deleteInvoice(id) {
+  return Invoice.findOneAndDelete({ _id: id, status: 'pending' }).lean();
+}
+
 async function updateInvoice(id, data) {
   return Invoice.findOneAndUpdate(
     { _id: id, status: 'pending' },
@@ -225,4 +229,4 @@ async function computeSettlement(invoiceId) {
   return { settlement: raw.value, created };
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getRecentInvoices, findByNumber, createInvoice, updateInvoice, setInvoiceStatus, computeSettlement };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement };

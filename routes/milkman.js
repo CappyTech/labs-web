@@ -28,6 +28,7 @@ router.post('/invoices/confirm',     milkmanInvoicesController.confirmParse);
 
 // Single invoice detail + status actions.
 router.get('/invoices/:id',          milkmanInvoiceController.show);
+router.post('/invoices/:id/delete',  milkmanInvoicesController.deleteInvoice);
 router.post('/invoices/:id/split',   milkmanInvoiceController.split);
 router.post('/invoices/:id/settle',  milkmanInvoiceController.settle);
 

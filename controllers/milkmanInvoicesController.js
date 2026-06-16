@@ -387,6 +387,17 @@ async function confirmParse(req, res, next) {
   }
 }
 
+// ── Invoice deletion ───────────────────────────────────────────────────────
+
+async function deleteInvoice(req, res, next) {
+  try {
+    const { id } = req.params;
+    const deleted = await InvoiceService.deleteInvoice(id);
+    if (!deleted) return res.redirect(`/milkman/invoices/${id}`);
+    res.redirect('/milkman/invoices');
+  } catch (err) { next(err); }
+}
+
 // ── Charge mutations ───────────────────────────────────────────────────────
 
 async function addCharge(req, res, next) {
@@ -421,7 +432,7 @@ async function removeCharge(req, res, next) {
 }
 
 module.exports = {
-  list, newForm, create,
+  list, newForm, create, deleteInvoice,
   parseForm, parsePreview, confirmParse,
   addDay, removeDay,
   addLineItem, removeLineItem,
