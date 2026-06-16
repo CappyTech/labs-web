@@ -264,8 +264,10 @@ async function confirmParse(req, res, next) {
     const dayCount = parseInt(body.dayCount, 10) || 0;
 
     const deliveryDays = [];
-    // product → member map for rule creation (first assignment wins per product).
     const productMemberMap = new Map();
+    // Cache parsedName (lowercase) → productId for this run to avoid creating
+    // the same product twice when it appears on multiple delivery days.
+    const productNameCache = new Map();
 
     for (let d = 0; d < dayCount; d++) {
       const itemCount = parseInt(body[`day_${d}_itemCount`], 10) || 0;
@@ -280,12 +282,26 @@ async function confirmParse(req, res, next) {
         if (!productId) {
           const parsedName = (body[`day_${d}_item_${i}_parsedName`] || '').trim();
           if (parsedName && !isNaN(qty) && qty > 0 && !isNaN(totalP)) {
-            const newProduct = await ProductService.createProduct({
-              name:   parsedName,
-              priceP: Math.round(totalP / qty),
-              active: true,
-            });
-            productId = String(newProduct._id);
+            const computedPriceP = Math.round(totalP / qty);
+            // Key on name+price so a 1-pint and a 3-pint bundle of the same
+            // product are treated as distinct SKUs.
+            const cacheKey = `${parsedName.toLowerCase()}|${computedPriceP}`;
+            if (productNameCache.has(cacheKey)) {
+              productId = productNameCache.get(cacheKey);
+            } else {
+              const existing = await ProductService.findByNameAndPrice(parsedName, computedPriceP);
+              if (existing) {
+                productId = String(existing._id);
+              } else {
+                const created = await ProductService.createProduct({
+                  name:   parsedName,
+                  priceP: computedPriceP,
+                  active: true,
+                });
+                productId = String(created._id);
+              }
+              productNameCache.set(cacheKey, productId);
+            }
           } else {
             continue;
           }

@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.6] - 2026-06-16
+
+### Added
+- `ProductService.checkDuplicates()` — scans all products on startup and logs any groups sharing the same name + `priceP`. Runs non-blocking after the server starts; prints a clean "OK" line when no duplicates exist, or a `⚠` warning per duplicate group with the product name, price, and all duplicate IDs.
+- `app.js` — calls `checkDuplicates()` after DB connects.
+
+---
+
+## [2.5.5] - 2026-06-16
+
+### Fixed
+- `confirmParse` — product dedup now keys on `name + unit price` (`round(totalP/qty)`) rather than name alone. A 1-pint bottle at £1.10 and a 3-pint bundle at £2.90 share the same base name but have different unit prices and are correctly treated as distinct products. `ProductService.findByName` replaced with `findByNameAndPrice(name, priceP)` for the same reason.
+
+---
+
+## [2.5.4] - 2026-06-16
+
+### Fixed
+- `confirmParse` — removed price update on existing product match. Products are shared across historical invoices so mutating `priceP` would corrupt old records. Existing products are now reused as-is; only genuinely new products (no name match in DB) get created with the computed unit price.
+
+---
+
+## [2.5.3] - 2026-06-16
+
+### Fixed
+- `confirmParse` — when an auto-create product lookup finds an existing product by name, its `priceP` is now updated if the computed unit price (`round(totalP / qty)`) has changed. Milkman prices change week-to-week; previously the stored price would silently go stale.
+
+---
+
+## [2.5.2] - 2026-06-16
+
+### Fixed
+- `confirmParse` — duplicate products no longer created when the same unmatched product name appears on multiple delivery days within one invoice. A `productNameCache` map (keyed by lowercased name) is built during the confirm loop; on first miss, a case-insensitive DB lookup (`ProductService.findByName`) is performed before creating, so re-pasting an invoice that was already partially imported also avoids duplicates.
+- `ProductService.findByName(name)` added — case-insensitive exact-match lookup by name.
+
+---
+
+## [2.5.1] - 2026-06-16
+
+### Added
+- **Outstanding balances on dashboard** — `/milkman` now shows a per-member balance card grid aggregated across all invoices with status `computed` (split run but not yet window-settled). Shows nothing when all splits are settled. Implemented via `SettlementService.getOutstandingBalances()`.
+
+---
+
 ## [2.5.0] - 2026-06-16
 
 ### Added

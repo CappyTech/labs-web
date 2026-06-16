@@ -95,4 +95,32 @@ async function createWindowSettlement({ cadence, windowStart, windowEnd }) {
   return settlement;
 }
 
-module.exports = { getAllSettlements, getSettlementsInWindow, getSettlementForInvoice, getSettlementById, createWindowSettlement };
+/**
+ * Aggregate per-member outstanding balances across all invoices with
+ * status 'computed' (split run, not yet window-settled).
+ * Returns [{memberId, memberName, owedP}] sorted largest-first.
+ */
+async function getOutstandingBalances() {
+  const computedInvoices = await Invoice.find({ status: 'computed' }, '_id').lean();
+  if (computedInvoices.length === 0) return [];
+
+  const invoiceIds = computedInvoices.map(i => i._id);
+  const settlements = await Settlement.find({ invoiceIds: { $in: invoiceIds } })
+    .populate('balances.member', 'name')
+    .lean();
+
+  const totals = new Map();
+  for (const s of settlements) {
+    for (const b of s.balances) {
+      const mid  = String(b.member._id || b.member);
+      const name = b.member.name || 'Unknown';
+      const entry = totals.get(mid) || { memberId: mid, memberName: name, owedP: 0 };
+      entry.owedP += b.owedP;
+      totals.set(mid, entry);
+    }
+  }
+
+  return [...totals.values()].sort((a, b) => b.owedP - a.owedP);
+}
+
+module.exports = { getAllSettlements, getSettlementsInWindow, getSettlementForInvoice, getSettlementById, createWindowSettlement, getOutstandingBalances };

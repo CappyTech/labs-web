@@ -37,6 +37,8 @@ db.connect()
     app.listen(PORT, () => {
       console.log(`labs-web listening on port ${PORT}`);
     });
+    // Run after server is up — don't block startup.
+    require('./services/ProductService').checkDuplicates().catch(console.error);
   })
   .catch((err) => {
     console.error('Failed to connect to MongoDB:', err);

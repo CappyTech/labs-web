@@ -34,6 +34,21 @@
       </a>
     </section>
 
+    <div class="section-label">Outstanding balances</div>
+    <% if (outstandingBalances.length === 0) { %>
+      <p class="empty-state mb-8">No outstanding balances — all computed invoices are settled.</p>
+    <% } else { %>
+    <section class="card-grid mb-8">
+      <% outstandingBalances.forEach(function(b) { %>
+      <div class="module">
+        <div class="callsign">[OWES]</div>
+        <div class="name"><%= b.owed %></div>
+        <div class="desc"><%= b.memberName %></div>
+      </div>
+      <% }); %>
+    </section>
+    <% } %>
+
     <div class="section-label">Recent invoices</div>
     <section class="card-grid mb-8">
       <% if (recentInvoices.length === 0) { %>
