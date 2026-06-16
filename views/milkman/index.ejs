@@ -76,8 +76,9 @@
         <div class="module">
           <div class="callsign">[MEMBER]</div>
           <div class="name"><%= m.name %></div>
+          <div class="desc <%= m.owedP > 0 ? 'text-accent' : 'text-muted' %>"><%= m.owed %> due</div>
           <% if (m.isBuyer) { %>
-          <div class="desc">account holder</div>
+          <div class="host">account holder</div>
           <% } %>
         </div>
         <% }); %>

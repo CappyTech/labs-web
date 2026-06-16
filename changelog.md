@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.2] - 2026-06-16
+
+### Changed
+- Dashboard members section now shows each member's outstanding balance (`£0.00` in muted grey, positive amounts in amber). No extra DB query — reuses the balance data already fetched for the Outstanding balances section.
+
+---
+
 ## [2.6.1] - 2026-06-16
 
 ### Fixed

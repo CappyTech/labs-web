@@ -28,10 +28,17 @@ async function index(req, res, next) {
       owed: formatMoney(b.owedP),
     }));
 
+    const balanceByMember = new Map(rawBalances.map(b => [b.memberId, b.owedP]));
+    const membersWithBalance = members.map(m => ({
+      ...m,
+      owedP: balanceByMember.get(String(m._id)) || 0,
+      owed:  formatMoney(balanceByMember.get(String(m._id)) || 0),
+    }));
+
     res.render('milkman/index', {
       title: 'Milkman',
       description: 'Milk-round bill splitter.',
-      members,
+      members: membersWithBalance,
       recentInvoices,
       outstandingBalances,
     });
