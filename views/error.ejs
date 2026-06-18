@@ -1,0 +1,17 @@
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow"><a href="javascript:history.back()">← Back</a></div>
+    <h1><span class="text-signal"><%= status %></span></h1>
+    <p class="lede"><%= error.name || 'Error' %></p>
+  </header>
+
+  <div class="module mb-4">
+    <div class="callsign"><%= error.name || 'Error' %></div>
+    <p class="mt-3 font-mono text-sm leading-relaxed" style="color:#dde9e7;white-space:pre-wrap;"><%= error.message %></p>
+  </div>
+
+  <% if (error.stack) { %>
+  <div class="section-label">Stack trace</div>
+  <pre class="module font-mono text-xs leading-relaxed overflow-x-auto" style="color:#6f8d90;white-space:pre-wrap;word-break:break-all;"><%= error.stack %></pre>
+  <% } %>
+</div>

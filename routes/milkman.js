@@ -15,6 +15,7 @@ const router = Router();
 
 // ── Landing ────────────────────────────────────────────────────────────────
 router.get('/',          milkmanController.index);
+router.get('/maths',     milkmanController.maths);
 router.get('/calendar',  milkmanCalendarController.calendar);
 
 // ── Invoices ───────────────────────────────────────────────────────────────

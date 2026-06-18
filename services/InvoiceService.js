@@ -93,9 +93,12 @@ async function computeSettlement(invoiceId) {
 
   // Collect unique product IDs from all line items.
   const productIdSet = new Set();
+  const productNameMap = new Map();
   for (const day of invoice.deliveryDays) {
     for (const item of day.lineItems) {
-      productIdSet.add(String(item.product._id));
+      const pid = String(item.product._id);
+      productIdSet.add(pid);
+      productNameMap.set(pid, item.product.name || pid);
     }
   }
   const productIds = [...productIdSet];
@@ -121,7 +124,8 @@ async function computeSettlement(invoiceId) {
   // Ensure every product has a rule.
   for (const pid of productIds) {
     if (!ruleMap.has(pid)) {
-      throw new UnknownProductError(`No allocation rule for product ${pid}`);
+      const name = productNameMap.get(pid) || pid;
+      throw new UnknownProductError(`No allocation rule for product "${name}" — add one at /milkman/rules`);
     }
   }
 

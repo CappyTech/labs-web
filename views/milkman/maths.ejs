@@ -1,0 +1,425 @@
+<style>
+  .formula {
+    background: rgba(95,184,196,0.05);
+    border: 1px solid rgba(95,184,196,0.2);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #5fb8c4;
+    margin: 10px 0 14px;
+    line-height: 1.8;
+    white-space: pre;
+  }
+  .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .ba-label { font-size: 11px; color: #6f8d90; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .delta-pos { color: #7ecb7e; }
+  .delta-neg { color: #e8a13c; }
+  .pass { color: #7ecb7e; }
+  .fail { color: #e8754e; }
+  @media (max-width: 560px) { .before-after { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow"><a href="/milkman">Milkman</a></div>
+    <h1>Maths</h1>
+    <p class="lede">Every calculation in the split pipeline — worked examples throughout.</p>
+  </header>
+
+  <%# ── Pipeline ──────────────────────────────────────────────────── %>
+  <div class="section-label">Pipeline</div>
+  <div class="module">
+    <ol style="padding-left:1.4em;display:flex;flex-direction:column;gap:8px;font-size:13px;">
+      <li><strong>Allocate lines</strong> — each line item assigned by rule type (WHOLE / FRACTION / FIXED)</li>
+      <li><strong>Communal events</strong> — buyer credited for shared pints; re-charged equally to participants</li>
+      <li><strong>Adjustments</strong> — per-member backdated credits or surcharges added directly to shares</li>
+      <li><strong>Charges</strong> — invoice-level fees distributed by <em>equal</em>, <em>proportional</em>, or <em>account-holder</em> strategy</li>
+      <li><strong>Reconcile</strong> — assert Σ shares = invoice grand total exactly; throw if not</li>
+    </ol>
+    <p style="margin-top:14px;font-size:12px;color:#6f8d90;font-family:'IBM Plex Mono',monospace;">
+      All money is integer pence. Rounding uses largest-remainder — no penny is ever lost or invented.
+    </p>
+  </div>
+
+  <%# ── Largest remainder ─────────────────────────────────────────── %>
+  <div class="section-label">Largest remainder — the rounding algorithm</div>
+  <div class="module">
+    <div class="callsign">Used everywhere a total must be split exactly into integer pence</div>
+    <pre class="formula">exact     = weight × totalPence
+floor     = Math.floor(exact)          for every part
+leftover  = totalPence − Σ floors
+award +1p to parts with largest fractional remainders
+          (ties broken alphabetically by member ID)</pre>
+
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:10px;">
+      Example: split <strong style="color:#dde9e7;"><%= fm(lr.total) %></strong> (<%= lr.total %>p) equally between <%= memberDefs.map(m => m.name).join(' and ') %>.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th class="text-right">Weight</th>
+          <th class="text-right">Exact (p)</th>
+          <th class="text-right">Floor (p)</th>
+          <th class="text-right">Remainder</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% lr.working.forEach(function(row) { %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= row.weight.toFixed(3) %></td>
+          <td class="text-right font-mono text-xs"><%= row.exact.toFixed(4) %></td>
+          <td class="text-right font-mono text-xs"><%= row.floor %></td>
+          <td class="text-right font-mono text-xs"><%= row.remainder.toFixed(4) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <p style="font-size:12px;color:#6f8d90;margin:8px 0 12px;">
+      Σ floors = <%= lr.floorSum %>p &nbsp;·&nbsp; leftover = <strong style="color:#dde9e7;"><%= lr.leftover %>p</strong> &nbsp;→&nbsp; awarded to highest remainder(s)
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Member</th><th class="text-right">Result (p)</th><th class="text-right">Result</th></tr>
+      </thead>
+      <tbody>
+        <% lr.result.forEach(function(row) { %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= row.pence %></td>
+          <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── WHOLE rule ─────────────────────────────────────────────────── %>
+  <div class="section-label">WHOLE rule</div>
+  <div class="module">
+    <div class="callsign">Entire line total goes to one member</div>
+    <pre class="formula">share[assignee] += lineTotalP</pre>
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:10px;">
+      Example: Double Cream <strong style="color:#dde9e7;"><%= fm(whole.totalP) %></strong> — Alice has a WHOLE rule.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Member</th><th class="text-right">Share (p)</th><th class="text-right">Share</th></tr>
+      </thead>
+      <tbody>
+        <% whole.result.forEach(function(row) { %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= row.pence %></td>
+          <td class="text-right font-mono text-xs <%= row.pence > 0 ? 'text-accent' : '' %>" style="<%= row.pence === 0 ? 'color:#6f8d90' : '' %>"><%= fm(row.pence) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── FRACTION rule ──────────────────────────────────────────────── %>
+  <div class="section-label">FRACTION rule</div>
+  <div class="module">
+    <div class="callsign">Multiple members split a line by declared fractions — fractions must sum to 1</div>
+    <pre class="formula">share[member] += largestRemainder(lineTotalP, { weight: member.fraction })</pre>
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:10px;">
+      Example: Whole Milk <strong style="color:#dde9e7;"><%= fm(fraction.totalP) %></strong> — Alice 60%, Bob 40%.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th class="text-right">Fraction</th>
+          <th class="text-right">Exact (p)</th>
+          <th class="text-right">Floor (p)</th>
+          <th class="text-right">Remainder</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% fraction.working.forEach(function(row) { %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= (row.fraction * 100).toFixed(0) %>%</td>
+          <td class="text-right font-mono text-xs"><%= row.exact.toFixed(4) %></td>
+          <td class="text-right font-mono text-xs"><%= row.floor %></td>
+          <td class="text-right font-mono text-xs"><%= row.remainder.toFixed(4) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:#6f8d90;margin:8px 0 12px;">
+      Σ floors = <%= fraction.floorSum %>p &nbsp;·&nbsp; leftover = <strong style="color:#dde9e7;"><%= fraction.leftover %>p</strong>
+    </p>
+    <table>
+      <thead>
+        <tr><th>Member</th><th class="text-right">Share (p)</th><th class="text-right">Share</th></tr>
+      </thead>
+      <tbody>
+        <% fraction.result.forEach(function(row) { %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= row.pence %></td>
+          <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── FIXED rule ─────────────────────────────────────────────────── %>
+  <div class="section-label">FIXED rule</div>
+  <div class="module">
+    <div class="callsign">One member takes an explicit quantity — same engine path as WHOLE</div>
+    <pre class="formula">share[assignee] += lineTotalP   // identical to WHOLE in SplitEngine</pre>
+    <p style="font-size:13px;color:#6f8d90;">
+      FIXED stores a <span style="font-family:'IBM Plex Mono',monospace;color:#5fb8c4;font-size:12px;">fixedQty</span> on the rule (used when a member takes a known number of units regardless of delivery total), but the engine uses the full <span style="font-family:'IBM Plex Mono',monospace;color:#5fb8c4;font-size:12px;">lineTotalP</span> in the same code path as WHOLE.
+    </p>
+  </div>
+
+  <%# ── Communal events ────────────────────────────────────────────── %>
+  <div class="section-label">Communal events</div>
+  <div class="module">
+    <div class="callsign">Shared pints: credit the buyer, re-charge participants equally</div>
+    <pre class="formula">costPerPint  = Math.floor(lineTotalP / (lineQty × pintsPerBottle))
+communalCost = units × costPerPint
+share[buyer] -= communalCost
+share[each participant] += largestRemainder(communalCost, equal weights)</pre>
+
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:14px;">
+      Example: <%= communal.lineQty %> bottles · <strong style="color:#dde9e7;"><%= fm(communal.lineTotalP) %></strong> · <%= communal.ppb %> pints/bottle.
+      <%= communal.units %> pints consumed communally. Alice bought the milk (WHOLE); both Alice &amp; Bob participated.
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;">
+      <div>
+        <div class="ba-label">Cost per pint</div>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;">
+          floor(<%= communal.lineTotalP %> / (<%= communal.lineQty %> × <%= communal.ppb %>))
+          = floor(<%= (communal.lineTotalP / (communal.lineQty * communal.ppb)).toFixed(3) %>)
+          = <strong style="color:#e8a13c;"><%= communal.costPerPint %>p</strong>
+        </p>
+      </div>
+      <div>
+        <div class="ba-label">Communal cost</div>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;">
+          <%= communal.units %> × <%= communal.costPerPint %>p
+          = <strong style="color:#e8a13c;"><%= communal.communalCost %>p</strong> (<%= fm(communal.communalCost) %>)
+        </p>
+      </div>
+    </div>
+
+    <div class="before-after">
+      <div>
+        <div class="ba-label">Before</div>
+        <table>
+          <thead><tr><th>Member</th><th class="text-right">Share (p)</th><th class="text-right">Share</th></tr></thead>
+          <tbody>
+            <% communal.startRows.forEach(function(row) { %>
+            <tr>
+              <td><%= row.name %></td>
+              <td class="text-right font-mono text-xs"><%= row.pence %></td>
+              <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="ba-label">After</div>
+        <table>
+          <thead><tr><th>Member</th><th class="text-right">Share (p)</th><th class="text-right">Share</th></tr></thead>
+          <tbody>
+            <% communal.result.forEach(function(row, i) { %>
+            <% var delta = row.pence - communal.startRows[i].pence; %>
+            <tr>
+              <td><%= row.name %></td>
+              <td class="text-right font-mono text-xs"><%= row.pence %> <span class="<%= delta < 0 ? 'delta-neg' : 'delta-pos' %>" style="font-size:10px;">(<%= delta >= 0 ? '+' : '' %><%= delta %>)</span></td>
+              <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size:12px;color:#6f8d90;margin-top:8px;">
+      Total is preserved: <%= communal.result.reduce((s, r) => s + r.pence, 0) %>p = <%= communal.lineTotalP %>p.
+    </p>
+  </div>
+
+  <%# ── Adjustments ────────────────────────────────────────────────── %>
+  <div class="section-label">Adjustments</div>
+  <div class="module">
+    <div class="callsign">Per-member backdated credits (negative) or surcharges (positive)</div>
+    <pre class="formula">share[member] += amountPence   // negative for credits</pre>
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:12px;">
+      Example: Bob receives a −<%= fm(200) %> credit (previously overcharged). Starting shares: Alice <%= fm(adjustments.before[0].pence) %>, Bob <%= fm(adjustments.before[1].pence) %>.
+    </p>
+    <div class="before-after">
+      <div>
+        <div class="ba-label">Before</div>
+        <table>
+          <thead><tr><th>Member</th><th class="text-right">Share (p)</th><th class="text-right">Share</th></tr></thead>
+          <tbody>
+            <% adjustments.before.forEach(function(row) { %>
+            <tr>
+              <td><%= row.name %></td>
+              <td class="text-right font-mono text-xs"><%= row.pence %></td>
+              <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="ba-label">After</div>
+        <table>
+          <thead><tr><th>Member</th><th class="text-right">Share (p)</th><th class="text-right">Share</th></tr></thead>
+          <tbody>
+            <% adjustments.result.forEach(function(row, i) { %>
+            <% var delta = row.pence - adjustments.before[i].pence; %>
+            <tr>
+              <td><%= row.name %></td>
+              <td class="text-right font-mono text-xs"><%= row.pence %> <% if (delta !== 0) { %><span class="<%= delta < 0 ? 'delta-neg' : 'delta-pos' %>" style="font-size:10px;">(<%= delta >= 0 ? '+' : '' %><%= delta %>)</span><% } %></td>
+              <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Charges ─────────────────────────────────────────────────────── %>
+  <div class="section-label">Charges</div>
+  <div class="module">
+    <div class="callsign">Invoice-level fees or discounts — three distribution strategies</div>
+    <p style="font-size:12px;color:#6f8d90;margin:10px 0 14px;">
+      Starting shares: Alice <%= fm(charges.startRows[0].pence) %> · Bob <%= fm(charges.startRows[1].pence) %>.
+      Charge: <strong style="color:#dde9e7;"><%= fm(charges.amountP) %></strong>.
+    </p>
+
+    <%# equal %>
+    <pre class="formula">equal — charge split evenly: amountP / members, via largest-remainder</pre>
+    <table>
+      <thead>
+        <tr><th>Member</th><th class="text-right">Before (p)</th><th class="text-right">Added (p)</th><th class="text-right">After (p)</th><th class="text-right">After</th></tr>
+      </thead>
+      <tbody>
+        <% charges.equalResult.forEach(function(row, i) { %>
+        <% var added = row.pence - charges.startRows[i].pence; %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= charges.startRows[i].pence %></td>
+          <td class="text-right font-mono text-xs delta-pos">+<%= added %></td>
+          <td class="text-right font-mono text-xs"><%= row.pence %></td>
+          <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <%# proportional %>
+    <pre class="formula" style="margin-top:20px;">proportional — charge split by each member's share of the current positive total
+  weight[member] = share[member] / Σ positive shares  (normalised)
+  distributed via largest-remainder</pre>
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:8px;">
+      Positive total = <%= charges.startRows.reduce((s, r) => s + r.pence, 0) %>p &nbsp;→&nbsp;
+      <% charges.propWeights.forEach(function(w, i) { %><%= w.name %> <%= w.pct %>%<% if (i < charges.propWeights.length - 1) { %> · <% } %><% }); %>
+    </p>
+    <table>
+      <thead>
+        <tr><th>Member</th><th class="text-right">Before (p)</th><th class="text-right">Added (p)</th><th class="text-right">After (p)</th><th class="text-right">After</th></tr>
+      </thead>
+      <tbody>
+        <% charges.propResult.forEach(function(row, i) { %>
+        <% var added = row.pence - charges.startRows[i].pence; %>
+        <tr>
+          <td><%= row.name %></td>
+          <td class="text-right font-mono text-xs"><%= charges.startRows[i].pence %></td>
+          <td class="text-right font-mono text-xs delta-pos">+<%= added %></td>
+          <td class="text-right font-mono text-xs"><%= row.pence %></td>
+          <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <%# account-holder %>
+    <pre class="formula" style="margin-top:20px;">account-holder — entire charge to the member flagged isBuyer (falls back to equal if none)</pre>
+    <table>
+      <thead>
+        <tr><th>Member</th><th class="text-right">Before (p)</th><th class="text-right">Added (p)</th><th class="text-right">After (p)</th><th class="text-right">After</th></tr>
+      </thead>
+      <tbody>
+        <% charges.ahResult.forEach(function(row, i) { %>
+        <% var added = row.pence - charges.startRows[i].pence; %>
+        <tr>
+          <td><%= row.name %> <% if (memberDefs[i] && memberDefs[i].isBuyer) { %><span style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:#5fb8c4;">[buyer]</span><% } %></td>
+          <td class="text-right font-mono text-xs"><%= charges.startRows[i].pence %></td>
+          <td class="text-right font-mono text-xs <%= added > 0 ? 'delta-pos' : '' %>"><%= added > 0 ? '+' : '' %><%= added %></td>
+          <td class="text-right font-mono text-xs"><%= row.pence %></td>
+          <td class="text-right font-mono text-xs text-accent"><%= fm(row.pence) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ── Reconciliation ─────────────────────────────────────────────── %>
+  <div class="section-label">Reconciliation</div>
+  <div class="module">
+    <div class="callsign">Final assertion — throws ReconciliationError if shares don't sum to invoice total</div>
+    <pre class="formula">sum = Σ shares
+if (sum !== grandTotalPence) throw ReconciliationError</pre>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+      <div>
+        <div class="ba-label pass">✓ Pass</div>
+        <table>
+          <thead><tr><th>Member</th><th class="text-right">Share (p)</th></tr></thead>
+          <tbody>
+            <% reconcile.goodShares.forEach(function(row) { %>
+            <tr><td><%= row.name %></td><td class="text-right font-mono text-xs"><%= row.pence %></td></tr>
+            <% }); %>
+            <tr style="border-top:1px solid rgba(255,255,255,0.08);">
+              <td style="font-size:11px;color:#6f8d90;">Σ shares</td>
+              <td class="text-right font-mono text-xs"><%= reconcile.goodSum %></td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;color:#6f8d90;">Grand total</td>
+              <td class="text-right font-mono text-xs"><%= reconcile.grandTotal %></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="pass" style="font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:8px;"><%= reconcile.goodSum %> = <%= reconcile.grandTotal %> ✓</p>
+      </div>
+      <div>
+        <div class="ba-label fail">✗ Fail</div>
+        <table>
+          <thead><tr><th>Member</th><th class="text-right">Share (p)</th></tr></thead>
+          <tbody>
+            <% reconcile.badShares.forEach(function(row) { %>
+            <tr><td><%= row.name %></td><td class="text-right font-mono text-xs"><%= row.pence %></td></tr>
+            <% }); %>
+            <tr style="border-top:1px solid rgba(255,255,255,0.08);">
+              <td style="font-size:11px;color:#6f8d90;">Σ shares</td>
+              <td class="text-right font-mono text-xs"><%= reconcile.badSum %></td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;color:#6f8d90;">Grand total</td>
+              <td class="text-right font-mono text-xs"><%= reconcile.grandTotal %></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="fail" style="font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:8px;word-break:break-word;"><%= reconcile.badError %></p>
+      </div>
+    </div>
+  </div>
+
+</div>

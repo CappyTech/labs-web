@@ -29,6 +29,28 @@ app.use('/', require('./routes/index'));
 app.use('/milkman', require('./routes/milkman'));
 app.use('/api/v1', require('./routes/api'));
 
+// ── 404 ───────────────────────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).render('error', {
+    title: '404 Not Found',
+    description: 'Page not found.',
+    status: 404,
+    error: { name: 'NotFoundError', message: `No route matched ${req.method} ${req.url}`, stack: null },
+  });
+});
+
+// ── Error handler ─────────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  const status = err.status || err.statusCode || 500;
+  res.status(status).render('error', {
+    title: `Error ${status}`,
+    description: err.message,
+    status,
+    error: err,
+  });
+});
+
 // ── Start ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 
