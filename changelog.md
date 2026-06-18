@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.8.0] - 2026-06-18
+
+### Added
+- **Centralised error page** (`views/error.ejs`) — all unhandled errors now render through the site layout showing the error name, full message, and stack trace. A 404 catch-all handles unknown routes with the same view. Wired in `app.js` as standard Express error-handler middleware after all routes.
+- **Maths reference page** (`GET /milkman/maths`) — documents every calculation in the split pipeline with worked examples: largest-remainder rounding algorithm, WHOLE / FRACTION / FIXED line allocation, communal events (cost-per-pint formula), adjustments, all three charge strategies (equal / proportional / account-holder), and reconciliation pass/fail cases. All example outputs are computed live by `SplitEngine` so they stay in sync with the engine.
+
+### Fixed
+- `UnknownProductError` thrown during invoice split now includes the product name (e.g. `"Whole Milk"`) instead of the raw MongoDB ObjectId, making the error immediately actionable.
+
+---
+
 ## [2.7.7] - 2026-06-16
 
 ### Added
