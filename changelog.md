@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.10.1] - 2026-06-24
+
+### Fixed
+- Split-result breakdown no longer overflows its card — replaced the cramped three-column table with a compact wrapping layout so amounts are never clipped and long labels (e.g. coupon codes) wrap instead of pushing the figure off the edge.
+
+---
+
 ## [2.10.0] - 2026-06-24
 
 ### Added
