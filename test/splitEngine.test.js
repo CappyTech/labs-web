@@ -19,6 +19,7 @@ const {
   UnknownProductError,
   ReconciliationError,
   UnknownMemberError,
+  FixedQtyMismatchError,
 } = require('../services/errors');
 
 // ── largestRemainder ────────────────────────────────────────────────────────
@@ -136,6 +137,68 @@ describe('allocateLines', () => {
     const shares = allocateLines([], new Map(), members);
     assert.equal(shares.get('alice'), 0);
     assert.equal(shares.get('bob'), 0);
+  });
+
+  test('single FIXED rule assigns the whole line (backward compatible)', () => {
+    const lines = [{ productId: 'bundle', totalP: 400, qty: 4 }];
+    const rules = new Map([
+      ['bundle', { type: 'FIXED', assignments: [{ memberId: 'alice', fixedQty: 4 }] }],
+    ]);
+    const shares = allocateLines(lines, rules, members);
+    assert.equal(shares.get('alice'), 400);
+    assert.equal(shares.get('bob'), 0);
+  });
+
+  test('multi-member FIXED splits a line by unit count and reconciles', () => {
+    // 6-egg line of 300p: alice 4, bob 2 → 200p / 100p.
+    const members3 = [{ id: 'alice' }, { id: 'bob' }];
+    const lines = [{ productId: 'eggs', totalP: 300, qty: 6 }];
+    const rules = new Map([
+      ['eggs', { type: 'FIXED', assignments: [
+        { memberId: 'alice', fixedQty: 4 },
+        { memberId: 'bob',   fixedQty: 2 },
+      ] }],
+    ]);
+    const shares = allocateLines(lines, rules, members3);
+    assert.equal(shares.get('alice'), 200);
+    assert.equal(shares.get('bob'), 100);
+    assert.equal(shares.get('alice') + shares.get('bob'), 300);
+  });
+
+  test('multi-member FIXED distributes odd pennies via largest-remainder', () => {
+    const lines = [{ productId: 'eggs', totalP: 100, qty: 3 }];
+    const rules = new Map([
+      ['eggs', { type: 'FIXED', assignments: [
+        { memberId: 'alice', fixedQty: 2 },
+        { memberId: 'bob',   fixedQty: 1 },
+      ] }],
+    ]);
+    const shares = allocateLines(lines, rules, members);
+    assert.equal(shares.get('alice') + shares.get('bob'), 100);
+  });
+
+  test('multi-member FIXED throws when quantities do not match the line qty', () => {
+    const lines = [{ productId: 'eggs', totalP: 300, qty: 5 }];
+    const rules = new Map([
+      ['eggs', { type: 'FIXED', assignments: [
+        { memberId: 'alice', fixedQty: 4 },
+        { memberId: 'bob',   fixedQty: 2 },
+      ] }],
+    ]);
+    assert.throws(() => allocateLines(lines, rules, members), FixedQtyMismatchError);
+  });
+
+  test('multi-member FIXED with no line qty apportions without validating', () => {
+    const lines = [{ productId: 'eggs', totalP: 300 }];
+    const rules = new Map([
+      ['eggs', { type: 'FIXED', assignments: [
+        { memberId: 'alice', fixedQty: 4 },
+        { memberId: 'bob',   fixedQty: 2 },
+      ] }],
+    ]);
+    const shares = allocateLines(lines, rules, members);
+    assert.equal(shares.get('alice'), 200);
+    assert.equal(shares.get('bob'), 100);
   });
 
   test('accumulates multiple lines correctly', () => {

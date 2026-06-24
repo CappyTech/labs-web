@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.12.0] - 2026-06-24
+
+### Added
+- **Multi-member FIXED allocation by unit count** — a single product line can now be split across members by explicit quantities (e.g. a 6-egg line: Jack 4, Luke 2). The engine apportions the line price `fixedQty / lineQty` with largest-remainder rounding so it reconciles to the exact pence. At split time the quantities are validated against the line's quantity; a mismatch raises the new `FixedQtyMismatchError`. The invoice split breakdown shows each member's `N of M units`.
+
+### Changed
+- A single-member FIXED rule is unchanged (takes the whole line, not qty-checked), so existing bundle rules keep working.
+- Rules-page coverage no longer flags multiple FIXED rules on a product as a conflict; it now reports the declared unit total (e.g. "Splits 6 units across 2 members") and warns if any member is missing a quantity. `SplitEngine.allocateLines` now carries line `qty`, and the FIXED case is handled separately from WHOLE.
+
+---
+
 ## [2.11.0] - 2026-06-24
 
 ### Added

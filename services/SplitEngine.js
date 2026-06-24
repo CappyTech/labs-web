@@ -15,7 +15,7 @@
  *  5. Rounding via largest-remainder — never lose or invent a penny.
  */
 
-const { FractionsDoNotSumError, UnknownProductError, ReconciliationError, UnknownMemberError } = require('./errors');
+const { FractionsDoNotSumError, UnknownProductError, ReconciliationError, UnknownMemberError, FixedQtyMismatchError } = require('./errors');
 
 // ── Rounding ──────────────────────────────────────────────────────────────────
 
@@ -69,10 +69,11 @@ function splitFraction(lineTotalPence, fractions) {
 /**
  * Allocate invoice lines to members according to a rules map.
  *
- * @param {{ productId: string, lineTotalPence: number }[]} lines
+ * @param {{ productId: string, totalP: number, qty?: number }[]} lines
+ *   qty is only required to validate multi-member FIXED lines.
  * @param {Map<string, {
  *   type: 'WHOLE'|'FRACTION'|'FIXED'|'UNASSIGNED',
- *   assignments: { memberId: string, fraction?: number }[],
+ *   assignments: { memberId: string, fraction?: number, fixedQty?: number }[],
  *   fallback?: 'assign-to-member'|'split-evenly'|'exclude',
  *   fallbackMemberId?: string
  * }>} rules  keyed by productId string
@@ -91,10 +92,16 @@ function allocateLines(lines, rules, members) {
     }
 
     switch (rule.type) {
-      case 'WHOLE':
-      case 'FIXED': {
+      case 'WHOLE': {
         const mid = rule.assignments[0].memberId;
         shares.set(mid, shares.get(mid) + line.totalP);
+        break;
+      }
+      case 'FIXED': {
+        const split = allocateFixed(line, rule.assignments);
+        for (const [mid, pence] of split) {
+          shares.set(mid, (shares.get(mid) || 0) + pence);
+        }
         break;
       }
       case 'FRACTION': {
@@ -110,6 +117,41 @@ function allocateLines(lines, rules, members) {
   }
 
   return shares;
+}
+
+/**
+ * Apportion a FIXED line across its assigned members.
+ *
+ *  - One assignment (or no usable quantities) → the whole line goes to the first
+ *    member. This is the original FIXED behaviour (e.g. a bundle taken outright)
+ *    and is preserved for backward compatibility.
+ *  - Two or more assignments with quantities → split the line in proportion to
+ *    each member's `fixedQty` (largest-remainder so pennies reconcile). When the
+ *    line `qty` is known, the quantities must sum to it, else FixedQtyMismatchError.
+ *
+ * @param {{ productId: string, totalP: number, qty?: number }} line
+ * @param {{ memberId: string, fixedQty?: number }[]} assignments
+ * @returns {Map<string, number>}
+ */
+function allocateFixed(line, assignments) {
+  const totalQty = assignments.reduce((s, a) => s + (a.fixedQty || 0), 0);
+
+  // Single owner, or quantities not declared — whole line to the first member.
+  if (assignments.length < 2 || totalQty <= 0) {
+    return new Map([[assignments[0].memberId, line.totalP]]);
+  }
+
+  // Validate against the line quantity when we know it.
+  if (line.qty != null && totalQty !== line.qty) {
+    throw new FixedQtyMismatchError(
+      `FIXED quantities for product ${line.productId} sum to ${totalQty} but the line quantity is ${line.qty}`
+    );
+  }
+
+  return largestRemainder(
+    line.totalP,
+    assignments.map(a => ({ id: a.memberId, weight: (a.fixedQty || 0) / totalQty }))
+  );
 }
 
 /**
@@ -255,13 +297,20 @@ function explainSplit(lines, rules, members, { communalEvents = [], adjustments 
   for (const line of lines) {
     const lineShares = allocateLines([line], rules, members);
     const rule = rules.get(line.productId);
+    const assignment = m => rule.assignments.find(a => a.memberId === m.id);
     for (const m of members) {
       const amountP = lineShares.get(m.id) || 0;
       if (amountP !== 0) {
-        const assignment = rule.type === 'FRACTION'
-          ? rule.assignments.find(a => a.memberId === m.id)
-          : null;
-        ledger.get(m.id).push({ source: 'line', productId: line.productId, ruleType: rule.type, fraction: assignment?.fraction, amountP });
+        const a = assignment(m);
+        ledger.get(m.id).push({
+          source:    'line',
+          productId: line.productId,
+          ruleType:  rule.type,
+          fraction:  rule.type === 'FRACTION' ? a?.fraction : undefined,
+          fixedQty:  rule.type === 'FIXED'    ? a?.fixedQty : undefined,
+          lineQty:   line.qty,
+          amountP,
+        });
       }
       running.set(m.id, running.get(m.id) + amountP);
     }

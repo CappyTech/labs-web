@@ -28,9 +28,19 @@ class UnknownMemberError extends Error {
   }
 }
 
+// Raised when a multi-member FIXED line's declared quantities don't sum to the
+// line quantity (e.g. Jack 4 + Luke 2 on a line of 5 units).
+class FixedQtyMismatchError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'FixedQtyMismatchError';
+  }
+}
+
 module.exports = {
   ReconciliationError,
   FractionsDoNotSumError,
   UnknownProductError,
   UnknownMemberError,
+  FixedQtyMismatchError,
 };

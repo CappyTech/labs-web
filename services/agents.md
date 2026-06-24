@@ -46,8 +46,13 @@ Every line item must be accounted for.
 - **WHOLE** — member takes 100% of a line. *("Jack: all Whole Milk")*
 - **FRACTION** — line split by fractions across members; fractions for one
   product **must sum to 1**. *("Luke 2/3 + Ben 1/3 of Semi Milk")*
-- **FIXED** — member takes a specific bundle/item outright. *(Candice: the
-  Yoghurt Bundle = 4 yoghurts in one line.)*
+- **FIXED** — one member takes a bundle/item outright *(Candice: the Yoghurt
+  Bundle = 4 yoghurts in one line)*, **or** several members split a single line
+  by unit count via `fixedQty` (e.g. a 6-egg line: Jack 4 + Luke 2). For a
+  multi-member FIXED line the quantities must sum to the line qty (else
+  `FixedQtyMismatchError`); the price is apportioned `fixedQty / lineQty` with
+  largest-remainder rounding. A single-member FIXED rule still takes the whole
+  line and is not qty-checked (backward compatible).
 - **UNASSIGNED fallback** — configurable: assign-to-member / split-evenly /
   exclude. (Reference data: Iron Brew → all Jack.)
 

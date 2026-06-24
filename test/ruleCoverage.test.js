@@ -64,6 +64,29 @@ describe('computeCoverage', () => {
     assert.equal(c.coveragePct, 50);
   });
 
+  test('single FIXED rule takes the whole line', () => {
+    const c = computeCoverage([{ type: 'FIXED', fixedQty: 4, member: { name: 'Candice' } }]);
+    assert.equal(c.status, 'ok');
+    assert.match(c.message, /Candice/);
+  });
+
+  test('multi-member FIXED reports the declared unit total', () => {
+    const c = computeCoverage([
+      { type: 'FIXED', fixedQty: 4, member: { name: 'Jack' } },
+      { type: 'FIXED', fixedQty: 2, member: { name: 'Luke' } },
+    ]);
+    assert.equal(c.status, 'ok');
+    assert.match(c.message, /6 units across 2 members/);
+  });
+
+  test('multi-member FIXED flags a missing quantity', () => {
+    const c = computeCoverage([
+      { type: 'FIXED', fixedQty: 4, member: { name: 'Jack' } },
+      { type: 'FIXED', fixedQty: null, member: { name: 'Luke' } },
+    ]);
+    assert.equal(c.status, 'under');
+  });
+
   test('mixed rule types conflict', () => {
     const c = computeCoverage([
       { type: 'WHOLE', member: { name: 'Jack' } },

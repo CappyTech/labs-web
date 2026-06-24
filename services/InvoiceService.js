@@ -120,6 +120,7 @@ async function buildSplitContext(invoice, members) {
     ruleMap.get(pid).assignments.push({
       memberId: String(rule.member._id),
       fraction: rule.fraction,
+      fixedQty: rule.fixedQty,
     });
   }
 
@@ -131,11 +132,12 @@ async function buildSplitContext(invoice, members) {
     }
   }
 
-  // Flatten lineItems across all DeliveryDays.
+  // Flatten lineItems across all DeliveryDays. qty is carried so multi-member
+  // FIXED lines can be validated against the line quantity.
   const lines = [];
   for (const day of invoice.deliveryDays) {
     for (const item of day.lineItems) {
-      lines.push({ productId: String(item.product._id), totalP: item.totalP });
+      lines.push({ productId: String(item.product._id), totalP: item.totalP, qty: item.qty });
     }
   }
 
@@ -298,19 +300,19 @@ async function getInvoiceBreakdown(invoiceId) {
   const members = await Member.find({ active: true }).lean();
   const memberNameMap = new Map(members.map(m => [String(m._id), m.name]));
 
-  let ctx;
+  let ctx, ledger;
   try {
     ctx = await buildSplitContext(invoice, members);
+    ledger = SplitEngine.explainSplit(ctx.lines, ctx.ruleMap, ctx.memberList, {
+      communalEvents: ctx.communalEventsForEngine,
+      adjustments:    ctx.adjustments,
+      charges:        ctx.charges,
+    });
   } catch {
-    // Missing/invalid rules — can't explain right now; let the caller fall back.
+    // Rules missing/invalid or quantities no longer reconcile (e.g. edited after
+    // computing) — can't explain right now; let the caller fall back to totals.
     return null;
   }
-
-  const ledger = SplitEngine.explainSplit(ctx.lines, ctx.ruleMap, ctx.memberList, {
-    communalEvents: ctx.communalEventsForEngine,
-    adjustments:    ctx.adjustments,
-    charges:        ctx.charges,
-  });
 
   const fractionPct = f => `${+(f * 100).toFixed(1)}%`;
 
@@ -318,9 +320,12 @@ async function getInvoiceBreakdown(invoiceId) {
     const entries = (ledger.get(m.id) || []).map(e => {
       if (e.source === 'line') {
         const name = ctx.productNameMap.get(e.productId) || e.productId;
-        const basis = e.ruleType === 'FRACTION'
-          ? (e.fraction != null ? fractionPct(e.fraction) : 'fraction')
-          : 'whole';
+        let basis = 'whole';
+        if (e.ruleType === 'FRACTION') {
+          basis = e.fraction != null ? fractionPct(e.fraction) : 'fraction';
+        } else if (e.ruleType === 'FIXED' && e.fixedQty != null && e.lineQty != null) {
+          basis = `${e.fixedQty} of ${e.lineQty} units`;
+        }
         return { label: name, basis, amountP: e.amountP };
       }
       if (e.source === 'communal') {

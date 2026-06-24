@@ -13,11 +13,12 @@ const FRACTION_TOLERANCE = 1e-9;
  * This is the proactive form of the FRACTION-sums-to-1 invariant that
  * SplitEngine.splitFraction would otherwise only raise at split time.
  *
- * Note: FIXED qty is informational only — the engine assigns the whole line to
- * a single FIXED/WHOLE owner, so coverage for those is "exactly one owner",
- * not a quantity sum.
+ * WHOLE — exactly one owner takes the whole line; more than one is a conflict.
+ * FIXED — one owner takes the line outright, OR several split it by unit count
+ *         (the quantities are validated against the actual line qty at split
+ *         time, which isn't known here, so the rules-page view is informational).
  *
- * @param {{ type: string, fraction?: number, member?: { name?: string } }[]} rules
+ * @param {{ type: string, fraction?: number, fixedQty?: number, member?: { name?: string } }[]} rules
  * @returns {{ type: string|null, status: 'ok'|'under'|'over'|'conflict'|'none',
  *            coveragePct: number|null, message: string }}
  */
@@ -36,13 +37,27 @@ function computeCoverage(rules) {
 
   const type = rules[0].type;
 
-  if (type === 'WHOLE' || type === 'FIXED') {
+  if (type === 'WHOLE') {
     if (rules.length === 1) {
       return { type, status: 'ok', coveragePct: 100, message: `Whole line to ${rules[0].member?.name || 'one member'}` };
     }
     return {
       type, status: 'conflict', coveragePct: null,
-      message: `${rules.length} ${type} rules — only one member can take the whole line`,
+      message: `${rules.length} WHOLE rules — only one member can take the whole line`,
+    };
+  }
+
+  if (type === 'FIXED') {
+    if (rules.length === 1) {
+      return { type, status: 'ok', coveragePct: 100, message: `Whole line to ${rules[0].member?.name || 'one member'}` };
+    }
+    if (rules.some(r => !(r.fixedQty > 0))) {
+      return { type, status: 'under', coveragePct: null, message: 'Each member in a split FIXED line needs a quantity above 0' };
+    }
+    const totalQty = rules.reduce((s, r) => s + r.fixedQty, 0);
+    return {
+      type, status: 'ok', coveragePct: 100,
+      message: `Splits ${totalQty} units across ${rules.length} members (must equal each line's qty)`,
     };
   }
 
