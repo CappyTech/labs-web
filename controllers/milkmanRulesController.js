@@ -20,10 +20,16 @@ async function list(req, res, next) {
       grouped.get(key).rules.push(rule);
     }
 
+    // Attach per-product coverage so incomplete/over-allocated rules surface
+    // here rather than only failing at split time.
+    const groupedRules = [...grouped.values()].map(g => ({ ...g, coverage: RuleService.computeCoverage(g.rules) }));
+    const coverageIssues = groupedRules.filter(g => g.coverage.status !== 'ok').length;
+
     res.render('milkman/rules/index', {
       title:            'Allocation Rules',
       description:      'Per-member product allocation rules.',
-      groupedRules:     [...grouped.values()],
+      groupedRules,
+      coverageIssues,
       productsWithRules: new Set(grouped.keys()),
       products,
       members,

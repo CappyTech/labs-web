@@ -2,7 +2,17 @@
     <header class="hero">
       <div class="eyebrow"><a href="/milkman">Milk·Man</a></div>
       <h1>Allocation Rules</h1>
-      <p class="lede">Define who pays for each product.</p>
+      <p class="lede">
+        Define who pays for each product.
+        <% if (groupedRules.length > 0) { %>
+        &nbsp;·&nbsp;
+        <% if (coverageIssues > 0) { %>
+        <span class="text-accent"><%= coverageIssues %> product<%= coverageIssues !== 1 ? 's' : '' %> not covering 100%</span>
+        <% } else { %>
+        <span class="text-settled">all products cover 100%</span>
+        <% } %>
+        <% } %>
+      </p>
     </header>
 
     <div class="section-label">Add rule</div>
@@ -58,6 +68,9 @@
     <% } else { %>
       <% groupedRules.forEach(function(group) { %>
       <div class="section-label" style="font-size:.75em;opacity:.6;"><%= group.name %></div>
+      <p class="font-mono text-xs mb-3 <%= group.coverage.status === 'ok' ? 'text-settled' : 'text-accent' %>">
+        <%= group.coverage.status === 'ok' ? '✓' : '⚠' %> <%= group.coverage.message %>
+      </p>
       <section class="card-grid mb-4">
         <% group.rules.forEach(function(rule) { %>
         <div class="module">

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.11.0] - 2026-06-24
+
+### Added
+- **Allocation coverage check** on the Rules page — each product now shows whether its rules actually cover a whole (100%) of the line, instead of only failing at split time. A pure `RuleService.computeCoverage` reports per product: FRACTION rules that sum under/over 1.0 (with the exact gap, e.g. "covers 66% — 34% uncovered"), more than one WHOLE/FIXED owner, and mixed rule types. The page header summarises how many products aren't covering 100%, and each product group is tagged ✓ or ⚠ with the reason. Mirrors the `1e-9` fraction tolerance used by `SplitEngine.splitFraction`.
+
+---
+
 ## [2.10.1] - 2026-06-24
 
 ### Fixed
