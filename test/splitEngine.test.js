@@ -9,6 +9,8 @@ const {
   allocateLines,
   applyAdjustments,
   applyCommunalEvents,
+  applyCharges,
+  explainSplit,
   reconcile,
 } = require('../services/SplitEngine');
 
@@ -229,6 +231,72 @@ describe('reconcile', () => {
   test('throws ReconciliationError when shares do not sum to grandTotal', () => {
     const shares = new Map([['a', 60], ['b', 39]]);
     assert.throws(() => reconcile(shares, 100), ReconciliationError);
+  });
+});
+
+// ── explainSplit ─────────────────────────────────────────────────────────────
+
+describe('explainSplit', () => {
+  // Runs the normal pipeline and the explainer over identical inputs, then
+  // asserts each member's ledger sums to their pipeline total — the explainer
+  // must attribute, never alter, the maths.
+  function runPipeline(lines, rules, members, { communalEvents = [], adjustments = [], charges = [] } = {}) {
+    let shares = allocateLines(lines, rules, members);
+    if (communalEvents.length) shares = applyCommunalEvents(shares, communalEvents);
+    if (adjustments.length)    shares = applyAdjustments(shares, adjustments);
+    if (charges.length)        shares = applyCharges(shares, charges, members);
+    return shares;
+  }
+
+  function assertLedgerMatches(lines, rules, members, opts = {}) {
+    const shares = runPipeline(lines, rules, members, opts);
+    const ledger = explainSplit(lines, rules, members, opts);
+    for (const m of members) {
+      const sum = (ledger.get(m.id) || []).reduce((s, e) => s + e.amountP, 0);
+      assert.equal(sum, shares.get(m.id), `ledger for ${m.id} should equal pipeline share`);
+    }
+  }
+
+  test('line ledger attributes WHOLE and FRACTION lines per member', () => {
+    const members = [{ id: 'alice' }, { id: 'bob' }];
+    const lines = [
+      { productId: 'milk',  totalP: 300 },
+      { productId: 'cream', totalP: 250 },
+    ];
+    const rules = new Map([
+      ['milk',  { type: 'FRACTION', assignments: [
+        { memberId: 'alice', fraction: 0.6 },
+        { memberId: 'bob',   fraction: 0.4 },
+      ] }],
+      ['cream', { type: 'WHOLE', assignments: [{ memberId: 'alice' }] }],
+    ]);
+
+    const ledger = explainSplit(lines, rules, members);
+    const alice = ledger.get('alice');
+    assert.equal(alice.length, 2);
+    assert.equal(alice.find(e => e.productId === 'cream').ruleType, 'WHOLE');
+    assert.equal(alice.find(e => e.productId === 'milk').fraction, 0.6);
+
+    assertLedgerMatches(lines, rules, members);
+  });
+
+  test('ledger reconciles with FRACTION + communal + adjustment + charge', () => {
+    const members = [{ id: 'alice', isBuyer: true }, { id: 'bob' }, { id: 'carol' }];
+    const lines = [{ productId: 'milk', totalP: 1200 }];
+    const rules = new Map([
+      ['milk', { type: 'WHOLE', assignments: [{ memberId: 'alice' }] }],
+    ]);
+    const opts = {
+      communalEvents: [{ productId: 'milk', units: 2, costPerPint: 100, buyerId: 'alice', participantIds: ['alice', 'bob', 'carol'] }],
+      adjustments:    [{ memberId: 'bob', amountPence: -150 }],
+      charges:        [{ amountP: 90, splitType: 'equal' }],
+    };
+    assertLedgerMatches(lines, rules, members, opts);
+
+    // Buyer's communal entry is tagged as a buyer role.
+    const ledger = explainSplit(lines, rules, members, opts);
+    const aliceCommunal = ledger.get('alice').find(e => e.source === 'communal');
+    assert.equal(aliceCommunal.role, 'buyer');
   });
 });
 

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.10.0] - 2026-06-24
+
+### Added
+- **Itemised split breakdown** on the invoice page — each member's card in *Split result* now lists exactly which line items, communal events, adjustments and charges make up their total and how each was apportioned (e.g. `whole`, `66.7%`, communal share, credit). Backed by a new pure `SplitEngine.explainSplit` that replays the same pipeline primitives one item at a time and attributes the per-member delta of each step, so the breakdown always sums to the persisted total without re-implementing any of the maths. Surfaced via `InvoiceService.getInvoiceBreakdown`.
+
+### Changed
+- Extracted the invoice split data-prep (rule loading, line flattening, communal cost-per-pint resolution) into a shared `buildSplitContext` helper used by both `computeSettlement` (authoritative) and the new read-only breakdown, so both operate on identical inputs.
+
+---
+
+## [2.9.0] - 2026-06-24
+
+### Added
+- **Member detail page** (`GET /milkman/members/:id`) — clicking a member (on the Members list or the Milkman landing page) now opens a profile showing their outstanding balance, role (account holder / member), active status and join date, full settlement history (per-window owed amounts with invoice counts), and every invoice they are directly involved in via adjustments or communal events (each linking back to the invoice). New service methods `SettlementService.getSettlementsForMember` and `InvoiceService.getInvoicesForMember` back the page.
+
+### Changed
+- Member cards on the Members list and Milkman landing page are now clickable links to the new detail page. The per-card **Edit** button moved onto the detail page, mirroring the existing invoice card → detail → actions flow.
+
+---
+
 ## [2.8.0] - 2026-06-18
 
 ### Added

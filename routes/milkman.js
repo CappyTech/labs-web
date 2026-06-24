@@ -52,6 +52,7 @@ router.post('/invoices/:id/charges/:chargeIndex/delete',      milkmanInvoicesCon
 // ── Members ────────────────────────────────────────────────────────────────
 router.get('/members',             milkmanMembersController.list);
 router.post('/members',            milkmanMembersController.create);
+router.get('/members/:id',         milkmanMembersController.show);
 router.get('/members/:id/edit',    milkmanMembersController.editForm);
 router.post('/members/:id',        milkmanMembersController.update);
 

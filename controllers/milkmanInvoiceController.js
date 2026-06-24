@@ -56,15 +56,29 @@ async function show(req, res, next) {
 
     let settlement = null;
     if (invoice.status === 'computed' || invoice.status === 'settled') {
-      const raw2 = await SettlementService.getSettlementForInvoice(raw._id);
+      const [raw2, breakdown] = await Promise.all([
+        SettlementService.getSettlementForInvoice(raw._id),
+        InvoiceService.getInvoiceBreakdown(raw._id),
+      ]);
+      const breakdownByMember = new Map((breakdown || []).map(b => [b.memberId, b.entries]));
       if (raw2) {
         settlement = {
           id: String(raw2._id),
-          balances: (raw2.balances || []).map(b => ({
-            memberName: b.member?.name || String(b.member),
-            owed:       formatMoney(b.owedP),
-            owedP:      b.owedP,
-          })),
+          balances: (raw2.balances || []).map(b => {
+            const memberId = String(b.member?._id || b.member);
+            const entries  = breakdownByMember.get(memberId) || [];
+            return {
+              memberName: b.member?.name || String(b.member),
+              owed:       formatMoney(b.owedP),
+              owedP:      b.owedP,
+              breakdown:  entries.map(e => ({
+                label:    e.label,
+                basis:    e.basis,
+                amount:   formatMoney(Math.abs(e.amountP)),
+                isCredit: e.amountP < 0,
+              })),
+            };
+          }),
         };
       }
     }

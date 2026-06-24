@@ -47,6 +47,7 @@ HTTP request
 | `GET /`      | `routes/index.js`      | `controllers/homeController`  | `views/index.ejs`       |
 | `GET /milkman` | `routes/milkman.js`  | `controllers/milkmanController` | `views/milkman/index.ejs` |
 | `GET /milkman/invoices/:id` | `routes/milkman.js` | `controllers/milkmanInvoiceController` | `views/milkman/invoice.ejs` |
+| `GET /milkman/members/:id` | `routes/milkman.js` | `controllers/milkmanMembersController` | `views/milkman/members/show.ejs` |
 | `POST /milkman/invoices/:id/split` | `routes/milkman.js` | `controllers/milkmanInvoiceController` | — (redirect) |
 | `POST /milkman/invoices/:id/settle` | `routes/milkman.js` | `controllers/milkmanInvoiceController` | — (redirect) |
 

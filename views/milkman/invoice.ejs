@@ -272,6 +272,19 @@
         <div class="callsign">[OWES]</div>
         <div class="name"><%= b.owed %></div>
         <div class="desc"><%= b.memberName %></div>
+        <% if (b.breakdown && b.breakdown.length > 0) { %>
+        <table class="mt-3">
+          <tbody>
+            <% b.breakdown.forEach(function(e) { %>
+            <tr>
+              <td><%= e.label %></td>
+              <td class="text-muted"><%= e.basis %></td>
+              <td class="text-right <%= e.isCredit ? 'text-accent' : '' %>"><%= e.isCredit ? '−' : '' %><%= e.amount %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } %>
       </div>
       <% }); %>
     </section>

@@ -33,6 +33,22 @@ async function getInvoiceRaw(invoiceId) {
   return Invoice.findById(invoiceId).lean();
 }
 
+/**
+ * Return invoices in which a member is directly involved — either as the target
+ * of an adjustment or as a participant in a communal event. Newest first.
+ */
+async function getInvoicesForMember(memberId) {
+  return Invoice.find({
+    $or: [
+      { 'adjustments.member': memberId },
+      { 'deliveryDays.communalEvents.participants': memberId },
+    ],
+  })
+    .sort({ receiptDate: -1, _id: -1 })
+    .populate('deliveryDays.communalEvents.product', 'name')
+    .lean();
+}
+
 async function findByNumber(number) {
   return Invoice.findOne({ number: number?.trim() }, '_id number receiptDate status').lean();
 }
@@ -59,36 +75,22 @@ async function setInvoiceStatus(id, status) {
 }
 
 /**
- * Compute the per-member split for an invoice and persist a Settlement.
+ * Build the engine-ready inputs for splitting an invoice from a populated
+ * invoice doc + the active member list. Shared by `computeSettlement` (the
+ * authoritative path) and `getInvoiceBreakdown` (the read-only explainer) so
+ * both operate on identical inputs.
  *
  * Steps:
- *  1. Load invoice (populated) + all active members.
- *  2. Load AllocationRules for every product in the invoice.
- *  3. Build ruleMap: productId → { type, assignments: [{memberId, fraction}] }.
+ *  1. Build memberList for the engine.
+ *  2. Collect product IDs + names from all line items.
+ *  3. Load AllocationRules → ruleMap (productId → { type, assignments }).
  *  4. Flatten all LineItems across DeliveryDays.
- *  5. SplitEngine.allocateLines.
- *  6. For each DeliveryDay CommunalEvent: resolve buyer from WHOLE/FIXED rule,
- *     compute cost_per_pint, SplitEngine.applyCommunalEvents.
- *  7. SplitEngine.applyAdjustments (invoice-level member credits).
- *  8. SplitEngine.reconcile — throws ReconciliationError if totals don't match.
- *  9. Persist Settlement (invoiceIds: [invoiceId], cadence: 'ad-hoc').
- * 10. Mark invoice status = 'computed'.
+ *  5. Resolve each CommunalEvent's buyer + cost_per_pint.
+ *  6. Map invoice-level adjustments to engine shape.
  *
- * @param {string} invoiceId
- * @returns {{ settlement: import('../models/Settlement'), created: boolean }}
+ * @returns {{ memberList, lines, ruleMap, communalEventsForEngine, adjustments, charges, productNameMap }}
  */
-async function computeSettlement(invoiceId) {
-  const invoice = await Invoice.findById(invoiceId)
-    .populate('deliveryDays.lineItems.product')
-    .populate('deliveryDays.communalEvents.product')
-    .populate('deliveryDays.communalEvents.participants')
-    .populate('adjustments.member')
-    .lean();
-
-  if (!invoice) throw new Error(`Invoice ${invoiceId} not found`);
-
-  // Load all active members.
-  const members = await Member.find({ active: true }).lean();
+async function buildSplitContext(invoice, members) {
   const memberList = members.map(m => ({ id: String(m._id), isBuyer: m.isBuyer || false }));
 
   // Collect unique product IDs from all line items.
@@ -137,10 +139,8 @@ async function computeSettlement(invoiceId) {
     }
   }
 
-  // 1. Allocate lines.
-  let shares = SplitEngine.allocateLines(lines, ruleMap, memberList);
-
-  // 2. Apply communal events from each DeliveryDay.
+  // Resolve communal events: buyer from WHOLE/FIXED rule + cost_per_pint.
+  // productId is carried through for breakdown labelling (engine ignores it).
   const communalEventsForEngine = [];
   for (const day of invoice.deliveryDays) {
     for (const evt of day.communalEvents) {
@@ -182,6 +182,7 @@ async function computeSettlement(invoiceId) {
       const costPerPint = Math.floor(lineTotalP / (lineQty * evt.product.pintsPerBottle));
 
       communalEventsForEngine.push({
+        productId:      pid,
         units:          evt.units,
         costPerPint,
         buyerId,
@@ -190,22 +191,60 @@ async function computeSettlement(invoiceId) {
     }
   }
 
+  const adjustments = (invoice.adjustments || []).map(a => ({
+    memberId:    String(a.member._id || a.member),
+    amountPence: a.amountP,
+    description: a.description || '',
+    date:        a.date,
+  }));
+
+  const charges = invoice.charges || [];
+
+  return { memberList, lines, ruleMap, communalEventsForEngine, adjustments, charges, productNameMap };
+}
+
+/**
+ * Compute the per-member split for an invoice and persist a Settlement.
+ *
+ * Loads the invoice + active members, builds engine inputs via
+ * `buildSplitContext`, runs the SplitEngine pipeline (allocate → communal →
+ * adjustments → charges), reconciles against the invoice total, persists a
+ * Settlement (upserted so re-splitting overwrites), and marks the invoice
+ * 'computed'.
+ *
+ * @param {string} invoiceId
+ * @returns {{ settlement: import('../models/Settlement'), created: boolean }}
+ */
+async function computeSettlement(invoiceId) {
+  const invoice = await Invoice.findById(invoiceId)
+    .populate('deliveryDays.lineItems.product')
+    .populate('deliveryDays.communalEvents.product')
+    .populate('deliveryDays.communalEvents.participants')
+    .populate('adjustments.member')
+    .lean();
+
+  if (!invoice) throw new Error(`Invoice ${invoiceId} not found`);
+
+  const members = await Member.find({ active: true }).lean();
+  const { memberList, lines, ruleMap, communalEventsForEngine, adjustments, charges } =
+    await buildSplitContext(invoice, members);
+
+  // 1. Allocate lines.
+  let shares = SplitEngine.allocateLines(lines, ruleMap, memberList);
+
+  // 2. Apply communal events.
   if (communalEventsForEngine.length > 0) {
     shares = SplitEngine.applyCommunalEvents(shares, communalEventsForEngine);
   }
 
   // 3. Apply invoice-level member adjustments (backdated credits etc.).
-  if (invoice.adjustments.length > 0) {
-    const adjs = invoice.adjustments.map(a => ({
-      memberId:    String(a.member._id || a.member),
-      amountPence: a.amountP,
-    }));
-    shares = SplitEngine.applyAdjustments(shares, adjs);
+  if (adjustments.length > 0) {
+    shares = SplitEngine.applyAdjustments(shares, adjustments);
   }
 
   // 4. Apply invoice-level charges (fees, discounts, membership, balance).
-  if (invoice.charges && invoice.charges.length > 0) {
-    shares = SplitEngine.applyCharges(shares, invoice.charges, memberList);
+  if (charges.length > 0) {
+    shares = SplitEngine.applyCharges(shares, charges, memberList);
   }
 
   // 5. Reconcile — throws if totals don't match.
@@ -233,4 +272,76 @@ async function computeSettlement(invoiceId) {
   return { settlement: raw.value, created };
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement };
+/**
+ * Produce a read-only, per-member itemised breakdown of how an invoice splits —
+ * which line items, communal events, adjustments and charges make up each
+ * member's total, and how each was apportioned. Re-derives the split from the
+ * current rules via `SplitEngine.explainSplit`; never mutates anything.
+ *
+ * Returns `null` if the invoice doesn't exist or can't currently be explained
+ * (e.g. a product is missing an allocation rule) — callers should treat a null
+ * breakdown as "not available" and fall back to the persisted totals.
+ *
+ * @param {string} invoiceId
+ * @returns {Promise<null | { memberId, memberName, totalP, entries: object[] }[]>}
+ */
+async function getInvoiceBreakdown(invoiceId) {
+  const invoice = await Invoice.findById(invoiceId)
+    .populate('deliveryDays.lineItems.product')
+    .populate('deliveryDays.communalEvents.product')
+    .populate('deliveryDays.communalEvents.participants')
+    .populate('adjustments.member')
+    .lean();
+
+  if (!invoice) return null;
+
+  const members = await Member.find({ active: true }).lean();
+  const memberNameMap = new Map(members.map(m => [String(m._id), m.name]));
+
+  let ctx;
+  try {
+    ctx = await buildSplitContext(invoice, members);
+  } catch {
+    // Missing/invalid rules — can't explain right now; let the caller fall back.
+    return null;
+  }
+
+  const ledger = SplitEngine.explainSplit(ctx.lines, ctx.ruleMap, ctx.memberList, {
+    communalEvents: ctx.communalEventsForEngine,
+    adjustments:    ctx.adjustments,
+    charges:        ctx.charges,
+  });
+
+  const fractionPct = f => `${+(f * 100).toFixed(1)}%`;
+
+  return ctx.memberList.map(m => {
+    const entries = (ledger.get(m.id) || []).map(e => {
+      if (e.source === 'line') {
+        const name = ctx.productNameMap.get(e.productId) || e.productId;
+        const basis = e.ruleType === 'FRACTION'
+          ? (e.fraction != null ? fractionPct(e.fraction) : 'fraction')
+          : 'whole';
+        return { label: name, basis, amountP: e.amountP };
+      }
+      if (e.source === 'communal') {
+        const name = ctx.productNameMap.get(e.productId) || e.productId;
+        const basis = e.role === 'buyer'
+          ? `bought ${e.units}, communal net`
+          : `${e.units}-unit communal share`;
+        return { label: `${name} (communal)`, basis, amountP: e.amountP };
+      }
+      if (e.source === 'adjustment') {
+        const adj = ctx.adjustments[e.index];
+        return { label: adj?.description || 'Adjustment', basis: e.amountP < 0 ? 'credit' : 'surcharge', amountP: e.amountP };
+      }
+      // charge
+      const charge = ctx.charges[e.index];
+      return { label: charge?.label || 'Charge', basis: charge?.splitType || 'charge', amountP: e.amountP };
+    });
+
+    const totalP = entries.reduce((s, e) => s + e.amountP, 0);
+    return { memberId: m.id, memberName: memberNameMap.get(m.id) || m.id, totalP, entries };
+  });
+}
+
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown };

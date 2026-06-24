@@ -29,6 +29,16 @@ async function getSettlementsInWindow(from, to) {
 }
 
 /**
+ * Return all settlements in which a given member has a balance, newest first.
+ */
+async function getSettlementsForMember(memberId) {
+  return Settlement.find({ 'balances.member': memberId })
+    .populate('invoiceIds', 'number receiptDate totalP')
+    .sort({ windowStart: -1, _id: -1 })
+    .lean();
+}
+
+/**
  * Return the settlement that covers a specific invoice, if one exists.
  */
 async function getSettlementForInvoice(invoiceId) {
@@ -123,4 +133,4 @@ async function getOutstandingBalances() {
   return [...totals.values()].sort((a, b) => b.owedP - a.owedP);
 }
 
-module.exports = { getAllSettlements, getSettlementsInWindow, getSettlementForInvoice, getSettlementById, createWindowSettlement, getOutstandingBalances };
+module.exports = { getAllSettlements, getSettlementsInWindow, getSettlementsForMember, getSettlementForInvoice, getSettlementById, createWindowSettlement, getOutstandingBalances };

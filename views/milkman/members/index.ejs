@@ -25,14 +25,11 @@
         <p class="empty-state">No members yet.</p>
       <% } else { %>
         <% members.forEach(function(m) { %>
-        <div class="module">
+        <a href="/milkman/members/<%= m._id %>" class="module">
           <div class="callsign"><%= m.active ? '[MEMBER]' : '[INACTIVE]' %></div>
           <div class="name"><%= m.name %></div>
           <% if (m.isBuyer) { %><div class="desc">account holder</div><% } %>
-          <div class="host">
-            <a href="/milkman/members/<%= m._id %>/edit" class="btn">Edit</a>
-          </div>
-        </div>
+        </a>
         <% }); %>
       <% } %>
     </section>

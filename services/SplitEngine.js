@@ -231,6 +231,78 @@ function applyCharges(shares, charges, members) {
 }
 
 /**
+ * Build a per-member itemised ledger explaining how each member's final share
+ * is composed. PURE and non-authoritative: it replays the exact same pipeline
+ * operations (allocateLines → applyCommunalEvents → applyAdjustments →
+ * applyCharges) one item at a time and records the per-member delta of each
+ * step. Because it reuses the very same primitives, the sum of a member's
+ * entries equals that member's total from the normal pipeline — the maths is
+ * never re-implemented here, only attributed.
+ *
+ * Entry shape (amountP is integer pence, may be negative for credits):
+ *  - line:       { source:'line', productId, ruleType, fraction?, amountP }
+ *  - communal:   { source:'communal', productId, units, role:'buyer'|'participant', amountP }
+ *  - adjustment: { source:'adjustment', index, amountP }
+ *  - charge:     { source:'charge', index, amountP }
+ *
+ * @returns {Map<string, object[]>} memberId → entries (in pipeline order)
+ */
+function explainSplit(lines, rules, members, { communalEvents = [], adjustments = [], charges = [] } = {}) {
+  const ledger = new Map(members.map(m => [m.id, []]));
+  let running = new Map(members.map(m => [m.id, 0]));
+
+  // 1. Lines — attribute each line in isolation (allocateLines is additive).
+  for (const line of lines) {
+    const lineShares = allocateLines([line], rules, members);
+    const rule = rules.get(line.productId);
+    for (const m of members) {
+      const amountP = lineShares.get(m.id) || 0;
+      if (amountP !== 0) {
+        const assignment = rule.type === 'FRACTION'
+          ? rule.assignments.find(a => a.memberId === m.id)
+          : null;
+        ledger.get(m.id).push({ source: 'line', productId: line.productId, ruleType: rule.type, fraction: assignment?.fraction, amountP });
+      }
+      running.set(m.id, running.get(m.id) + amountP);
+    }
+  }
+
+  // 2. Communal events — one event at a time, record the net delta per member.
+  for (const event of communalEvents) {
+    const before = new Map(running);
+    running = applyCommunalEvents(running, [event]);
+    for (const m of members) {
+      const amountP = running.get(m.id) - before.get(m.id);
+      if (amountP !== 0) {
+        ledger.get(m.id).push({ source: 'communal', productId: event.productId, units: event.units, role: m.id === event.buyerId ? 'buyer' : 'participant', amountP });
+      }
+    }
+  }
+
+  // 3. Adjustments.
+  for (let i = 0; i < adjustments.length; i++) {
+    const before = new Map(running);
+    running = applyAdjustments(running, [adjustments[i]]);
+    for (const m of members) {
+      const amountP = running.get(m.id) - before.get(m.id);
+      if (amountP !== 0) ledger.get(m.id).push({ source: 'adjustment', index: i, amountP });
+    }
+  }
+
+  // 4. Charges.
+  for (let i = 0; i < charges.length; i++) {
+    const before = new Map(running);
+    running = applyCharges(running, [charges[i]], members);
+    for (const m of members) {
+      const amountP = running.get(m.id) - before.get(m.id);
+      if (amountP !== 0) ledger.get(m.id).push({ source: 'charge', index: i, amountP });
+    }
+  }
+
+  return ledger;
+}
+
+/**
  * Assert that the sum of all member shares equals grandTotalPence exactly.
  * Throws ReconciliationError otherwise.
  *
@@ -254,5 +326,6 @@ module.exports = {
   applyAdjustments,
   applyCommunalEvents,
   applyCharges,
+  explainSplit,
   reconcile,
 };
