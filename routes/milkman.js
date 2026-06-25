@@ -61,6 +61,8 @@ router.get('/products',            milkmanProductsController.list);
 router.post('/products',           milkmanProductsController.create);
 router.get('/products/:id/edit',   milkmanProductsController.editForm);
 router.post('/products/:id',       milkmanProductsController.update);
+router.post('/products/:id/components',               milkmanProductsController.addComponent);
+router.post('/products/:id/components/:index/delete', milkmanProductsController.removeComponent);
 
 // ── Allocation Rules ───────────────────────────────────────────────────────
 router.get('/rules',               milkmanRulesController.list);

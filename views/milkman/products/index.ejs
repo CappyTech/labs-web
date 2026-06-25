@@ -34,11 +34,13 @@
         <p class="empty-state">No products yet.</p>
       <% } else { %>
         <% products.forEach(function(p) { %>
+        <% var isBundle = p.components && p.components.length > 0; %>
         <div class="module">
-          <div class="callsign"><%= p.active ? '[PRODUCT]' : '[INACTIVE]' %></div>
+          <div class="callsign"><%= !p.active ? '[INACTIVE]' : (isBundle ? '[BUNDLE]' : '[PRODUCT]') %></div>
           <div class="name"><%= p.name %></div>
           <div class="desc">
             <%= Math.floor(p.priceP / 100) %>.<%= String(p.priceP % 100).padStart(2,'0') %>p
+            <% if (isBundle) { %>&nbsp;· <%= p.components.length %> components<% } %>
             <% if (p.pintsPerBottle) { %>&nbsp;· <%= p.pintsPerBottle %> pints<% } %>
             <% if (p.category) { %>&nbsp;· <%= p.category %><% } %>
           </div>

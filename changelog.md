@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.13.0] - 2026-06-24
+
+### Added
+- **Composite (bundle) products** — a product can now declare components (each a real product + qty + reference price), turning a single bundled invoice line like "2 Pints Whole Milk & 6 Eggs" into its real parts at split time. `InvoiceService.expandLines` divides the line price across components in proportion to their reference price (largest-remainder, reconciles exactly) and scales each component qty by the line qty; allocation rules and communal events then attach to the **component** products. This fixes allocation and communal costing for bundled lines without ever editing an invoice — the composition is defined once on the product. Components are managed on the product edit page (add/remove, with a reference-total sanity check); bundles are tagged `[BUNDLE]` on the products list and disabled in the rules dropdown (rules belong on their components).
+
+### Fixed
+- **Communal events on bundled lines were mis-costed.** `cost_per_pint` previously divided the *entire* bundle line total (milk + eggs) by the pints, inflating the per-pint rate. It now uses the milk component's own sub-price from the expanded lines. Clean single-product multi-pint lines (e.g. "3 Pints Whole Milk") were already correct and are unchanged.
+
+---
+
 ## [2.12.0] - 2026-06-24
 
 ### Added

@@ -4,6 +4,7 @@ const Invoice        = require('../models/Invoice');
 const Settlement     = require('../models/Settlement');
 const AllocationRule = require('../models/AllocationRule');
 const Member         = require('../models/Member');
+const Product        = require('../models/Product');
 const SplitEngine    = require('./SplitEngine');
 const { UnknownProductError, ReconciliationError } = require('./errors');
 
@@ -75,6 +76,77 @@ async function setInvoiceStatus(id, status) {
 }
 
 /**
+ * Flatten an invoice's line items into engine lines, expanding any composite
+ * (bundle) product into its component product lines. A composite line's total
+ * is divided across components in proportion to their reference priceP (via
+ * largest-remainder, so it reconciles to the line total exactly); each
+ * component line's qty is component.qty × the bundle line qty. Non-composite
+ * lines pass through unchanged.
+ *
+ * @returns {Promise<{ productId: string, name: string, totalP: number, qty: number }[]>}
+ */
+async function expandLines(invoice) {
+  const raw = [];
+  for (const day of invoice.deliveryDays) {
+    for (const item of day.lineItems) {
+      raw.push({ productId: String(item.product._id), name: item.product.name || String(item.product._id), totalP: item.totalP, qty: item.qty });
+    }
+  }
+
+  const lineProductIds = [...new Set(raw.map(l => l.productId))];
+  const products = await Product.find({ _id: { $in: lineProductIds } })
+    .populate('components.product', 'name pintsPerBottle')
+    .lean();
+  const compositeMap = new Map(
+    products.filter(p => p.components && p.components.length > 0).map(p => [String(p._id), p.components])
+  );
+
+  const lines = [];
+  for (const line of raw) {
+    const components = compositeMap.get(line.productId);
+    const shares = components ? splitBundleTotal(line.totalP, components) : null;
+
+    // Plain product, or a bundle with no reference prices to split by → as-is.
+    if (!shares) {
+      lines.push({ productId: line.productId, name: line.name, totalP: line.totalP, qty: line.qty });
+      continue;
+    }
+
+    components.forEach((c, i) => {
+      const cp = c.product;
+      lines.push({
+        productId: String(cp._id || cp),
+        name:      cp.name || String(cp),
+        totalP:    shares[i],
+        qty:       (c.qty || 1) * line.qty,
+      });
+    });
+  }
+
+  return lines;
+}
+
+/**
+ * Split a bundle line's total across its components in proportion to each
+ * component's reference priceP. PURE. Returns pence per component (index-aligned
+ * with `components`), summing to lineTotalP exactly via largest-remainder.
+ * Returns null when there are no positive reference prices to split by.
+ *
+ * @param {number} lineTotalP
+ * @param {{ priceP?: number }[]} components
+ * @returns {number[] | null}
+ */
+function splitBundleTotal(lineTotalP, components) {
+  const totalWeight = components.reduce((s, c) => s + (c.priceP || 0), 0);
+  if (totalWeight <= 0) return null;
+  const split = SplitEngine.largestRemainder(
+    lineTotalP,
+    components.map((c, i) => ({ id: String(i), weight: (c.priceP || 0) / totalWeight }))
+  );
+  return components.map((_, i) => split.get(String(i)));
+}
+
+/**
  * Build the engine-ready inputs for splitting an invoice from a populated
  * invoice doc + the active member list. Shared by `computeSettlement` (the
  * authoritative path) and `getInvoiceBreakdown` (the read-only explainer) so
@@ -82,28 +154,23 @@ async function setInvoiceStatus(id, status) {
  *
  * Steps:
  *  1. Build memberList for the engine.
- *  2. Collect product IDs + names from all line items.
+ *  2. Expand line items (bundles → component lines).
  *  3. Load AllocationRules → ruleMap (productId → { type, assignments }).
- *  4. Flatten all LineItems across DeliveryDays.
- *  5. Resolve each CommunalEvent's buyer + cost_per_pint.
- *  6. Map invoice-level adjustments to engine shape.
+ *  4. Resolve each CommunalEvent's buyer + cost_per_pint from the expanded lines.
+ *  5. Map invoice-level adjustments to engine shape.
  *
  * @returns {{ memberList, lines, ruleMap, communalEventsForEngine, adjustments, charges, productNameMap }}
  */
 async function buildSplitContext(invoice, members) {
   const memberList = members.map(m => ({ id: String(m._id), isBuyer: m.isBuyer || false }));
 
-  // Collect unique product IDs from all line items.
-  const productIdSet = new Set();
-  const productNameMap = new Map();
-  for (const day of invoice.deliveryDays) {
-    for (const item of day.lineItems) {
-      const pid = String(item.product._id);
-      productIdSet.add(pid);
-      productNameMap.set(pid, item.product.name || pid);
-    }
-  }
-  const productIds = [...productIdSet];
+  // Expand line items, splitting any composite (bundle) product into its
+  // component product lines so rules and communal events attach to real
+  // components, never to the bundle itself.
+  const lines = await expandLines(invoice);
+
+  const productNameMap = new Map(lines.map(l => [l.productId, l.name]));
+  const productIds = [...new Set(lines.map(l => l.productId))];
 
   // Load allocation rules and build ruleMap grouped by productId.
   // For FRACTION: multiple rows per product (one per member).
@@ -124,20 +191,11 @@ async function buildSplitContext(invoice, members) {
     });
   }
 
-  // Ensure every product has a rule.
+  // Ensure every product (component or standalone) has a rule.
   for (const pid of productIds) {
     if (!ruleMap.has(pid)) {
       const name = productNameMap.get(pid) || pid;
       throw new UnknownProductError(`No allocation rule for product "${name}" — add one at /milkman/rules`);
-    }
-  }
-
-  // Flatten lineItems across all DeliveryDays. qty is carried so multi-member
-  // FIXED lines can be validated against the line quantity.
-  const lines = [];
-  for (const day of invoice.deliveryDays) {
-    for (const item of day.lineItems) {
-      lines.push({ productId: String(item.product._id), totalP: item.totalP, qty: item.qty });
     }
   }
 
@@ -162,26 +220,16 @@ async function buildSplitContext(invoice, members) {
         );
       }
 
-      // Find the line for this product to get qty and totalP.
-      let lineQty = null;
-      let lineTotalP = null;
-      outer: for (const day2 of invoice.deliveryDays) {
-        for (const item of day2.lineItems) {
-          if (String(item.product._id) === pid) {
-            lineQty    = item.qty;
-            lineTotalP = item.totalP;
-            break outer;
-          }
-        }
-      }
-
-      if (lineQty === null) {
+      // qty/totalP come from the expanded lines so a bundle component is costed
+      // on its own sub-price, not the whole bundle price.
+      const compLine = lines.find(l => l.productId === pid);
+      if (!compLine) {
         throw new UnknownProductError(
-          `CommunalEvent product ${evt.product.name || pid} not found in any lineItem`
+          `CommunalEvent product ${evt.product.name || pid} not found in any line`
         );
       }
 
-      const costPerPint = Math.floor(lineTotalP / (lineQty * evt.product.pintsPerBottle));
+      const costPerPint = Math.floor(compLine.totalP / (compLine.qty * evt.product.pintsPerBottle));
 
       communalEventsForEngine.push({
         productId:      pid,
@@ -349,4 +397,4 @@ async function getInvoiceBreakdown(invoiceId) {
   });
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal };

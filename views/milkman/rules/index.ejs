@@ -24,9 +24,15 @@
             <select name="productId" required>
               <option value="">— select —</option>
               <% products.forEach(function(p) { %>
+              <% if (p.components && p.components.length > 0) { %>
+              <option value="<%= p._id %>" disabled>
+                <%= p.name %> — bundle (set rules on its components)
+              </option>
+              <% } else { %>
               <option value="<%= p._id %>">
                 <%= p.name %><% if (productsWithRules.has(String(p._id))) { %> ✓<% } %>
               </option>
+              <% } %>
               <% }); %>
             </select>
           </label>

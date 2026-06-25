@@ -11,7 +11,23 @@ async function getAllProducts() {
 }
 
 async function getProductById(id) {
-  return Product.findById(id).lean();
+  return Product.findById(id).populate('components.product', 'name priceP pintsPerBottle').lean();
+}
+
+/** Append a component { product, qty, priceP } to a composite product. */
+async function addComponent(id, component) {
+  return Product.findByIdAndUpdate(id, { $push: { components: component } }, { new: true, runValidators: true }).lean();
+}
+
+/** Remove the component at `index` from a product's components array. */
+async function removeComponent(id, index) {
+  const product = await Product.findById(id);
+  if (!product) return null;
+  if (index >= 0 && index < product.components.length) {
+    product.components.splice(index, 1);
+    await product.save();
+  }
+  return product;
 }
 
 async function findByNameAndPrice(name, priceP) {
@@ -89,4 +105,4 @@ async function checkDuplicates() {
   console.log('[milkman] product dedup complete');
 }
 
-module.exports = { getActiveProducts, getAllProducts, getProductById, findByNameAndPrice, createProduct, updateProduct, checkDuplicates };
+module.exports = { getActiveProducts, getAllProducts, getProductById, findByNameAndPrice, createProduct, updateProduct, addComponent, removeComponent, checkDuplicates };

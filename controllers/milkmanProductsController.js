@@ -32,11 +32,41 @@ async function editForm(req, res, next) {
   try {
     const product = await ProductService.getProductById(req.params.id);
     if (!product) return res.redirect('/milkman/products');
+    // Candidate component products: everything else that isn't itself a bundle
+    // (no nested bundles) — used to populate the add-component dropdown.
+    const allProducts = await ProductService.getAllProducts();
+    const componentChoices = allProducts.filter(p =>
+      String(p._id) !== String(product._id) && !(p.components && p.components.length > 0)
+    );
+    const componentTotalP = (product.components || []).reduce((s, c) => s + (c.priceP || 0), 0);
     res.render('milkman/products/edit', {
       title:       `Edit ${product.name}`,
       description: `Edit product ${product.name}.`,
       product,
+      componentChoices,
+      componentTotalP,
     });
+  } catch (err) { next(err); }
+}
+
+async function addComponent(req, res, next) {
+  try {
+    const { productId, qty, priceP } = req.body;
+    if (productId && priceP != null) {
+      await ProductService.addComponent(req.params.id, {
+        product: productId,
+        qty:     qty ? parseFloat(qty) : 1,
+        priceP:  parseInt(priceP, 10),
+      });
+    }
+    res.redirect(`/milkman/products/${req.params.id}/edit`);
+  } catch (err) { next(err); }
+}
+
+async function removeComponent(req, res, next) {
+  try {
+    await ProductService.removeComponent(req.params.id, parseInt(req.params.index, 10));
+    res.redirect(`/milkman/products/${req.params.id}/edit`);
   } catch (err) { next(err); }
 }
 
@@ -54,4 +84,4 @@ async function update(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { list, create, editForm, update };
+module.exports = { list, create, editForm, update, addComponent, removeComponent };

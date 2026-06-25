@@ -6,7 +6,7 @@
     </header>
 
     <form method="POST" action="/milkman/products/<%= product._id %>" class="max-w-sm">
-      <div class="flex flex-col gap-4 pb-16">
+      <div class="flex flex-col gap-4 mb-8">
         <label class="flex flex-col gap-1">
           Name
           <input type="text" name="name" value="<%= product.name %>" required>
@@ -30,6 +30,62 @@
           <button type="submit" class="btn">Save</button>
           <a href="/milkman/products" class="btn">Cancel</a>
         </div>
+      </div>
+    </form>
+
+    <%# ── Bundle components ─────────────────────────────────────────────────── %>
+    <div class="section-label">Bundle components</div>
+    <p class="text-muted text-sm mb-4 max-w-[52ch]">
+      Add components to turn this into a bundle (e.g. &ldquo;2 Pints Whole Milk &amp; 6 Eggs&rdquo;).
+      At split time the line price is divided across components in proportion to their
+      reference price, and allocation rules &amp; communal events attach to the
+      <strong>component</strong> products — not to the bundle.
+    </p>
+
+    <% if (product.components && product.components.length > 0) { %>
+    <section class="card-grid mb-4">
+      <% product.components.forEach(function(c, i) { %>
+      <div class="module">
+        <div class="callsign">[COMPONENT]</div>
+        <div class="name"><%= c.product ? c.product.name : '— missing —' %></div>
+        <div class="desc">qty <%= c.qty %> &nbsp;·&nbsp; ref £<%= (c.priceP / 100).toFixed(2) %></div>
+        <div class="host">
+          <form method="POST" action="/milkman/products/<%= product._id %>/components/<%= i %>/delete">
+            <button type="submit" class="btn">Remove</button>
+          </form>
+        </div>
+      </div>
+      <% }); %>
+    </section>
+    <p class="font-mono text-xs mb-6 <%= componentTotalP === product.priceP ? 'text-settled' : 'text-accent' %>">
+      <%= componentTotalP === product.priceP ? '✓' : '⚠' %>
+      Reference total £<%= (componentTotalP / 100).toFixed(2) %> vs product price £<%= (product.priceP / 100).toFixed(2) %><%
+        if (componentTotalP !== product.priceP) { %> — these differ; prices are split proportionally so it still reconciles, but check the reference prices<% } %>
+    </p>
+    <% } else { %>
+    <p class="empty-state mb-4">Not a bundle — no components.</p>
+    <% } %>
+
+    <form method="POST" action="/milkman/products/<%= product._id %>/components" class="mb-16 max-w-[44rem]">
+      <div class="flex gap-3 flex-wrap items-end">
+        <label class="flex flex-col gap-1">
+          Component product
+          <select name="productId" required>
+            <option value="">— select —</option>
+            <% componentChoices.forEach(function(p) { %>
+            <option value="<%= p._id %>"><%= p.name %></option>
+            <% }); %>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1">
+          Qty per bundle
+          <input type="number" name="qty" min="0" step="0.5" value="1" style="width:8rem;">
+        </label>
+        <label class="flex flex-col gap-1">
+          Reference price (pence)
+          <input type="number" name="priceP" required min="0" step="1" placeholder="e.g. 246" style="width:10rem;">
+        </label>
+        <button type="submit" class="btn">Add component</button>
       </div>
     </form>
   </div>

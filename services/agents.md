@@ -59,6 +59,15 @@ Every line item must be accounted for.
 `unit_cost = line_total / quantity`; `cost_per_pint = bottle_total /
 pints_per_bottle` (milk = **3 pints/bottle**).
 
+**Composite (bundle) products** — a Product may declare `components`
+(`{ product, qty, priceP }`). Before allocation, `InvoiceService.expandLines`
+splits a bundle line's total across its components in proportion to their
+reference `priceP` (largest-remainder, reconciles exactly) and multiplies each
+component qty by the line qty. Allocation rules and communal events attach to
+the **component** products, never the bundle — so a "2 Pints Whole & 6 Eggs"
+line is costed and split as real milk + real eggs, and communal `cost_per_pint`
+uses the milk component's own sub-price, not the whole bundle price.
+
 ## 5. Communal consumption — the fairness engine (do not break)
 
 A **CommunalEvent** = N units (usually pints) of a product used by a named group.
