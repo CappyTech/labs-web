@@ -45,6 +45,20 @@ async function getPendingCount() {
 }
 
 /**
+ * Whether a later invoice (a subsequent delivery cycle) exists after the given
+ * receipt date. The milkman's corrections for a week — short/missed-delivery
+ * credits, returns, price fixes — land on the *next* week's invoice, so a week's
+ * invoice isn't truly final until that next one has arrived. Callers use this to
+ * warn (not block) before settling an invoice that may still attract corrections.
+ *
+ * @param {Date} receiptDate
+ * @returns {Promise<boolean>}
+ */
+async function hasLaterInvoice(receiptDate) {
+  return Invoice.exists({ receiptDate: { $gt: receiptDate } }).then(Boolean);
+}
+
+/**
  * Return invoices in which a member is directly involved — either as the target
  * of an adjustment or as a participant in a communal event. Newest first.
  */
@@ -407,4 +421,4 @@ async function getInvoiceBreakdown(invoiceId) {
   });
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getPendingCount, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getPendingCount, hasLaterInvoice, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal };

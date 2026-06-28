@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.13.3] - 2026-06-28
+
+### Added
+- **"Not final yet" warning before settling.** A milk-round invoice isn't truly final when it arrives — corrections for the week (short/missed-delivery credits, returns, price fixes) land on the *next* invoice. The invoice page now warns when a `computed` invoice has no later invoice in the system yet (`InvoiceService.hasLaterInvoice`), advising you to wait until the next one is in before settling. Warning only — "Mark settled" stays available so you can override.
+
+---
+
 ## [2.13.2] - 2026-06-28
 
 ### Added

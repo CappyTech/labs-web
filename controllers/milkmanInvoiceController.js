@@ -54,6 +54,11 @@ async function show(req, res, next) {
 
     const invoice = formatInvoice(raw);
 
+    // An invoice is "final" once a later invoice exists — the next delivery
+    // cycle's invoice is where this week's corrections (credits/returns/price
+    // fixes) land. Used to warn (not block) before settling.
+    const isFinal = await InvoiceService.hasLaterInvoice(raw.receiptDate);
+
     let settlement = null;
     if (invoice.status === 'computed' || invoice.status === 'settled') {
       const [raw2, breakdown] = await Promise.all([
@@ -88,6 +93,7 @@ async function show(req, res, next) {
       description: `Milkman invoice ${raw.number} — ${formatMoney(raw.totalP)}`,
       invoice,
       settlement,
+      isFinal,
       products,
       members,
     });

@@ -310,4 +310,7 @@
       </form>
       <% } %>
     </section>
+    <% if (invoice.status === 'computed' && !isFinal) { %>
+      <p class="empty-state text-accent mb-16">⚠ No later invoice received yet — this week's corrections (credits, returns, price fixes) usually arrive on the next invoice. This invoice may not be final; settle once the next one is in.</p>
+    <% } %>
   </div>
