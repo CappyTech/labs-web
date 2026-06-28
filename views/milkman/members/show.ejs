@@ -14,7 +14,11 @@
       <div class="module">
         <div class="callsign">[OUTSTANDING]</div>
         <div class="name <%= outstandingP > 0 ? 'text-accent' : 'text-muted' %>"><%= outstanding %></div>
-        <div class="desc">currently due</div>
+        <% if (pendingCount > 0) { %>
+          <div class="desc text-accent">⚠ <%= pendingCount %> pending invoice<%= pendingCount !== 1 ? 's' : '' %> not yet split — may understate</div>
+        <% } else { %>
+          <div class="desc">currently due</div>
+        <% } %>
       </div>
       <div class="module">
         <div class="callsign">[ROLE]</div>

@@ -35,6 +35,16 @@ async function getInvoiceRaw(invoiceId) {
 }
 
 /**
+ * Count invoices still awaiting a split (status 'pending'). These contribute
+ * nothing to outstanding balances yet — any adjustments or line allocations on
+ * them are invisible until split — so callers surface this as a warning that an
+ * outstanding figure may understate what is actually owed.
+ */
+async function getPendingCount() {
+  return Invoice.countDocuments({ status: 'pending' });
+}
+
+/**
  * Return invoices in which a member is directly involved — either as the target
  * of an adjustment or as a participant in a communal event. Newest first.
  */
@@ -397,4 +407,4 @@ async function getInvoiceBreakdown(invoiceId) {
   });
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getPendingCount, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal };

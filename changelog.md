@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.13.2] - 2026-06-28
+
+### Added
+- **"Pending invoices not yet split" warning on the member page.** A member's `[OUTSTANDING]` figure only sums `computed` invoices, so any `pending` (unsplit) invoice — and any adjustments on it — is invisible to it. The member detail page now shows `⚠ N pending invoice(s) not yet split — may understate` under the outstanding figure whenever unsplit invoices exist, so the number can't silently understate what's owed. The dashboard already showed a round-wide pending count; both pages now share `InvoiceService.getPendingCount()`.
+
+---
+
+## [2.13.1] - 2026-06-28
+
+### Fixed
+- **Window settlements could double-count invoices.** `SettlementService.createWindowSettlement` selected invoices with status `computed` *or* `settled`, then marked them `settled`. Re-running it, or running an overlapping window, would pull already-settled invoices into a second window settlement. It now consumes only `computed` invoices, so the operation is idempotent and an invoice can be rolled into at most one window settlement. (Reachable via the JSON API `POST /settlements` only; the web UI is unaffected.)
+
+---
+
 ## [2.13.0] - 2026-06-24
 
 ### Added

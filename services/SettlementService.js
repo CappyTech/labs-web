@@ -60,16 +60,21 @@ async function getSettlementById(id) {
 
 /**
  * Create a window-level Settlement by aggregating per-invoice Settlements
- * that were already computed (invoice status = 'computed' | 'settled').
+ * that were already computed but not yet settled (invoice status = 'computed').
  * Marks all included invoices as 'settled'.
+ *
+ * Only 'computed' invoices are consumed, never 'settled' ones, so the operation
+ * is idempotent: re-running it, or running an overlapping window, can never pull
+ * an already-settled invoice into a second window settlement (no double-counting).
  *
  * @param {{ cadence: string, windowStart: Date, windowEnd: Date }} opts
  */
 async function createWindowSettlement({ cadence, windowStart, windowEnd }) {
-  // Find per-invoice settlements whose invoices fall in the window.
+  // Find per-invoice settlements whose invoices fall in the window and have not
+  // already been rolled into an earlier window settlement.
   const invoicesInWindow = await Invoice.find({
     receiptDate: { $gte: windowStart, $lte: windowEnd },
-    status: { $in: ['computed', 'settled'] },
+    status: 'computed',
   }).lean();
 
   const invoiceIds = invoicesInWindow.map(i => i._id);

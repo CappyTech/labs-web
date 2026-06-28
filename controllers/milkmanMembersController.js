@@ -30,10 +30,11 @@ async function show(req, res, next) {
     if (!member) return res.redirect('/milkman/members');
 
     const memberId = String(member._id);
-    const [rawSettlements, outstandingBalances, rawInvoices] = await Promise.all([
+    const [rawSettlements, outstandingBalances, rawInvoices, pendingCount] = await Promise.all([
       SettlementService.getSettlementsForMember(memberId),
       SettlementService.getOutstandingBalances(),
       InvoiceService.getInvoicesForMember(memberId),
+      InvoiceService.getPendingCount(),
     ]);
 
     const outstandingP = outstandingBalances.find(b => b.memberId === memberId)?.owedP || 0;
@@ -93,6 +94,7 @@ async function show(req, res, next) {
       },
       outstanding:  formatMoney(outstandingP),
       outstandingP,
+      pendingCount,
       settlements,
       involvement,
     });

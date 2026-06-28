@@ -3,7 +3,6 @@
 const MemberService     = require('../services/MemberService');
 const InvoiceService    = require('../services/InvoiceService');
 const SettlementService = require('../services/SettlementService');
-const Invoice           = require('../models/Invoice');
 const SplitEngine       = require('../services/SplitEngine');
 const { formatMoney }   = require('./dto');
 
@@ -16,7 +15,7 @@ async function index(req, res, next) {
       MemberService.getActiveMembers(),
       InvoiceService.getRecentInvoices(5),
       SettlementService.getOutstandingBalances(),
-      Invoice.countDocuments({ status: 'pending' }),
+      InvoiceService.getPendingCount(),
     ]);
 
     const recentInvoices = rawInvoices.map(inv => ({
