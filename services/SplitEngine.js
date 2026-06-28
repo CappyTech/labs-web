@@ -178,16 +178,20 @@ function applyAdjustments(shares, adjustments) {
  *
  * For each event:
  *  - The buyer already holds the full product line cost in `shares`.
- *  - Credit the buyer the communal portion (units × costPerPint).
+ *  - Credit the buyer the communal portion (communalCostPence).
  *  - Re-charge that exact amount equally across participants (largest-remainder).
  *
  * Hard invariant: buyer never subsidises the group and never profits.
- * costPerPint = lineTotalPence / (quantity × pintsPerBottle), caller computes it.
+ * communalCostPence is the value of the communally-consumed units as a share of
+ * the line — round(lineTotalPence × unitsCommunal / totalUnits) — computed by the
+ * caller. Valuing the portion directly (rather than via a per-unit rate floored
+ * to whole pence and then multiplied) keeps it penny-exact and never biases the
+ * buyer: when the whole line is communal the buyer is reimbursed the full line.
  *
  * @param {Map<string, number>} shares
  * @param {{
- *   units: number,          // communal pints
- *   costPerPint: number,    // integer pence (rounded down by caller)
+ *   units: number,             // communal units — carried for labelling only
+ *   communalCostPence: number, // integer pence value of those units
  *   buyerId: string,
  *   participantIds: string[]
  * }[]} communalEvents
@@ -197,7 +201,7 @@ function applyCommunalEvents(shares, communalEvents) {
   const result = new Map(shares);
 
   for (const event of communalEvents) {
-    const communalCostPence = event.units * event.costPerPint;
+    const communalCostPence = event.communalCostPence;
 
     // Credit the buyer; they paid for this portion up front.
     result.set(event.buyerId, result.get(event.buyerId) - communalCostPence);

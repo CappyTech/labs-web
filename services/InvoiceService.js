@@ -171,6 +171,25 @@ function splitBundleTotal(lineTotalP, components) {
 }
 
 /**
+ * Value the communally-consumed units as a share of the line total, rounded to
+ * the nearest penny. PURE.
+ *
+ * Valuing the portion *directly* — round(lineTotalP × unitsCommunal / totalUnits)
+ * — rather than flooring a per-unit rate and multiplying it, keeps the figure
+ * penny-exact and never biases the buyer. In particular, when the whole line is
+ * communal (unitsCommunal === totalUnits) the buyer is reimbursed the full line
+ * total exactly, so the share is perfectly fair.
+ *
+ * @param {number} lineTotalP     line total in pence
+ * @param {number} unitsCommunal  units consumed communally
+ * @param {number} totalUnits     total units in the line (qty × unitsPerItem)
+ * @returns {number} integer pence
+ */
+function communalValueP(lineTotalP, unitsCommunal, totalUnits) {
+  return Math.round(lineTotalP * unitsCommunal / totalUnits);
+}
+
+/**
  * Build the engine-ready inputs for splitting an invoice from a populated
  * invoice doc + the active member list. Shared by `computeSettlement` (the
  * authoritative path) and `getInvoiceBreakdown` (the read-only explainer) so
@@ -180,7 +199,7 @@ function splitBundleTotal(lineTotalP, components) {
  *  1. Build memberList for the engine.
  *  2. Expand line items (bundles → component lines).
  *  3. Load AllocationRules → ruleMap (productId → { type, assignments }).
- *  4. Resolve each CommunalEvent's buyer + cost_per_pint from the expanded lines.
+ *  4. Resolve each CommunalEvent's buyer + communal value from the expanded lines.
  *  5. Map invoice-level adjustments to engine shape.
  *
  * @returns {{ memberList, lines, ruleMap, communalEventsForEngine, adjustments, charges, productNameMap }}
@@ -223,7 +242,8 @@ async function buildSplitContext(invoice, members) {
     }
   }
 
-  // Resolve communal events: buyer from WHOLE/FIXED rule + cost_per_pint.
+  // Resolve communal events: buyer from WHOLE/FIXED rule + the value of the
+  // communal units as a share of the line total.
   // productId is carried through for breakdown labelling (engine ignores it).
   const communalEventsForEngine = [];
   for (const day of invoice.deliveryDays) {
@@ -240,7 +260,7 @@ async function buildSplitContext(invoice, members) {
 
       if (!evt.product.pintsPerBottle) {
         throw new UnknownProductError(
-          `Product ${evt.product.name || pid} has no pintsPerBottle — cannot compute cost_per_pint`
+          `Product ${evt.product.name || pid} has no pintsPerBottle — cannot value communal units`
         );
       }
 
@@ -253,12 +273,18 @@ async function buildSplitContext(invoice, members) {
         );
       }
 
-      const costPerPint = Math.floor(compLine.totalP / (compLine.qty * evt.product.pintsPerBottle));
+      // Value the communally-consumed units as a direct share of the line total,
+      // rounded to the nearest penny: round(lineTotal × unitsCommunal / totalUnits).
+      // This is penny-exact and avoids the buyer-bias of flooring a per-unit rate
+      // and then multiplying (e.g. when the whole line is communal the buyer is
+      // reimbursed the full line, not line − pints×roundingLoss).
+      const totalUnits        = compLine.qty * evt.product.pintsPerBottle;
+      const communalCostPence = communalValueP(compLine.totalP, evt.units, totalUnits);
 
       communalEventsForEngine.push({
         productId:      pid,
         units:          evt.units,
-        costPerPint,
+        communalCostPence,
         buyerId,
         participantIds: evt.participants.map(p => String(p._id || p)),
       });
@@ -421,4 +447,4 @@ async function getInvoiceBreakdown(invoiceId) {
   });
 }
 
-module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getPendingCount, hasLaterInvoice, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal };
+module.exports = { getAllInvoices, getInvoiceById, getInvoiceRaw, getPendingCount, hasLaterInvoice, getInvoicesForMember, getRecentInvoices, findByNumber, createInvoice, deleteInvoice, updateInvoice, setInvoiceStatus, computeSettlement, getInvoiceBreakdown, splitBundleTotal, communalValueP };

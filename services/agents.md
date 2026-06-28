@@ -56,8 +56,11 @@ Every line item must be accounted for.
 - **UNASSIGNED fallback** — configurable: assign-to-member / split-evenly /
   exclude. (Reference data: Iron Brew → all Jack.)
 
-`unit_cost = line_total / quantity`; `cost_per_pint = bottle_total /
-pints_per_bottle` (milk = **3 pints/bottle**).
+`unit_cost = line_total / quantity`. A communal portion is valued directly as a
+share of the line total: `communal_value = round(line_total × units_communal /
+total_units)` where `total_units = quantity × units_per_item` (milk = **3
+pints/bottle**). Valuing the portion directly — rather than flooring a per-unit
+rate and multiplying — keeps it penny-exact and never biases the buyer.
 
 **Composite (bundle) products** — a Product may declare `components`
 (`{ product, qty, priceP }`). Before allocation, `InvoiceService.expandLines`
@@ -65,23 +68,25 @@ splits a bundle line's total across its components in proportion to their
 reference `priceP` (largest-remainder, reconciles exactly) and multiplies each
 component qty by the line qty. Allocation rules and communal events attach to
 the **component** products, never the bundle — so a "2 Pints Whole & 6 Eggs"
-line is costed and split as real milk + real eggs, and communal `cost_per_pint`
-uses the milk component's own sub-price, not the whole bundle price.
+line is costed and split as real milk + real eggs, and a communal portion is
+valued from the milk component's own sub-price, not the whole bundle price.
 
 ## 5. Communal consumption — the fairness engine (do not break)
 
 A **CommunalEvent** = N units (usually pints) of a product used by a named group.
 
-1. Cost communal units at the buyer's **actual `cost_per_pint`** — no markup, no
-   rounding-up of the rate.
+1. Value the communal units as a **direct share of the line total**, rounded to
+   the nearest penny — no markup, and no flooring of a per-unit rate (which would
+   short the buyer).
 2. Split **equally among the event's participants only.**
 3. Participants **may or may not include the buyer.** Buyer is in the split only
    if they consumed that portion.
 4. Buyer pays solo for all **non-communal** units of that product.
 
-**Hard invariant:** the buyer never pays more than `(solo units + equal share of
-communal units) × cost_per_pint`. The buyer never subsidises the group and never
-profits from being the payer. Do **not** implement a fixed weekly levy — it
+**Hard invariant:** the buyer never pays more than their solo units plus an equal
+share of the communal value. The buyer never subsidises the group and never
+profits from being the payer — when the whole line is communal they are
+reimbursed the full line total. Do **not** implement a fixed weekly levy — it
 breaks this.
 
 ## 6. Adjustments
@@ -110,8 +115,8 @@ Invoice `39875277`, total **£33.15**. Rules: Luke = 2/3 Semi + all Apple; Ben =
 Choco Protein; Iron Brew → Jack.
 
 - **No communal use:** Jack £20.95 · Luke £8.67 · Ben £3.53 · Candice £0.00.
-- **1 communal Whole-Milk pint, 4-way** (`cost_per_pint` = £5.80/6 = £0.9667):
-  Jack £20.23 · Luke £8.91 · Ben £3.77 · Candice £0.24.
+- **1 communal Whole-Milk pint, 4-way** (communal value = round(£5.80 × 1/6) =
+  round(£0.9667) = **£0.97**): Jack £20.22 · Luke £8.91 · Ben £3.78 · Candice £0.24.
 
 Both must reconcile to £33.15 exactly.
 

@@ -103,11 +103,11 @@ function maths(req, res, next) {
     const commLineTotalP = 1273;
     const commPPB        = 2;
     const commUnits      = 3;
-    const commCPP        = Math.floor(commLineTotalP / (commLineQty * commPPB));
-    const commCost       = commUnits * commCPP;
+    const commTotalUnits = commLineQty * commPPB;
+    const commCost       = Math.round(commLineTotalP * commUnits / commTotalUnits);
     const commStart      = new Map([['alice', commLineTotalP], ['bob', 0]]);
     const commResult     = mapToRows(SplitEngine.applyCommunalEvents(commStart, [{
-      units: commUnits, costPerPint: commCPP, buyerId: 'alice', participantIds: ['alice', 'bob'],
+      units: commUnits, communalCostPence: commCost, buyerId: 'alice', participantIds: ['alice', 'bob'],
     }]));
 
     // ── 5. Adjustments: Bob gets −£2.00 credit ───────────────────────
@@ -151,14 +151,14 @@ function maths(req, res, next) {
         result:   fracResult,
       },
       communal: {
-        lineQty:     commLineQty,
-        lineTotalP:  commLineTotalP,
-        ppb:         commPPB,
-        units:       commUnits,
-        costPerPint: commCPP,
+        lineQty:      commLineQty,
+        lineTotalP:   commLineTotalP,
+        ppb:          commPPB,
+        units:        commUnits,
+        totalUnits:   commTotalUnits,
         communalCost: commCost,
-        startRows:   mapToRows(commStart),
-        result:      commResult,
+        startRows:    mapToRows(commStart),
+        result:       commResult,
       },
       adjustments: {
         before: mapToRows(adjStart),

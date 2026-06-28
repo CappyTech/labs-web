@@ -186,32 +186,29 @@ award +1p to parts with largest fractional remainders
   <div class="section-label">Communal events</div>
   <div class="module">
     <div class="callsign">Shared pints: credit the buyer, re-charge participants equally</div>
-    <pre class="formula">costPerPint  = Math.floor(lineTotalP / (lineQty × pintsPerBottle))
-communalCost = units × costPerPint
+    <pre class="formula">communalCost = Math.round(lineTotalP × unitsCommunal / totalUnits)
 share[buyer] -= communalCost
 share[each participant] += largestRemainder(communalCost, equal weights)</pre>
 
     <p style="font-size:12px;color:#6f8d90;margin-bottom:14px;">
-      Example: <%= communal.lineQty %> bottles · <strong style="color:#dde9e7;"><%= fm(communal.lineTotalP) %></strong> · <%= communal.ppb %> pints/bottle.
+      Example: <%= communal.lineQty %> bottles · <strong style="color:#dde9e7;"><%= fm(communal.lineTotalP) %></strong> · <%= communal.ppb %> pints/bottle
+      = <%= communal.totalUnits %> pints total.
       <%= communal.units %> pints consumed communally. Alice bought the milk (WHOLE); both Alice &amp; Bob participated.
     </p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;">
-      <div>
-        <div class="ba-label">Cost per pint</div>
-        <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;">
-          floor(<%= communal.lineTotalP %> / (<%= communal.lineQty %> × <%= communal.ppb %>))
-          = floor(<%= (communal.lineTotalP / (communal.lineQty * communal.ppb)).toFixed(3) %>)
-          = <strong style="color:#e8a13c;"><%= communal.costPerPint %>p</strong>
-        </p>
-      </div>
-      <div>
-        <div class="ba-label">Communal cost</div>
-        <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;">
-          <%= communal.units %> × <%= communal.costPerPint %>p
-          = <strong style="color:#e8a13c;"><%= communal.communalCost %>p</strong> (<%= fm(communal.communalCost) %>)
-        </p>
-      </div>
+    <p style="font-size:12px;color:#6f8d90;margin-bottom:14px;">
+      The communal portion is valued <em>directly</em> as a share of the line and rounded to the
+      nearest penny — not via a per-pint rate floored to whole pence — so the buyer is reimbursed
+      exactly what those pints were worth (no sub-penny bias against them).
+    </p>
+
+    <div style="margin-bottom:14px;">
+      <div class="ba-label">Communal cost</div>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;">
+        round(<%= communal.lineTotalP %> × <%= communal.units %> / <%= communal.totalUnits %>)
+        = round(<%= (communal.lineTotalP * communal.units / communal.totalUnits).toFixed(3) %>)
+        = <strong style="color:#e8a13c;"><%= communal.communalCost %>p</strong> (<%= fm(communal.communalCost) %>)
+      </p>
     </div>
 
     <div class="before-after">

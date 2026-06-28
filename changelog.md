@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.13.4] - 2026-06-28
+
+### Fixed
+- **Communal costing no longer biases the buyer.** The communal portion was priced via a per-pint rate floored to whole pence (`floor(lineTotal / totalUnits) × unitsCommunal`), which under-reimbursed the buyer by up to `(totalUnits − 1)`p — e.g. a 3-pint £2.90 bottle consumed wholly communally between two people split 146/144 instead of a fair 145/145. The portion is now valued **directly** as a rounded share of the line, `round(lineTotal × unitsCommunal / totalUnits)`, via the new pure `InvoiceService.communalValueP`. This is penny-exact and, when the whole line is communal, reimburses the buyer the full line total. `SplitEngine.applyCommunalEvents` now takes `communalCostPence` instead of `units × costPerPint`.
+
+### Changed
+- The `/milkman/maths` communal worked example and `services/agents.md` now document the direct-valuation formula; the golden fixture's 4-way communal pint is now valued at £0.97 (was a floored £0.96), shifting that scenario to Jack £20.22 · Luke £8.91 · Ben £3.78 · Candice £0.24 (still reconciles to £33.15).
+- New regression tests (`test/communalValue.test.js`) lock the fair-split behaviour and the round-to-nearest valuation. Test count 43 → 47.
+
+---
+
 ## [2.13.3] - 2026-06-28
 
 ### Added

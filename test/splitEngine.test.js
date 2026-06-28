@@ -251,15 +251,15 @@ describe('applyAdjustments', () => {
 
 describe('applyCommunalEvents', () => {
   test('credits the buyer and re-charges participants equally', () => {
-    // alice holds 200p (bought 2 bottles). 1 pint used communally at 100p/pint.
-    // alice and bob share the communal pint → each owes 50p.
+    // alice holds 200p (bought 2 bottles). 100p-worth used communally.
+    // alice and bob share the communal portion → each owes 50p.
     // alice net: 200 - 100 + 50 = 150; bob: 0 + 50 = 50.
     const shares = new Map([['alice', 200], ['bob', 0]]);
     const events = [{
-      units:          1,
-      costPerPint:    100,
-      buyerId:        'alice',
-      participantIds: ['alice', 'bob'],
+      units:             1,
+      communalCostPence: 100,
+      buyerId:           'alice',
+      participantIds:    ['alice', 'bob'],
     }];
     const result = applyCommunalEvents(shares, events);
     assert.equal(result.get('alice'), 150);
@@ -268,13 +268,11 @@ describe('applyCommunalEvents', () => {
 
   test('communal total equals original communal cost', () => {
     const shares = new Map([['alice', 300], ['bob', 0], ['carol', 0]]);
-    const costPerPint = 100;
-    const units = 3;
     const events = [{
-      units,
-      costPerPint,
-      buyerId:        'alice',
-      participantIds: ['alice', 'bob', 'carol'],
+      units:             3,
+      communalCostPence: 300,
+      buyerId:           'alice',
+      participantIds:    ['alice', 'bob', 'carol'],
     }];
     const result = applyCommunalEvents(shares, events);
     const communalTotal = [...result.values()].reduce((s, v) => s + v, 0);
@@ -350,7 +348,7 @@ describe('explainSplit', () => {
       ['milk', { type: 'WHOLE', assignments: [{ memberId: 'alice' }] }],
     ]);
     const opts = {
-      communalEvents: [{ productId: 'milk', units: 2, costPerPint: 100, buyerId: 'alice', participantIds: ['alice', 'bob', 'carol'] }],
+      communalEvents: [{ productId: 'milk', units: 2, communalCostPence: 200, buyerId: 'alice', participantIds: ['alice', 'bob', 'carol'] }],
       adjustments:    [{ memberId: 'bob', amountPence: -150 }],
       charges:        [{ amountP: 90, splitType: 'equal' }],
     };
@@ -393,8 +391,8 @@ describe('full split pipeline', () => {
   test('FRACTION + communal event + reconcile produces correct balances', () => {
     // 1 bottle of milk (4 pints), totalP = 120p, split 50/50.
     // Alice and bob each owe 60p initially.
-    // 2 pints used communally by both → costPerPint = Math.floor(120 / (1 * 4)) = 30p.
-    // Communal cost = 2 * 30 = 60p.
+    // 2 of the 4 pints used communally by both → communal value =
+    //   round(120 × 2 / 4) = 60p.
     // Alice (buyer) gets -60p credit then +30p re-charge → net 60 - 60 + 30 = 30.
     // Bob gets 60 + 30 = 90.
     // Total = 120.
@@ -413,10 +411,10 @@ describe('full split pipeline', () => {
     let shares = allocateLines(lines, rules, members);
 
     const communalEvents = [{
-      units:          2,
-      costPerPint:    30,
-      buyerId:        'alice',
-      participantIds: ['alice', 'bob'],
+      units:             2,
+      communalCostPence: 60,
+      buyerId:           'alice',
+      participantIds:    ['alice', 'bob'],
     }];
     shares = applyCommunalEvents(shares, communalEvents);
 
