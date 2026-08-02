@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.13.5] - 2026-08-02
+
+### Added
+- **Grocy listed as an active module.** New `GROCY` entry in `moduleService` linking to <https://food.cappylabs.uk> — kitchen stock, shopping lists and meal plans. Self-hosted from `CappyTech/grocy`, a fork of upstream grocy carrying an en_GB fix and the Cappy Labs theme.
+
+---
+
 ## [2.13.4] - 2026-06-28
 
 ### Fixed
