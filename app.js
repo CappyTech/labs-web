@@ -7,6 +7,20 @@ const db = require('./services/db');
 
 const app = express();
 const { version } = require('./package.json');
+
+// Trust the edge proxy (Caddy) so req.hostname/req.protocol reflect the
+// original request — needed for host-aware routing (e.g. the Cairn domain).
+app.set('trust proxy', true);
+
+// Baseline security headers for every response. HSTS is left to the edge (Caddy).
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+  next();
+});
+
 app.use((req, res, next) => { res.locals.appVersion = version; next(); });
 
 // View engine

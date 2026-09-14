@@ -11,10 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Cairn legal pages at `/delete` and `/privacy`.** New `routes/legal.js` → `controllers/legalController.js` → `views/legal/{delete,privacy}.ejs`. `/delete` satisfies Google Play's Data deletion URL requirements (names the app Cairn + developer CappyLabs, gives prominent in-app and email deletion steps, lists what data is deleted/kept plus retention); `/privacy` is the privacy policy for Google Play's Data Safety section (E2E-encrypted location the developer cannot read, no accounts, no tracking/ads, GDPR rights, retention/deletion, self-hosting). Intended to be served at `https://cairn.cappylabs.uk/{delete,privacy}` (also reachable under `cappylabs.uk`). The contact inbox is configurable via the new `CAIRN_PRIVACY_EMAIL` env var (defaults to `dev@cappylabs.uk`).
-- **Cairn brand styling for legal pages.** New standalone layout `views/legal/cairn-layout.ejs` + `resources/css/cairn.css` render the Cairn legal pages in the Cairn brand (Manrope; Slate/Stone/Pebble/Mist palette with Lichen as the single accent; stacked-stones mark) rather than the labs-web station theme — per `docs/cairn-brand-guidelines.html`.
+- **Cairn brand styling.** New standalone layout `views/legal/cairn-layout.ejs` + `resources/css/cairn.css` render the Cairn pages in the Cairn brand (Manrope; Slate/Stone/Pebble/Mist palette with Lichen as the single accent; stacked-stones mark) rather than the labs-web station theme — per `docs/cairn-brand-guidelines.html`. The layout carries a favicon, `<link rel="canonical">`, Open Graph / Twitter meta, and a footer cross-linking Privacy / Delete / Contact.
+- **Cairn listed on the homepage.** New `CAIRN` module in `moduleService` linking to <https://cairn.cappylabs.uk>.
+- **Host-aware landing.** `cairn.cappylabs.uk/` now serves a Cairn-branded landing (`views/cairn/index.ejs`) while `cappylabs.uk/` keeps the labs-web station homepage — dispatched in `homeController` on `req.hostname` (`app.set('trust proxy', true)` so the edge `X-Forwarded-Host` drives it).
+- **Shared Cairn config** in `services/cairnService.js` (domain, contact email, privacy "last updated" date, tagline), overridable via `CAIRN_DOMAIN` / `CAIRN_PRIVACY_EMAIL` / `CAIRN_PRIVACY_UPDATED`.
+- **Smoke tests** (`test/legal.test.js`) covering both legal pages' Google-required content + canonical, the cross-links, and the host-based homepage split. Test count 47 → 52.
 
 ### Changed
 - Moved Cairn reference material (brand guidelines, brand sheet, page sources) out of the publicly served `resources/docs/` into a non-served top-level `docs/`.
+- Added baseline security headers to every response (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`); HSTS remains the edge (Caddy) responsibility.
 
 ### Removed
 - Deleted `CAIRN_HANDOFF.md`, which contained sensitive credentials and had been placed under `resources/` (served publicly at `/resources/`).

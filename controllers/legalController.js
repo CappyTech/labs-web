@@ -1,8 +1,6 @@
 'use strict';
 
-// Contact inbox shown on the Cairn data-deletion page. Must be a monitored
-// mailbox — Google Play expects a working data-deletion request channel.
-const CAIRN_PRIVACY_EMAIL = process.env.CAIRN_PRIVACY_EMAIL || 'dev@cappylabs.uk';
+const cairn = require('../services/cairnService');
 
 /**
  * GET /delete
@@ -16,13 +14,10 @@ function cairnDelete(req, res) {
     layout: 'legal/cairn-layout',
     title: 'Delete your Cairn data',
     description: 'How to delete the data associated with your Cairn account — by CappyLabs.',
-    privacyEmail: CAIRN_PRIVACY_EMAIL,
+    canonical: `${cairn.DOMAIN}/delete`,
+    privacyEmail: cairn.EMAIL,
   });
 }
-
-// Date shown as "Last updated" on the privacy policy. Bump when the policy text
-// materially changes.
-const CAIRN_PRIVACY_UPDATED = '14 September 2026';
 
 /**
  * GET /privacy
@@ -34,8 +29,9 @@ function cairnPrivacy(req, res) {
     layout: 'legal/cairn-layout',
     title: 'Cairn Privacy Policy',
     description: 'How Cairn handles your data — private, self-hosted, end-to-end encrypted, by CappyLabs.',
-    privacyEmail: CAIRN_PRIVACY_EMAIL,
-    lastUpdated: CAIRN_PRIVACY_UPDATED,
+    canonical: `${cairn.DOMAIN}/privacy`,
+    privacyEmail: cairn.EMAIL,
+    lastUpdated: cairn.PRIVACY_UPDATED,
   });
 }
 
