@@ -1,0 +1,96 @@
+<h1>Cairn Privacy Policy</h1>
+<p class="note" style="color:var(--stone)"><em>Last updated: <%= lastUpdated %></em></p>
+
+<p class="lede" style="margin-top:14px"><strong>Cairn</strong> ("the app") is developed by
+  <strong>CappyLabs</strong> ("we", "us"). Cairn is a private, self-hostable
+  location-sharing app. This policy explains what data Cairn handles, how, and your
+  choices. Cairn is built to <strong>minimise</strong> the data we can see — your
+  location is end-to-end encrypted and we cannot read it.</p>
+
+<h2>Our core principle</h2>
+<div class="card accent">
+  <p class="note">Cairn has <strong>no traditional accounts</strong> — no email, phone
+    number, name, or password is required. Your identity is a cryptographic key
+    generated on your device. Your location is encrypted on your device and can only be
+    read by the specific people you choose to share with.
+    <strong>We (and the server) cannot decrypt your location.</strong></p>
+</div>
+
+<h2>What data Cairn handles</h2>
+<div class="card">
+  <ul>
+    <li><strong>Precise location</strong> — collected only while you are sharing, encrypted on your device (end-to-end), and delivered only to contacts you have paired with. We store only unreadable ciphertext.</li>
+    <li><strong>Device identity</strong> — a public cryptographic key and an optional display name you set. This is not linked to your real-world identity unless you choose to reveal it.</li>
+    <li><strong>Connections</strong> — which devices you have paired with, so the app can route encrypted updates.</li>
+    <li><strong>Presence</strong> — a "last active" timestamp so contacts can see whether your location is current.</li>
+    <li><strong>Camera</strong> — used only, on your device, to scan a pairing QR code. Images are not stored or transmitted.</li>
+  </ul>
+</div>
+
+<h2>What we do NOT do</h2>
+<div class="card">
+  <ul>
+    <li>We do <strong>not</strong> sell your data.</li>
+    <li>We do <strong>not</strong> use advertising or third-party analytics/tracking SDKs.</li>
+    <li>We do <strong>not</strong> share your data with third parties. Your location is shared only with the contacts you pair with, end-to-end encrypted.</li>
+    <li>We <strong>cannot</strong> read your location content at any time.</li>
+  </ul>
+</div>
+
+<h2>How the data is used</h2>
+<div class="card">
+  <p class="note">Solely to provide the app's function: letting you share your live
+    location with the specific people you choose, and showing theirs to you. There is no
+    secondary use.</p>
+</div>
+
+<h2>Legal basis &amp; your rights (UK/EU GDPR)</h2>
+<div class="card">
+  <p class="note">We process the limited data above to perform the service you request
+    (and, for location, on the basis of your consent, which you can withdraw at any time
+    by turning off sharing or deleting your identity). You have the right to access,
+    correct, and delete your data (see below), and to complain to your data protection
+    authority (in the UK, the ICO).</p>
+</div>
+
+<h2>Data retention and deletion</h2>
+<div class="card">
+  <p class="note">You can delete your account and all associated data at any time:</p>
+  <ul>
+    <li><strong>In the app:</strong> menu (⋮) → Backup &amp; restore → Danger zone → <strong>Delete this identity</strong>. This is immediate and permanent.</li>
+    <li><strong>By request:</strong> see <a href="/delete">cairn.cappylabs.uk/delete</a>.</li>
+  </ul>
+  <p class="note" style="margin-top:12px">Deleting your account removes your identity,
+    connections, encrypted location shares, pairing requests and presence. We do not
+    retain personal data tied to your identity after deletion. Routine server security
+    logs (which do not contain location content) may persist up to 30 days, then are
+    purged.</p>
+</div>
+
+<h2>Self-hosting</h2>
+<div class="card">
+  <p class="note">Cairn is self-hostable. If you connect the app to your own server,
+    your data resides only on your server and CappyLabs receives nothing.</p>
+</div>
+
+<h2>Security</h2>
+<div class="card">
+  <p class="note">Location content is end-to-end encrypted (X25519 key agreement with
+    ChaCha20-Poly1305). Private keys never leave your device. Traffic to the server is
+    protected with HTTPS.</p>
+</div>
+
+<h2>Children</h2>
+<div class="card">
+  <p class="note">Cairn is not directed to children under 13, and we do not knowingly
+    collect data from them.</p>
+</div>
+
+<h2>Changes to this policy</h2>
+<div class="card">
+  <p class="note">We may update this policy; material changes will be reflected by the
+    "Last updated" date above.</p>
+</div>
+
+<h2>Contact</h2>
+<p>CappyLabs — <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a></p>

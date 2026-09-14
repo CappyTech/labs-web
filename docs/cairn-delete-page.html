@@ -1,0 +1,45 @@
+<!-- Cairn data-deletion page — for labs-web to serve at cairn.cappylabs.uk/delete
+     Meets Google Play's Data deletion URL requirements: names the app/developer,
+     gives prominent deletion steps, and lists data deleted/kept + retention.
+     Restyle to match labs-web; the copy is what matters. -->
+<main style="max-width:720px;margin:0 auto;padding:32px 20px;line-height:1.6;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#1F2A2E">
+  <h1>Delete your Cairn data</h1>
+  <p><strong>Cairn</strong> is developed by <strong>CappyLabs</strong>. This page
+  explains how to delete the data associated with your Cairn account.</p>
+
+  <h2>Option 1 — Delete it yourself in the app (immediate)</h2>
+  <ol>
+    <li>Open <strong>Cairn</strong>.</li>
+    <li>Tap the menu (⋮) → <strong>Backup &amp; restore</strong>.</li>
+    <li>Under <strong>Danger zone</strong>, tap <strong>Delete this identity</strong> and confirm.</li>
+  </ol>
+  <p>This <strong>permanently and immediately</strong> deletes your account and all
+  associated data from the server. It cannot be undone.</p>
+
+  <h2>Option 2 — Request deletion by email</h2>
+  <p>If you can't access the app, email
+  <a href="mailto:privacy@cappylabs.uk">privacy@cappylabs.uk</a> with the subject
+  <em>"Cairn data deletion"</em>. If you have it, include your device's public key
+  (shown in <strong>Backup &amp; restore</strong>) so we can locate the account.
+  We complete deletion within <strong>30 days</strong> and confirm by reply.</p>
+
+  <h2>What data is deleted</h2>
+  <p>When your account is deleted, we permanently remove:</p>
+  <ul>
+    <li>Your <strong>account / device identity</strong> (your public key and display name)</li>
+    <li>Your <strong>connections</strong> (the people you paired with)</li>
+    <li>Your <strong>shared locations</strong> — which are <strong>end-to-end encrypted</strong> and cannot be read by CappyLabs</li>
+    <li>Your <strong>pairing requests</strong> and <strong>presence timestamps</strong> (last-seen)</li>
+  </ul>
+  <p>Deletion cascades: removing your account removes all of the above.</p>
+
+  <h2>What is kept, and for how long</h2>
+  <ul>
+    <li>We do <strong>not</strong> retain personal data tied to your identity after deletion.</li>
+    <li>Your location content is <strong>end-to-end encrypted at all times</strong> — CappyLabs never has access to it.</li>
+    <li>Routine server security logs (which do not contain your location content) may persist for up to <strong>30 days</strong>, then are purged.</li>
+    <li>If you self-host your own Cairn server, your data resides only on your server and is removed when you delete your account there.</li>
+  </ul>
+
+  <p>Questions: <a href="mailto:privacy@cappylabs.uk">privacy@cappylabs.uk</a></p>
+</main>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cairn — Brand Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --slate:#1F2A2E; --stone:#6F7A7E; --pebble:#C9CFCD; --mist:#EDF0EE; --lichen:#8FA35D;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--mist);color:var(--slate);
+    font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.55}
+  .wrap{max-width:960px;margin:0 auto;padding:48px 24px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  header .word{font-weight:600;font-size:40px;letter-spacing:-2px}
+  .sub{color:var(--stone);font-size:18px;margin:0 0 40px}
+  h2{font-weight:600;letter-spacing:-.5px;margin:48px 0 4px;font-size:24px}
+  h2+.note{color:var(--stone);margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--pebble);border-radius:16px;padding:24px}
+  .row{display:flex;flex-wrap:wrap;gap:16px}
+  .row>.card{flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;min-height:180px}
+  .swatches{display:flex;flex-wrap:wrap;gap:14px}
+  .sw{width:150px}
+  .chip{height:96px;border-radius:12px;border:1px solid rgba(0,0,0,.06)}
+  .sw b{display:block;margin-top:8px;font-weight:600}
+  .sw span{color:var(--stone);font-size:14px}
+  .dos{display:flex;flex-wrap:wrap;gap:16px}
+  .dos>div{flex:1;min-width:240px;background:#fff;border:1px solid var(--pebble);border-radius:12px;padding:16px}
+  .dos h3{margin:0 0 8px;font-size:16px}
+  .dos ul{margin:0;padding-left:18px;color:var(--slate)}
+  code{background:#fff;border:1px solid var(--pebble);border-radius:6px;padding:1px 6px;font-size:13px}
+  .tagline{font-size:22px;font-weight:500}
+  footer{color:var(--stone);margin-top:56px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Hero -->
+  <header>
+    <svg width="52" height="52" viewBox="0 0 100 100" aria-label="Cairn mark">
+      <rect x="14" y="70" width="72" height="18" rx="9" fill="#1F2A2E"/>
+      <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#1F2A2E"/>
+      <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#1F2A2E"/>
+      <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
+    </svg>
+    <span class="word">cairn</span>
+  </header>
+  <p class="sub">Brand guidelines · by CappyLabs</p>
+
+  <h2>The idea</h2>
+  <p class="note">A <strong>cairn</strong> is a small stack of stones people build
+  to mark a spot and guide the few who follow. It fits the app: quietly marking
+  <em>where you are</em>, for a trusted few. The brand is calm, minimal and
+  private — never loud or surveillant.</p>
+
+  <p class="tagline">"Your location, for the few you trust."</p>
+
+  <!-- Mark -->
+  <h2>The mark</h2>
+  <p class="note">Three stacked stones with a single lichen-green pebble on top.
+  Use it on light, on dark, or inside the slate app icon. Keep clear space around
+  it of at least the height of the top pebble. Minimum size 16&nbsp;px.</p>
+  <div class="row">
+    <div class="card" style="background:#fff">
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <rect x="14" y="70" width="72" height="18" rx="9" fill="#1F2A2E"/>
+        <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#1F2A2E"/>
+        <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#1F2A2E"/>
+        <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
+      </svg>
+    </div>
+    <div class="card" style="background:#1F2A2E">
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <rect x="14" y="70" width="72" height="18" rx="9" fill="#EDF0EE"/>
+        <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#EDF0EE"/>
+        <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#EDF0EE"/>
+        <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
+      </svg>
+    </div>
+    <div class="card" style="background:#fff">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <rect x="0" y="0" width="120" height="120" rx="27" fill="#1F2A2E"/>
+        <g transform="translate(21 21) scale(0.78)">
+          <rect x="14" y="70" width="72" height="18" rx="9" fill="#EDF0EE"/>
+          <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#EDF0EE"/>
+          <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#EDF0EE"/>
+          <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Wordmark -->
+  <h2>Wordmark</h2>
+  <p class="note">Always lowercase <strong>cairn</strong>, set in Manrope
+  SemiBold with tight tracking (about −0.03&nbsp;em). Never capitalise, stretch,
+  or add effects. Endorsed form: <strong>cairn by CappyLabs</strong>.</p>
+  <div class="card"><span style="font-weight:600;font-size:44px;letter-spacing:-2px">cairn</span></div>
+
+  <!-- Palette -->
+  <h2>Palette</h2>
+  <p class="note">Five tones. <strong>Lichen is the only accent</strong> — use it
+  sparingly for a single point of emphasis (the pebble, a live dot, a primary
+  action). Everything else is the neutral stone family.</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#1F2A2E"></div><b>Slate</b><span>#1F2A2E · text, marks, dark UI</span></div>
+    <div class="sw"><div class="chip" style="background:#6F7A7E"></div><b>Stone</b><span>#6F7A7E · secondary text</span></div>
+    <div class="sw"><div class="chip" style="background:#C9CFCD"></div><b>Pebble</b><span>#C9CFCD · borders, dividers</span></div>
+    <div class="sw"><div class="chip" style="background:#EDF0EE"></div><b>Mist</b><span>#EDF0EE · backgrounds</span></div>
+    <div class="sw"><div class="chip" style="background:#8FA35D"></div><b>Lichen</b><span>#8FA35D · the only accent</span></div>
+  </div>
+
+  <!-- Type -->
+  <h2>Typography</h2>
+  <p class="note"><strong>Manrope</strong> throughout — SemiBold (600) for the
+  wordmark and headings, Regular (400) for UI and body. Fallback stack:
+  <code>Manrope, system-ui, "Segoe UI", sans-serif</code>.</p>
+  <div class="card">
+    <div style="font-weight:600;font-size:30px;letter-spacing:-1px">Manrope SemiBold — headings &amp; wordmark</div>
+    <div style="font-weight:400;font-size:18px;margin-top:8px;color:var(--stone)">Manrope Regular — the quiet, legible voice for everything else in the interface.</div>
+  </div>
+
+  <!-- Do / Don't -->
+  <h2>Do &amp; don't</h2>
+  <div class="dos">
+    <div>
+      <h3>Do</h3>
+      <ul>
+        <li>Keep generous clear space around the mark.</li>
+        <li>Use Lichen for a single accent only.</li>
+        <li>Keep the wordmark lowercase.</li>
+        <li>Prefer calm, spacious layouts on Mist.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Don't</h3>
+      <ul>
+        <li>Recolour the pebble anything but Lichen.</li>
+        <li>Capitalise, outline, or add shadows to the wordmark.</li>
+        <li>Stretch, rotate, or crowd the mark.</li>
+        <li>Flood large areas with Lichen.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- App icon spec -->
+  <h2>App icon</h2>
+  <p class="note">A <strong>Slate</strong> rounded square (1024&nbsp;px canvas,
+  corner radius 228) with the mark in <strong>Mist</strong> and the
+  <strong>Lichen</strong> pebble, centred at ~72% scale. Source assets:
+  <code>cairn-app-icon.svg</code>, <code>cairn-mark.svg</code>,
+  <code>cairn-mark-mono.svg</code>, <code>cairn-brand-sheet.svg</code>.</p>
+
+  <footer>Cairn — private, self-hosted, end-to-end encrypted location sharing. © CappyLabs.</footer>
+</div>
+</body>
+</html>

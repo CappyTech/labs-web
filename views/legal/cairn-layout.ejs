@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Cairn' %></title>
+  <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'Cairn — private, self-hosted, end-to-end encrypted location sharing, by CappyLabs.' %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/resources/css/cairn.css">
+</head>
+<body>
+  <div class="cairn-wrap">
+    <header class="cairn-header">
+      <svg width="48" height="48" viewBox="0 0 100 100" aria-label="Cairn mark" role="img">
+        <rect x="14" y="70" width="72" height="18" rx="9" fill="#1F2A2E"/>
+        <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#1F2A2E"/>
+        <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#1F2A2E"/>
+        <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
+      </svg>
+      <span class="word">cairn</span>
+    </header>
+    <p class="cairn-endorse">by CappyLabs</p>
+
+    <%- body %>
+
+    <footer class="cairn-footer">
+      Cairn — private, self-hosted, end-to-end encrypted location sharing. © CappyLabs.
+    </footer>
+  </div>
+</body>
+</html>

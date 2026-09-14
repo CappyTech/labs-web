@@ -26,6 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // ── Routes ────────────────────────────────────────────────────────────
 app.use('/', require('./routes/index'));
+app.use('/', require('./routes/legal'));
 app.use('/milkman', require('./routes/milkman'));
 app.use('/api/v1', require('./routes/api'));
 

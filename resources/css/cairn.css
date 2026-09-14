@@ -1,0 +1,75 @@
+/* Cairn brand styles — per docs/cairn-brand-guidelines.html.
+   Palette: Slate #1F2A2E · Stone #6F7A7E · Pebble #C9CFCD · Mist #EDF0EE ·
+   Lichen #8FA35D (the only accent). Type: Manrope throughout. Used by the
+   standalone Cairn legal pages (views/legal/*) via views/legal/cairn-layout.ejs. */
+
+:root {
+  --slate: #1F2A2E;
+  --stone: #6F7A7E;
+  --pebble: #C9CFCD;
+  --mist: #EDF0EE;
+  --lichen: #8FA35D;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--mist);
+  color: var(--slate);
+  font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+.cairn-wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 64px; }
+
+/* ── Header / wordmark ─────────────────────────────────────────────── */
+.cairn-header { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.cairn-header svg { display: block; }
+.cairn-header .word { font-weight: 600; font-size: 40px; letter-spacing: -2px; }
+.cairn-endorse { color: var(--stone); font-size: 15px; margin: 0 0 36px; }
+
+/* ── Headings & text ───────────────────────────────────────────────── */
+h1 { font-weight: 600; letter-spacing: -1px; font-size: 34px; margin: 0 0 10px; }
+h2 { font-weight: 600; letter-spacing: -.5px; font-size: 21px; margin: 40px 0 14px; }
+.lede { color: var(--stone); font-size: 18px; max-width: 60ch; }
+p { margin: 0 0 12px; }
+p + p { margin-top: 0; }
+strong { font-weight: 600; }
+
+a { color: var(--lichen); text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+
+/* ── Cards ─────────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 1px solid var(--pebble);
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin: 0 0 16px;
+}
+.card ol, .card ul { margin: 6px 0 0; padding-left: 20px; }
+.card li { margin: 4px 0; }
+.card .note { color: var(--stone); }
+
+/* Single lichen accent for the primary in-app step, used sparingly. */
+.card.accent { border-color: var(--lichen); }
+
+.tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-bottom: 10px;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+.cairn-footer {
+  color: var(--stone);
+  font-size: 14px;
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--pebble);
+}
