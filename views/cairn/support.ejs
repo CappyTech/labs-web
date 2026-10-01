@@ -1,0 +1,70 @@
+<h1>Support</h1>
+<p class="lede">Answers to common questions about Cairn. Can't find yours? Email
+  <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>.</p>
+
+<h2>Frequently asked questions</h2>
+
+<div class="card faq">
+  <h3>Which phones does Cairn work on?</h3>
+  <p class="note">Cairn is an Android app. An iPhone version isn't available yet.</p>
+</div>
+
+<div class="card faq">
+  <h3>Will it drain my battery?</h3>
+  <p class="note">Cairn shares on a steady schedule rather than constantly: every
+    30 seconds while the app is open, and every 2 minutes in the background. When your
+    battery is low and not charging, background sharing slows down (every 5 minutes
+    below 35%, every 10 minutes below 15%) and the notification says battery saver is on.
+    Background sharing is off unless you turn it on.</p>
+</div>
+
+<div class="card faq">
+  <h3>What happens if I lose my phone?</h3>
+  <p class="note">Your identity is a key that lives on your phone. In the app, open
+    <strong>Backup &amp; restore</strong> to save your <strong>24-word recovery phrase</strong>
+    somewhere safe; entering it on a new phone brings your identity back.
+    We can't recover it for you, because we never have your keys. Without the phrase
+    you'd start fresh and pair with people again.</p>
+</div>
+
+<div class="card faq">
+  <h3>Can CappyLabs see where I am?</h3>
+  <p class="note">No. Your location is encrypted on your phone and can only be read by
+    the people you've paired with. The server passes it along without being able to
+    read it. <a href="/security">Here's exactly what the server can and can't see.</a></p>
+</div>
+
+<div class="card faq">
+  <h3>How do I stop sharing with someone?</h3>
+  <p class="note">Tap them on the map or in your people list. Set sharing to
+    <strong>Paused</strong> to stop for now, or remove them to disconnect completely.
+    Either way, they stop seeing your location straight away.</p>
+</div>
+
+<div class="card faq">
+  <h3>I think someone is tracking me with Cairn. What can I do?</h3>
+  <p class="note">Open Cairn and check your people list: it shows everyone who can see
+    your location. Remove anyone you don't recognise or no longer want to share with.
+    If <strong>Share in the background</strong> is on, a notification is always showing;
+    turn it off in the sharing settings. If you're in danger, call 999.</p>
+</div>
+
+<div class="card faq">
+  <h3>How do I delete my data?</h3>
+  <p class="note">In the app: menu (⋮) → <strong>Backup &amp; restore</strong> →
+    <strong>Delete this identity</strong>. It's immediate. You can also
+    <a href="/delete">ask us to delete it</a>.</p>
+</div>
+
+<div class="card faq">
+  <h3>Can I run my own server?</h3>
+  <p class="note">Yes. Cairn's code is public. Set up a server with Docker using the
+    instructions in the <a href="<%= repo %>">Cairn repository</a>, then in the app go to
+    <strong>Settings → Server address</strong>.</p>
+</div>
+
+<h2>Contact</h2>
+<div class="card accent">
+  <p class="note">Email <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>.
+    For a security issue, see <a href="/security">security</a>.</p>
+</div>

@@ -1,7 +1,9 @@
 /* Cairn brand styles — per docs/cairn-brand-guidelines.html.
    Palette: Slate #1F2A2E · Stone #6F7A7E · Pebble #C9CFCD · Mist #EDF0EE ·
    Lichen #8FA35D (the only accent). Type: Manrope throughout. Used by the
-   standalone Cairn legal pages (views/legal/*) via views/legal/cairn-layout.ejs. */
+   standalone Cairn pages (views/cairn/*, views/legal/*) via
+   views/legal/cairn-layout.ejs. No inline styles: the Cairn pages' CSP
+   forbids them, so spacing tweaks are the small utility classes below. */
 
 :root {
   --slate: #1F2A2E;
@@ -9,13 +11,32 @@
   --pebble: #C9CFCD;
   --mist: #EDF0EE;
   --lichen: #8FA35D;
+
+  /* Roles, so dark mode only has to swap these. */
+  --page: var(--mist);
+  --ink: var(--slate);
+  --muted: #5F6A6E; /* stone, darkened to pass WCAG AA on white and mist */
+  --line: var(--pebble);
+  --card: #fff;
+  --link: #5E7136; /* lichen, darkened to pass WCAG AA on white and mist */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #161E21;
+    --ink: var(--mist);
+    --muted: #A3ADB0;
+    --line: #34413F;
+    --card: var(--slate);
+    --link: #A9BC74;
+  }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--mist);
-  color: var(--slate);
+  background: var(--page);
+  color: var(--ink);
   font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
   line-height: 1.55;
   min-height: 100vh;
@@ -26,34 +47,49 @@ body {
 /* ── Header / wordmark ─────────────────────────────────────────────── */
 .cairn-header { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
 .cairn-header svg { display: block; }
+.cairn-header .stone { fill: var(--ink); }
+.cairn-header .word-link { color: var(--ink); text-decoration: none; }
 .cairn-header .word { font-weight: 600; font-size: 40px; letter-spacing: -2px; }
-.cairn-endorse { color: var(--stone); font-size: 15px; margin: 0 0 36px; }
+.cairn-endorse { color: var(--muted); font-size: 15px; margin: 0 0 36px; }
 
 /* ── Headings & text ───────────────────────────────────────────────── */
 h1 { font-weight: 600; letter-spacing: -1px; font-size: 34px; margin: 0 0 10px; }
 h2 { font-weight: 600; letter-spacing: -.5px; font-size: 21px; margin: 40px 0 14px; }
-.lede { color: var(--stone); font-size: 18px; max-width: 60ch; }
+h3 { font-weight: 600; font-size: 16px; margin: 0 0 6px; }
+.lede { color: var(--muted); font-size: 18px; max-width: 60ch; }
 p { margin: 0 0 12px; }
 p + p { margin-top: 0; }
 strong { font-weight: 600; }
+code { font-size: .92em; }
 
-a { color: var(--lichen); text-decoration: none; font-weight: 600; }
+a { color: var(--link); text-decoration: none; font-weight: 600; }
 a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
 
 /* ── Cards ─────────────────────────────────────────────────────────── */
 .card {
-  background: #fff;
-  border: 1px solid var(--pebble);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 22px 24px;
   margin: 0 0 16px;
 }
 .card ol, .card ul { margin: 6px 0 0; padding-left: 20px; }
 .card li { margin: 4px 0; }
-.card .note { color: var(--stone); }
+.card .note, .note { color: var(--muted); }
 
 /* Single lichen accent for the primary in-app step, used sparingly. */
 .card.accent { border-color: var(--lichen); }
+
+/* FAQ: one card per question. */
+.faq h3 { margin-bottom: 8px; }
+.faq p:last-child { margin-bottom: 0; }
+
+/* What the server can / can't see. */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line); }
+thead th { border-top: 0; color: var(--muted); font-weight: 600; font-size: 13px; }
 
 .tag {
   display: inline-block;
@@ -61,17 +97,36 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--stone);
+  color: var(--muted);
   margin-bottom: 10px;
 }
 
+/* ── Spacing utilities (in place of inline styles) ─────────────────── */
+.mt-12 { margin-top: 12px; }
+.mt-14 { margin-top: 14px; }
+.mt-20 { margin-top: 20px; }
+
 /* ── Footer ────────────────────────────────────────────────────────── */
 .cairn-footer {
-  color: var(--stone);
+  color: var(--muted);
   font-size: 14px;
   margin-top: 48px;
   padding-top: 20px;
-  border-top: 1px solid var(--pebble);
+  border-top: 1px solid var(--line);
 }
-.cairn-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.cairn-nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .cairn-nav a { font-size: 14px; }
+
+/* ── Print (e.g. the privacy policy) ───────────────────────────────── */
+@media print {
+  :root {
+    --page: #fff; --ink: #000; --muted: #333; --line: #999; --card: #fff; --link: #000;
+  }
+  body { font-size: 11pt; }
+  .cairn-wrap { max-width: none; padding: 0; }
+  .cairn-nav { display: none; }
+  .card { border: 0; border-left: 2px solid var(--line); border-radius: 0; padding: 4px 0 4px 14px; break-inside: avoid; }
+  h2 { break-after: avoid; }
+  /* Show where links go, since they can't be clicked on paper. */
+  main a[href^="http"]::after, main a[href^="mailto:"]::after { content: " (" attr(href) ")"; font-weight: 400; }
+}

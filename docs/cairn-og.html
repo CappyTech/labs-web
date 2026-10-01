@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!-- Source for resources/images/cairn-og.png (the 1200×630 link-preview image).
+     Re-render after editing, from the repo root:
+       msedge --headless=new --hide-scrollbars --force-device-scale-factor=1 \
+         --window-size=1200,630 --screenshot=resources/images/cairn-og.png docs/cairn-og.html -->
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: #EDF0EE; color: #1F2A2E;
+    font-family: 'Manrope', sans-serif;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0 96px; box-sizing: border-box;
+  }
+  .brand { display: flex; align-items: center; gap: 22px; }
+  .word { font-weight: 600; font-size: 76px; letter-spacing: -4px; }
+  h1 { font-weight: 600; font-size: 64px; letter-spacing: -2px; line-height: 1.08; margin: 44px 0 0; max-width: 16ch; }
+  p { font-weight: 500; font-size: 28px; color: #6F7A7E; margin: 26px 0 0; }
+  .rule { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; background: #8FA35D; }
+</style>
+</head>
+<body>
+  <div class="brand">
+    <svg width="92" height="92" viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="14" y="70" width="72" height="18" rx="9" fill="#1F2A2E"/>
+      <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#1F2A2E"/>
+      <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#1F2A2E"/>
+      <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
+    </svg>
+    <span class="word">cairn</span>
+  </div>
+  <h1>Your location, for the few you trust.</h1>
+  <p>Private, end-to-end encrypted location sharing · by CappyLabs</p>
+  <div class="rule"></div>
+</body>
+</html>

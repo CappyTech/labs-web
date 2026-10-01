@@ -1,55 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof title !== 'undefined' ? title : 'Cairn' %></title>
   <% const _desc = typeof description !== 'undefined' ? description : 'Cairn — private, self-hosted, end-to-end encrypted location sharing, by CappyLabs.'; %>
   <meta name="description" content="<%= _desc %>">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#EDF0EE" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1F2A2E" media="(prefers-color-scheme: dark)">
   <% if (typeof canonical !== 'undefined' && canonical) { %>
   <% const _origin = canonical.split('/').slice(0, 3).join('/'); %>
   <link rel="canonical" href="<%= canonical %>">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Cairn">
+  <meta property="og:locale" content="en_GB">
   <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'Cairn' %>">
   <meta property="og:description" content="<%= _desc %>">
   <meta property="og:url" content="<%= canonical %>">
-  <meta property="og:image" content="<%= _origin %>/resources/images/cairn-app-icon.svg">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="<%= _origin %>/resources/images/cairn-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Cairn: your location, for the few you trust.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title : 'Cairn' %>">
   <meta name="twitter:description" content="<%= _desc %>">
-  <meta name="twitter:image" content="<%= _origin %>/resources/images/cairn-app-icon.svg">
+  <meta name="twitter:image" content="<%= _origin %>/resources/images/cairn-og.png">
   <% } %>
   <link rel="icon" type="image/svg+xml" href="/resources/images/cairn-app-icon.svg">
+  <link rel="apple-touch-icon" href="/resources/images/cairn-apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/resources/css/cairn.css">
+  <% if (typeof structuredData !== 'undefined' && structuredData) { %>
+  <script type="application/ld+json"><%- JSON.stringify(structuredData).replace(/</g, '\\u003c') %></script>
+  <% } %>
 </head>
 <body>
   <div class="cairn-wrap">
     <header class="cairn-header">
-      <svg width="48" height="48" viewBox="0 0 100 100" aria-label="Cairn mark" role="img">
-        <rect x="14" y="70" width="72" height="18" rx="9" fill="#1F2A2E"/>
-        <rect x="24" y="50" width="52" height="17" rx="8.5" fill="#1F2A2E"/>
-        <rect x="30" y="32" width="36" height="15" rx="7.5" fill="#1F2A2E"/>
+      <svg width="48" height="48" viewBox="0 0 100 100" aria-hidden="true">
+        <rect class="stone" x="14" y="70" width="72" height="18" rx="9"/>
+        <rect class="stone" x="24" y="50" width="52" height="17" rx="8.5"/>
+        <rect class="stone" x="30" y="32" width="36" height="15" rx="7.5"/>
         <circle cx="50" cy="20" r="8" fill="#8FA35D"/>
       </svg>
-      <a href="/" style="text-decoration:none"><span class="word">cairn</span></a>
+      <a href="/" class="word-link" aria-label="Cairn home"><span class="word">cairn</span></a>
     </header>
     <p class="cairn-endorse">by CappyLabs</p>
 
+    <main>
     <%- body %>
+    </main>
 
     <footer class="cairn-footer">
-      <nav class="cairn-nav">
+      <nav class="cairn-nav" aria-label="Site">
+        <a href="/support">Support</a>
+        <a href="/security">Security</a>
         <a href="/privacy">Privacy</a>
         <a href="/delete">Delete your data</a>
         <% if (typeof privacyEmail !== 'undefined' && privacyEmail) { %>
         <a href="mailto:<%= privacyEmail %>">Contact</a>
         <% } %>
       </nav>
-      <p style="margin-top:14px">Cairn — private, self-hosted, end-to-end encrypted location sharing. © CappyLabs.</p>
+      <p class="mt-14">Cairn — private, self-hosted, end-to-end encrypted location sharing. © CappyLabs.</p>
+      <p>This site sets no cookies and runs no analytics or trackers.</p>
     </footer>
   </div>
 </body>
