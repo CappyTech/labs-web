@@ -1,0 +1,65 @@
+<h1>Security</h1>
+<p class="lede">How Cairn protects your location, and an honest list of what the
+  server can still see.</p>
+
+<h2>The encryption</h2>
+<div class="card">
+  <ul>
+    <li><strong>Your identity is a key pair made on your phone.</strong> The private key never leaves it. There's no email, phone number or password.</li>
+    <li><strong>Locations are end-to-end encrypted</strong> with X25519 key agreement and ChaCha20-Poly1305, separately for each person you share with. Only they can decrypt it.</li>
+    <li><strong>Your display name is encrypted too</strong>, so the server doesn't know what you're called.</li>
+    <li><strong>Your location history is encrypted to you alone.</strong> Nobody else can read it, including us.</li>
+    <li><strong>All traffic to the server uses HTTPS.</strong></li>
+  </ul>
+</div>
+
+<h2>Pairing</h2>
+<div class="card">
+  <p class="note">You pair by scanning each other's QR code in person, or with a one-time
+    invite code that expires after 24 hours. A key that arrives over the server can never
+    quietly replace one you checked in person, so a server can't slip its own key in. If a
+    contact's key changes unexpectedly, Cairn stops sending them updates and asks you to
+    scan their code in person again.</p>
+</div>
+
+<h2>What the server can and can't see</h2>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Data</th><th scope="col">Can the server read it?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Your location</td><td>No, it's end-to-end encrypted</td></tr>
+        <tr><td>Your display name</td><td>No, it's end-to-end encrypted</td></tr>
+        <tr><td>Your location history</td><td>No, it's encrypted to you</td></tr>
+        <tr><td>Your public key</td><td>Yes (it's a random-looking identifier)</td></tr>
+        <tr><td>Who you're paired with, and how precisely you share with each</td><td>Yes</td></tr>
+        <tr><td>Who sends locations to whom, and when</td><td>Yes</td></tr>
+        <tr><td>When you were last active</td><td>Yes</td></tr>
+        <tr><td>Your IP address</td><td>Yes, like any server you connect to</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note mt-12">To give away less about your movements, Cairn sends updates on a
+    fixed schedule rather than when you move, and pads updates so their size doesn't give
+    away whether you're on the move.</p>
+</div>
+
+<h2>What this protects against</h2>
+<div class="card">
+  <ul>
+    <li><strong>A curious or compromised server</strong> can't read where you are, what you're called, or your history.</li>
+    <li><strong>It can still see the "who and when"</strong> in the table above. Hiding who's connected to whom is a goal for the future, and it's harder than hiding content.</li>
+    <li><strong>Your IP address</strong> is visible to the server. If that matters to you, connect through a VPN.</li>
+    <li><strong>For full control, run your own server.</strong> Then nobody else sees even the metadata.</li>
+  </ul>
+</div>
+
+<h2>Reporting a vulnerability</h2>
+<div class="card accent">
+  <p class="note">Please email <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>
+    with details, and give us a chance to fix it before you publish. Our
+    <a href="/.well-known/security.txt">security.txt</a> has the same details. The code is
+    public: <a href="<%= repo %>"><%= repo.replace(/^https:\/\//, '') %></a>.</p>
+</div>

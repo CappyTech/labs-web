@@ -1,5 +1,5 @@
 <h1><%= tagline %></h1>
-<p class="lede" style="margin-top:14px"><strong>Cairn</strong> is a private, self-hosted,
+<p class="lede mt-14"><strong>Cairn</strong> is a private, self-hosted,
   end-to-end encrypted location-sharing app by <strong>CappyLabs</strong> — a
   "Life360 you own". Share your live location with a trusted few; the server relays
   it but can never read it.</p>
@@ -8,15 +8,50 @@
 <div class="card">
   <ul>
     <li><strong>No accounts.</strong> Your identity is a key generated on your device — no email, phone or password.</li>
-    <li><strong>End-to-end encrypted.</strong> Your location is encrypted on your device and readable only by the people you pair with.</li>
+    <li><strong>End-to-end encrypted.</strong> Your location, and even your name, are encrypted on your device and readable only by the people you pair with.</li>
+    <li><strong>You choose how precise.</strong> Share your exact position, a rough area (about 1 km), or nothing, separately for each person.</li>
     <li><strong>Self-hostable.</strong> Point the app at your own server and your data never leaves it.</li>
+  </ul>
+  <p class="note mt-12">More detail: <a href="/security">how the encryption works and what the server can see</a>.</p>
+</div>
+
+<h2>Why Cairn asks for background location</h2>
+<div class="card">
+  <p>Cairn only shares while the app is open, unless you turn on
+    <strong>Share in the background</strong>. That's off until you choose it.</p>
+  <ul>
+    <li>When you turn it on, Cairn first explains what it does, then Android asks you to allow location "all the time".</li>
+    <li>It keeps sharing your location with the contacts you've paired with, even when the app is closed.</li>
+    <li>A notification stays on screen the whole time it's running, so you always know.</li>
+    <li>Your location stays end-to-end encrypted, and you can turn it off at any time.</li>
+  </ul>
+</div>
+
+<h2>Built so it can't be used to track someone secretly</h2>
+<div class="card">
+  <ul>
+    <li><strong>Pairing needs the other person.</strong> Someone can only connect with you if you show them your QR code in person, or send them a one-time invite code that expires after 24 hours.</li>
+    <li><strong>You're told about new connections.</strong> By default, Cairn notifies you when someone new connects with you.</li>
+    <li><strong>It's visible.</strong> Background sharing always shows a notification, and every person you share with is listed in the app.</li>
+    <li><strong>Stopping is one tap.</strong> Pause sharing with anyone, or remove them entirely, whenever you like.</li>
+  </ul>
+</div>
+
+<h2>What Cairn isn't</h2>
+<div class="card">
+  <ul>
+    <li><strong>Not an emergency service.</strong> In an emergency, call 999 (or your local number).</li>
+    <li><strong>Not for tracking people without their consent.</strong> Everyone you see on the map chose to share with you.</li>
+    <li><strong>Not real-time to the second.</strong> To save battery and avoid revealing when you move, it updates on a steady schedule: every 30 seconds while the app is open, and every few minutes in the background.</li>
   </ul>
 </div>
 
 <h2>Your data, your control</h2>
 <div class="card accent">
-  <p class="note">Delete your account and all associated data at any time — instantly
+  <p class="note">Delete your identity and all associated data at any time — instantly
     from inside the app, or by request. See
     <a href="/privacy">the privacy policy</a> and
     <a href="/delete">how to delete your data</a>.</p>
 </div>
+
+<p class="mt-20">Questions? See <a href="/support">support and FAQ</a>.</p>

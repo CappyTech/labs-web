@@ -1,6 +1,6 @@
 <h1>Delete your Cairn data</h1>
 <p class="lede"><strong>Cairn</strong> is developed by <strong>CappyLabs</strong>.
-  This page explains how to delete the data associated with your Cairn account.</p>
+  This page explains how to delete the data associated with your Cairn identity.</p>
 
 <h2>Option 1 — delete it yourself in the app (immediate)</h2>
 <div class="card accent">
@@ -10,8 +10,8 @@
     <li>Tap the menu (⋮) → <strong>Backup &amp; restore</strong>.</li>
     <li>Under <strong>Danger zone</strong>, tap <strong>Delete this identity</strong> and confirm.</li>
   </ol>
-  <p class="note" style="margin-top:12px">This <strong>permanently and immediately</strong>
-    deletes your account and all associated data from the server. It cannot be undone.</p>
+  <p class="note mt-12">This <strong>permanently and immediately</strong>
+    deletes your identity and all associated data from the server. It cannot be undone.</p>
 </div>
 
 <h2>Option 2 — request deletion by email</h2>
@@ -20,20 +20,20 @@
   <p>If you can't access the app, email
     <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a> with the subject
     <em>"Cairn data deletion"</em>. If you have it, include your device's public key
-    (shown in <strong>Backup &amp; restore</strong>) so we can locate the account.
+    (shown in <strong>Backup &amp; restore</strong>) so we can locate your data.
     We complete deletion within <strong>30 days</strong> and confirm by reply.</p>
 </div>
 
 <h2>What data is deleted</h2>
 <div class="card">
-  <p class="note">When your account is deleted, we permanently remove:</p>
+  <p class="note">When your identity is deleted, we permanently remove:</p>
   <ul>
-    <li>Your <strong>account / device identity</strong> (your public key and display name)</li>
+    <li>Your <strong>device identity</strong> (your public key and display name)</li>
     <li>Your <strong>connections</strong> (the people you paired with)</li>
     <li>Your <strong>shared locations</strong> — which are <strong>end-to-end encrypted</strong> and cannot be read by CappyLabs</li>
     <li>Your <strong>pairing requests</strong> and <strong>presence timestamps</strong> (last-seen)</li>
   </ul>
-  <p class="note" style="margin-top:12px">Deletion cascades: removing your account removes all of the above.</p>
+  <p class="note mt-12">Deletion cascades: removing your identity removes all of the above.</p>
 </div>
 
 <h2>What is kept, and for how long</h2>
@@ -42,8 +42,8 @@
     <li>We do <strong>not</strong> retain personal data tied to your identity after deletion.</li>
     <li>Your location content is <strong>end-to-end encrypted at all times</strong> — CappyLabs never has access to it.</li>
     <li>Routine server security logs (which do not contain your location content) may persist for up to <strong>30 days</strong>, then are purged.</li>
-    <li>If you self-host your own Cairn server, your data resides only on your server and is removed when you delete your account there.</li>
+    <li>If you self-host your own Cairn server, your data resides only on your server and is removed when you delete your identity there.</li>
   </ul>
 </div>
 
-<p style="margin-top:20px">Questions: <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a></p>
+<p class="mt-20">Questions: <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a></p>

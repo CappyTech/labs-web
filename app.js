@@ -41,10 +41,12 @@ app.use(express.urlencoded({ extended: false }));
 // ── Routes ────────────────────────────────────────────────────────────
 app.use('/', require('./routes/index'));
 app.use('/', require('./routes/legal'));
+app.use('/', require('./routes/cairn'));
 app.use('/milkman', require('./routes/milkman'));
 app.use('/api/v1', require('./routes/api'));
 
 // ── 404 ───────────────────────────────────────────────────────────────
+app.use(require('./controllers/cairnController').notFound); // Cairn host only
 app.use((req, res) => {
   res.status(404).render('error', {
     title: '404 Not Found',
