@@ -58,6 +58,14 @@ h2 { font-weight: 600; letter-spacing: -.5px; font-size: 21px; margin: 40px 0 14
 h3 { font-weight: 600; font-size: 16px; margin: 0 0 6px; }
 .lede { color: var(--muted); font-size: 18px; max-width: 60ch; }
 p { margin: 0 0 12px; }
+p.availability {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--lichen);
+  border-radius: 999px;
+  font-size: 15px;
+}
 p + p { margin-top: 0; }
 strong { font-weight: 600; }
 code { font-size: .92em; }

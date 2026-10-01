@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **A 1200x630 PNG link preview** (`resources/images/cairn-og.png`, rendered from `docs/cairn-og.html`); `twitter:card` is now `summary_large_image`.
 - **A Cairn-branded 404** for unknown paths on the Cairn host.
 - **Dark mode and a print stylesheet** for the Cairn pages.
-- New `routes/cairn.js` and `controllers/cairnController.js`. Test count 52 -> 62.
+- **Owner answers on the site:** "Coming soon to Android and iOS" on the landing; an "Is Cairn free?" FAQ (self-hosting is always free); Cairn is open source under the AGPL-3.0; the hosted relay is in the UK; and the encryption hasn't been independently audited yet.
+- New `routes/cairn.js` and `controllers/cairnController.js`. Test count 52 -> 63.
 
 ### Changed
 - Cairn pages now send a strict `Content-Security-Policy` (no scripts, frames or forms; styles and fonts only from self and Google Fonts) and `Cross-Origin-Opener-Policy`. Inline `style` attributes are replaced by utility classes in `cairn.css`.

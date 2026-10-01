@@ -54,6 +54,14 @@
     <li><strong>Your IP address</strong> is visible to the server. If that matters to you, connect through a VPN.</li>
     <li><strong>For full control, run your own server.</strong> Then nobody else sees even the metadata.</li>
   </ul>
+  <p class="note mt-12">The hosted server at cairn.cappylabs.uk is located in the UK.</p>
+</div>
+
+<h2>Audits</h2>
+<div class="card">
+  <p class="note">Cairn's encryption hasn't been independently audited yet. It uses
+    standard, widely reviewed building blocks rather than home-made cryptography, and the
+    code is open for anyone to check.</p>
 </div>
 
 <h2>Reporting a vulnerability</h2>
@@ -61,5 +69,6 @@
   <p class="note">Please email <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>
     with details, and give us a chance to fix it before you publish. Our
     <a href="/.well-known/security.txt">security.txt</a> has the same details. The code is
-    public: <a href="<%= repo %>"><%= repo.replace(/^https:\/\//, '') %></a>.</p>
+    open source under the AGPL-3.0:
+    <a href="<%= repo %>"><%= repo.replace(/^https:\/\//, '') %></a>.</p>
 </div>

@@ -203,3 +203,15 @@ test('unknown paths get a Cairn 404 on the Cairn host, the labs 404 elsewhere', 
   assert.equal(labs.status, 404);
   assert.match(labs.body, /labs 404/);
 });
+test('answers from the owner: availability, cost, licence, relay location, audit', async () => {
+  const landing = (await get('/', CAIRN)).body;
+  assert.match(landing, /Coming soon to Android and iOS/);
+  const support = (await get('/support', CAIRN)).body;
+  assert.match(support, /Is Cairn free\?/);
+  assert.match(support, /always free/);
+  assert.match(support, /AGPL-3\.0/);
+  const security = (await get('/security', CAIRN)).body;
+  assert.match(security, /located in the UK/);
+  assert.match(security, /hasn't been independently audited yet/);
+  assert.match(security, /AGPL-3\.0/);
+});
