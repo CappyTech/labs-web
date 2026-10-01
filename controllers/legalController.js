@@ -32,6 +32,7 @@ function cairnPrivacy(req, res) {
     canonical: `${cairn.DOMAIN}/privacy`,
     privacyEmail: cairn.EMAIL,
     lastUpdated: cairn.PRIVACY_UPDATED,
+    controller: cairn.CONTROLLER,
   });
 }
 

@@ -215,3 +215,25 @@ test('answers from the owner: availability, cost, licence, relay location, audit
   assert.match(security, /hasn't been independently audited yet/);
   assert.match(security, /AGPL-3\.0/);
 });
+test('/privacy discloses history, places, pins and the outside services', async () => {
+  const { body } = await get('/privacy', CAIRN);
+  assert.match(body, /Location history/);
+  assert.match(body, /by default, the locations your contacts share with you/);
+  assert.match(body, /Your places/);
+  assert.match(body, /Pins/);
+  assert.match(body, /Esri/);
+  assert.match(body, /routing\.openstreetmap\.de/);
+  assert.match(body, /FOSSGIS/);
+  assert.match(body, /Google Play/);
+  assert.match(body, /located in the UK/);
+  assert.match(body, /Apart from the services listed above/);
+  // No controller line until CAIRN_CONTROLLER is set.
+  assert.doesNotMatch(body, /data controller for the hosted Cairn service/);
+});
+
+test('/delete lists history, places and shared pins as deleted', async () => {
+  const { body } = await get('/delete', CAIRN);
+  assert.match(body, /location history/);
+  assert.match(body, /places/);
+  assert.match(body, /Shared pins/);
+});

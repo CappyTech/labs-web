@@ -6,6 +6,11 @@
   location-sharing app. This policy explains what data Cairn handles, how, and your
   choices. Cairn is built to <strong>minimise</strong> the data we can see — your
   location is end-to-end encrypted and we cannot read it.</p>
+<% if (typeof controller !== 'undefined' && controller) { %>
+<p class="note">The data controller for the hosted Cairn service is
+  <strong><%= controller %></strong>. Contact:
+  <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>.</p>
+<% } %>
 
 <h2>Our core principle</h2>
 <div class="card accent">
@@ -16,14 +21,59 @@
     <strong>We (and the server) cannot decrypt your location.</strong></p>
 </div>
 
-<h2>What data Cairn handles</h2>
+<h2>What you share with your contacts</h2>
+<div class="card">
+  <p class="note">End-to-end encrypted on your device, separately for each contact you
+    have paired with. The server stores only ciphertext it cannot read.</p>
+  <ul>
+    <li><strong>Your location</strong> — precise, or rounded to about 1 km, as you choose for each contact (or not at all). Shared only while you are sharing: while the app is open, or in the background if you turn that on.</li>
+    <li><strong>Your display name</strong>, if you set one.</li>
+    <li><strong>A status</strong> you choose to show (for example "Hotel"), or the name of one of your places you are in, if you've made that place visible to contacts.</li>
+    <li><strong>Your battery level</strong> and whether you're charging — on by default; you can turn it off.</li>
+    <li><strong>Your speed and direction of travel</strong> — off by default; only if you turn them on, and only with precise sharing.</li>
+    <li><strong>Pins</strong> you choose to share with specific contacts (a name, a point and an optional note).</li>
+  </ul>
+</div>
+
+<h2>What's stored for you alone</h2>
+<div class="card">
+  <p class="note">Encrypted to your own key, so only you can read it — on any device
+    where you restore your recovery phrase.</p>
+  <ul>
+    <li><strong>Location history</strong> — only if you agree to the server's history policy when asked, which tells you how long the server keeps it. It records your own trail and, by default, the locations your contacts share with you; you can turn this off for each contact. You can also keep less than the server does, or clear it.</li>
+    <li><strong>Your places</strong> (for example Home or Work) — their names, locations and size, used for arrive/leave alerts.</li>
+  </ul>
+</div>
+
+<h2>What the server can see</h2>
+<div class="card">
+  <p class="note">To deliver encrypted updates, the server necessarily handles some
+    information it can read:</p>
+  <ul>
+    <li><strong>Device identity</strong> — your public cryptographic key. This is not linked to your real-world identity unless you choose to reveal it.</li>
+    <li><strong>Connections</strong> — which devices you are paired with, and how precisely you share with each (precise, approximate or paused).</li>
+    <li><strong>Timing</strong> — who sends encrypted updates to whom and when, when you were last active, and, for your stored history, which days it covers and whose it is (yours or a contact's), but not what's in it.</li>
+    <li><strong>Pairing requests</strong> — who asked to pair with whom.</li>
+    <li><strong>Your IP address</strong>, as with any internet service, which may appear in server logs.</li>
+  </ul>
+</div>
+
+<h2>What stays on your device</h2>
 <div class="card">
   <ul>
-    <li><strong>Precise location</strong> — collected only while you are sharing, encrypted on your device (end-to-end), and delivered only to contacts you have paired with. We store only unreadable ciphertext.</li>
-    <li><strong>Device identity</strong> — a public cryptographic key and an optional display name you set. This is not linked to your real-world identity unless you choose to reveal it.</li>
-    <li><strong>Connections</strong> — which devices you have paired with, so the app can route encrypted updates.</li>
-    <li><strong>Presence</strong> — a "last active" timestamp so contacts can see whether your location is current.</li>
-    <li><strong>Camera</strong> — used only, on your device, to scan a pairing QR code. Images are not stored or transmitted.</li>
+    <li><strong>Nicknames</strong> you give contacts, and your per-contact settings.</li>
+    <li><strong>Camera</strong> — used only to scan a pairing QR code. Images are not stored or transmitted.</li>
+    <li><strong>Activity sensor</strong> — off unless you turn it on. Tags your own history with how you travelled (walking, cycling, in a vehicle); it leaves your device only inside your encrypted history.</li>
+    <li><strong>Notifications</strong> — made on your device; their content is never sent to us.</li>
+  </ul>
+</div>
+
+<h2>Other services the app uses</h2>
+<div class="card">
+  <ul>
+    <li><strong>Map tiles from Esri (ArcGIS Online).</strong> To draw the map, the app downloads map images for the area you're viewing. Esri receives your IP address and which area of the map is on screen, but not your shared location or anyone else's.</li>
+    <li><strong>Snap to roads (optional).</strong> If you ask the app to snap a trip in your History to the roads, and agree when asked, that trip's coordinates are sent to the Cairn server's own router, which doesn't store them. If that router isn't available, they're sent instead to a public router at routing.openstreetmap.de, run by FOSSGIS e.V. This is the only time locations leave the app without end-to-end encryption.</li>
+    <li><strong>Google Play</strong> — on Android, the app asks Google Play whether a newer version is available.</li>
   </ul>
 </div>
 
@@ -32,7 +82,7 @@
   <ul>
     <li>We do <strong>not</strong> sell your data.</li>
     <li>We do <strong>not</strong> use advertising or third-party analytics/tracking SDKs.</li>
-    <li>We do <strong>not</strong> share your data with third parties. Your location is shared only with the contacts you pair with, end-to-end encrypted.</li>
+    <li>Apart from the services listed above, we do <strong>not</strong> share your data with third parties. Your location is shared only with the contacts you pair with, end-to-end encrypted.</li>
     <li>We <strong>cannot</strong> read your location content at any time.</li>
   </ul>
 </div>
@@ -40,17 +90,24 @@
 <h2>How the data is used</h2>
 <div class="card">
   <p class="note">Solely to provide the app's function: letting you share your live
-    location with the specific people you choose, and showing theirs to you. There is no
+    location with the specific people you choose, showing theirs to you, and the
+    features you turn on (history, places and alerts, shared pins). There is no
     secondary use.</p>
 </div>
 
 <h2>Legal basis &amp; your rights (UK/EU GDPR)</h2>
 <div class="card">
   <p class="note">We process the limited data above to perform the service you request
-    (and, for location, on the basis of your consent, which you can withdraw at any time
-    by turning off sharing or deleting your identity). You have the right to access,
-    correct, and delete your data (see below), and to complain to your data protection
-    authority (in the UK, the ICO).</p>
+    (and, for location and location history, on the basis of your consent, which you can
+    withdraw at any time by turning off sharing or history, or deleting your identity).
+    You have the right to access, correct, and delete your data (see below), and to
+    complain to your data protection authority (in the UK, the ICO).</p>
+</div>
+
+<h2>Where your data is stored</h2>
+<div class="card">
+  <p class="note">The hosted Cairn server at cairn.cappylabs.uk is located in the UK.
+    If you use your own server, your data is stored wherever you run it.</p>
 </div>
 
 <h2>Data retention and deletion</h2>
@@ -60,24 +117,27 @@
     <li><strong>In the app:</strong> menu (⋮) → Backup &amp; restore → Danger zone → <strong>Delete this identity</strong>. This is immediate and permanent.</li>
     <li><strong>By request:</strong> see <a href="/delete">cairn.cappylabs.uk/delete</a>.</li>
   </ul>
-  <p class="note mt-12">Deleting your identity removes your identity,
-    connections, encrypted location shares, pairing requests and presence. We do not
-    retain personal data tied to your identity after deletion. Routine server security
-    logs (which do not contain location content) may persist up to 30 days, then are
-    purged.</p>
+  <p class="note mt-12">Deleting your identity removes your identity, connections,
+    encrypted location shares, location history, places, shared pins (yours, and copies
+    shared with you), pairing requests and presence. We do not retain personal data tied
+    to your identity after deletion. Location history is otherwise kept for the period
+    shown in the app when you agree to it, then deleted automatically by the server.
+    Routine server security logs (which do not contain location content) may persist up
+    to 30 days, then are purged.</p>
 </div>
 
 <h2>Self-hosting</h2>
 <div class="card">
   <p class="note">Cairn is self-hostable. If you connect the app to your own server,
-    your data resides only on your server and CappyLabs receives nothing.</p>
+    your data resides only on your server and CappyLabs receives nothing. The map tiles,
+    the public snap-to-roads fallback and Google Play described above still apply.</p>
 </div>
 
 <h2>Security</h2>
 <div class="card">
   <p class="note">Location content is end-to-end encrypted (X25519 key agreement with
     ChaCha20-Poly1305). Private keys never leave your device. Traffic to the server is
-    protected with HTTPS.</p>
+    protected with HTTPS. See <a href="/security">how Cairn's security works</a>.</p>
 </div>
 
 <h2>Children</h2>
