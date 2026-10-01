@@ -12,7 +12,11 @@ const DOMAIN = process.env.CAIRN_DOMAIN || 'https://cairn.cappylabs.uk';
 const EMAIL = process.env.CAIRN_PRIVACY_EMAIL || 'dev@cappylabs.uk';
 
 /** "Last updated" date shown on the privacy policy. Bump on material changes. */
-const PRIVACY_UPDATED = process.env.CAIRN_PRIVACY_UPDATED || '14 September 2026';
+const PRIVACY_UPDATED = process.env.CAIRN_PRIVACY_UPDATED || '1 October 2026';
+
+/** The data controller named in the privacy policy, e.g. "Jane Smith, trading
+ *  as CappyLabs". The line is left out while this is unset. */
+const CONTROLLER = (process.env.CAIRN_CONTROLLER || '').trim();
 
 /** One-line brand tagline (per docs/cairn-brand-guidelines.html). */
 const TAGLINE = 'Your location, for the few you trust.';
@@ -50,6 +54,6 @@ function headers(req, res, next) {
 }
 
 module.exports = {
-  DOMAIN, EMAIL, PRIVACY_UPDATED, TAGLINE, REPO, PAGES, CSP,
+  DOMAIN, EMAIL, PRIVACY_UPDATED, CONTROLLER, TAGLINE, REPO, PAGES, CSP,
   isCairnHost, headers,
 };

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.15.1] - 2026-10-01
+
+### Changed
+- **Cairn privacy policy updated** for features the app has gained: what's shared with contacts (status, battery, optional speed and direction, shared pins), what's stored for the user alone (location history, which by default includes contacts' shared locations, and places), what the server can read (including whose history and which days), what stays on the device, and the outside services the app uses (Esri map tiles, the opt-in snap-to-roads fallback at routing.openstreetmap.de, and Google Play). It also says the hosted server is in the UK, and covers history retention. "Last updated" is now 1 October 2026.
+- `/delete` now lists location history, places and shared pins among the data deleted.
+
+### Added
+- `CAIRN_CONTROLLER` env var: names the data controller in the privacy policy (omitted while unset).
+
+---
+
 ## [2.15.0] - 2026-10-01
 
 ### Added
