@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The workflow runs `npm test` before building, so a failing test blocks the build and the deploy.
 - Deploys run one at a time.
+- `compose.yaml` now matches the edge server: the `labs-web` service has the WUD watch labels.
+
+### Removed
+- The `mongo-express` service, which wasn't running on the edge, and its variables in `.compose.env.example`.
 
 ---
 

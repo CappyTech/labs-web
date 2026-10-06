@@ -5,23 +5,13 @@ services:
     restart: unless-stopped
     env_file: .compose.env
     networks: [ edge ]
+    labels:
+      - wud.watch=true            # WUD tracks this container
+      - wud.watch.digest=true     # compare :latest by digest (not semver)
     depends_on:
       mongo:
         condition: service_healthy
     # No ports published — only cl-caddy reaches it, over the edge network.
-
-  mongo-express:
-    image: mongo-express:latest
-    container_name: labs-mongo-express
-    restart: unless-stopped
-    env_file: .compose.env
-    networks: [ edge ]
-    labels:
-      - wud.watch=true
-      - wud.watch.digest=true
-    depends_on:
-      mongo:
-        condition: service_healthy
 
   mongo:
     image: mongo:8.0
