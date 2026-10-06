@@ -1,0 +1,25 @@
+<% if (done) { %>
+<h1>You've left the beta</h1>
+<p class="lede mt-14">We've deleted your email address. You won't hear from us about
+  the beta again.</p>
+<% } else if (token) { %>
+<h1>Leave the Cairn beta?</h1>
+<p class="lede mt-14">We'll delete your email address straight away.</p>
+<form class="card accent beta-form" method="post" action="/beta/leave">
+  <input type="hidden" name="t" value="<%= token %>">
+  <button type="submit">Leave and delete my address</button>
+</form>
+<% } else { %>
+<h1>Link not recognised</h1>
+<p class="lede mt-14">This leave link has expired or was already used, so there's
+  nothing stored for it. Questions? Email
+  <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>.</p>
+<% } %>
+
+<% if (cfg.androidGroupUrl) { %>
+<div class="card mt-20">
+  <p class="note">On Android, also leave the
+    <a href="<%= cfg.androidGroupUrl %>">Cairn testers group</a> to stop getting test
+    builds. You can keep the app installed, or uninstall it as usual.</p>
+</div>
+<% } %>

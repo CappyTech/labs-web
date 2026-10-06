@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.16.0] - 2026-10-06
+
+### Added
+- **Cairn `/beta`**: a sign-up form for the Play internal test track, with an iPhone waitlist. Testers get the Google Group join link and the Play opt-in link on screen and by email. The Google Group is the Play tester list, so no Play API credentials are needed.
+- A cap (`CAIRN_BETA_CAP`, default 100, Play's internal-track limit) with an automatic waitlist. Waitlisted people are invited when someone leaves, and at start-up when places are free or a platform opens (e.g. once `CAIRN_BETA_IOS_URL` is set).
+- Welcome and waitlist emails with a one-click leave link (`/beta/leave`, which confirms first, then deletes), plus a "new sign-up" email to `CAIRN_BETA_NOTIFY`.
+- Spam protection: a honeypot field and a per-IP rate limit.
+- `models/BetaTester.js`, `services/betaService.js`, `services/mailService.js` (nodemailer, configured by `SMTP_URL`; mail is logged and skipped when unset) and `docs/cairn-beta.md` (one-time setup). Test count 62 -> 79.
+
+### Changed
+- The Cairn landing page and footer link to `/beta`, and the sitemap lists it.
+- The privacy policy has a "Beta testing" section, and its "Last updated" date is now 6 October 2026.
+- The beta pages send a CSP with `form-action 'self'`. Every other Cairn page still blocks forms.
+
+---
+
 ## [2.15.0] - 2026-10-01
 
 ### Added

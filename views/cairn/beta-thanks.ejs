@@ -1,0 +1,33 @@
+<h1>Thanks for signing up</h1>
+<% if (!tester) { %>
+<p class="lede mt-14">Check your email for the next steps.</p>
+<% } else if (tester.status === 'invited' && tester.platform === 'android') { %>
+<p class="lede mt-14">You're in. Do these three steps on your Android phone. We've
+  also emailed them to <strong><%= tester.email %></strong>.</p>
+
+<ol class="card accent steps">
+  <li><strong>Join the testers group</strong> using the Google account your phone uses.<br>
+    <a href="<%= cfg.androidGroupUrl %>">Join the Cairn testers group</a></li>
+  <li><strong>Accept the test invite.</strong><br>
+    <a href="<%= cfg.androidOptInUrl %>">Become a tester</a></li>
+  <li><strong>Install Cairn</strong> from the Google Play link on that page. Updates
+    arrive through Google Play like any other app.</li>
+</ol>
+<p class="note">If step 2 says the app isn't available, wait a few minutes after
+  joining the group and try again.</p>
+<% } else if (tester.status === 'invited' && tester.platform === 'ios') { %>
+<p class="lede mt-14">You're in. Install TestFlight from the App Store, then open
+  this link on your iPhone. We've also emailed it to <strong><%= tester.email %></strong>.</p>
+<div class="card accent">
+  <p><a href="<%= cfg.iosUrl %>">Open Cairn in TestFlight</a></p>
+</div>
+<% } else { %>
+<p class="lede mt-14">You're on the waitlist.
+  <% const open = tester.platform === 'ios' ? iosOpen : androidOpen; %>
+  <% if (!open) { %>There's no <%= tester.platform === 'ios' ? 'iPhone' : 'Android' %> test build yet.<% } else { %>The test group is full right now.<% } %>
+  We'll email <strong><%= tester.email %></strong> as soon as there's a place for you.</p>
+<% } %>
+
+<p class="note mt-20">Found a bug or have feedback? Email
+  <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>. Every email we send
+  has a link to leave the beta and delete your address.</p>

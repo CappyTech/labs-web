@@ -12,7 +12,7 @@ const DOMAIN = process.env.CAIRN_DOMAIN || 'https://cairn.cappylabs.uk';
 const EMAIL = process.env.CAIRN_PRIVACY_EMAIL || 'dev@cappylabs.uk';
 
 /** "Last updated" date shown on the privacy policy. Bump on material changes. */
-const PRIVACY_UPDATED = process.env.CAIRN_PRIVACY_UPDATED || '14 September 2026';
+const PRIVACY_UPDATED = process.env.CAIRN_PRIVACY_UPDATED || '6 October 2026';
 
 /** One-line brand tagline (per docs/cairn-brand-guidelines.html). */
 const TAGLINE = 'Your location, for the few you trust.';
@@ -21,14 +21,14 @@ const TAGLINE = 'Your location, for the few you trust.';
 const REPO = 'https://github.com/CappyTech/cairn';
 
 /** Pages listed in /sitemap.xml (paths under DOMAIN). */
-const PAGES = ['/', '/support', '/security', '/privacy', '/delete'];
+const PAGES = ['/', '/beta', '/support', '/security', '/privacy', '/delete'];
 
 /** Is this request for the Cairn site (cairn.cappylabs.uk)? */
 const isCairnHost = (req) => (req.hostname || '').toLowerCase().startsWith('cairn.');
 
 // The Cairn pages are static documents: no scripts, frames or forms. Only the
 // brand font comes from elsewhere (Google Fonts) until it's self-hosted.
-const CSP = [
+const cspWith = (formAction) => [
   "default-src 'self'",
   "script-src 'none'",
   "style-src 'self' https://fonts.googleapis.com",
@@ -38,9 +38,12 @@ const CSP = [
   "connect-src 'none'",
   "frame-ancestors 'none'",
   "base-uri 'none'",
-  "form-action 'none'",
+  `form-action ${formAction}`,
   "object-src 'none'",
 ].join('; ');
+const CSP = cspWith("'none'");
+// The beta pages post their forms back to this site, and nowhere else.
+const FORM_CSP = cspWith("'self'");
 
 /** Express middleware: the stricter headers for Cairn-branded pages. */
 function headers(req, res, next) {
@@ -49,7 +52,14 @@ function headers(req, res, next) {
   next();
 }
 
+/** As headers(), but allows forms that post back to this site. */
+function formHeaders(req, res, next) {
+  res.setHeader('Content-Security-Policy', FORM_CSP);
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  next();
+}
+
 module.exports = {
-  DOMAIN, EMAIL, PRIVACY_UPDATED, TAGLINE, REPO, PAGES, CSP,
-  isCairnHost, headers,
+  DOMAIN, EMAIL, PRIVACY_UPDATED, TAGLINE, REPO, PAGES, CSP, FORM_CSP,
+  isCairnHost, headers, formHeaders,
 };

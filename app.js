@@ -78,6 +78,7 @@ db.connect()
     });
     // Run after server is up — don't block startup.
     require('./services/ProductService').checkDuplicates().catch(console.error);
+    require('./services/betaService').promoteWaitlist().catch(console.error);
   })
   .catch((err) => {
     console.error('Failed to connect to MongoDB:', err);

@@ -1,0 +1,51 @@
+<h1>Test Cairn before it launches</h1>
+<p class="lede mt-14">Cairn is in testing. Sign up and you'll get an early build,
+  updates through your phone's app store, and a direct line to tell us what's broken.</p>
+
+<h2>What testing involves</h2>
+<div class="card">
+  <ul>
+    <li><strong>Android:</strong> <% if (androidOpen) { %>open now. You join a Google
+      group, accept the test invite, and install from Google Play.<% } else { %>opening
+      soon. Sign up and we'll email you the moment it does.<% } %></li>
+    <li><strong>iPhone:</strong> <% if (iosOpen) { %>open now, through TestFlight.<% } else { %>not
+      ready yet. Sign up to join the waitlist.<% } %></li>
+    <li>Test builds can have bugs. Pair with people you trust, and don't rely on Cairn in an emergency.</li>
+    <li>Places are limited. If the group is full, you'll go on the waitlist.</li>
+  </ul>
+</div>
+
+<h2>Sign up</h2>
+<form class="card accent beta-form" method="post" action="/beta">
+  <% if (error) { %>
+  <p class="form-error" role="alert"><%= error %></p>
+  <% } %>
+
+  <label for="email">Email address</label>
+  <p class="note hint" id="email-hint">For Android, use the Google account signed in on your phone.</p>
+  <input id="email" name="email" type="email" autocomplete="email" required maxlength="254"
+         aria-describedby="email-hint" value="<%= form.email || '' %>">
+
+  <fieldset>
+    <legend>Your phone</legend>
+    <label class="choice"><input type="radio" name="platform" value="android" required
+      <%= form.platform !== 'ios' ? 'checked' : '' %>> Android</label>
+    <label class="choice"><input type="radio" name="platform" value="ios"
+      <%= form.platform === 'ios' ? 'checked' : '' %>> iPhone<% if (!iosOpen) { %> (waitlist)<% } %></label>
+  </fieldset>
+
+  <%# Honeypot: hidden from people, filled in by bots. %>
+  <div class="hp" aria-hidden="true">
+    <label for="website">Leave this empty</label>
+    <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+  </div>
+
+  <label class="choice consent"><input type="checkbox" name="consent" value="yes" required>
+    Email me about the beta. We keep your address only to run the test, never
+    share it, and delete it when you leave or when the beta ends.</label>
+
+  <button type="submit">Sign up</button>
+</form>
+
+<p class="note mt-20">Already testing? Send feedback to
+  <a href="mailto:<%= privacyEmail %>"><%= privacyEmail %></a>.</p>

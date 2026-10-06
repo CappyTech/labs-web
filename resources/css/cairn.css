@@ -130,3 +130,45 @@ thead th { border-top: 0; color: var(--muted); font-weight: 600; font-size: 13px
   /* Show where links go, since they can't be clicked on paper. */
   main a[href^="http"]::after, main a[href^="mailto:"]::after { content: " (" attr(href) ")"; font-weight: 400; }
 }
+
+/* ── Beta sign-up form ─────────────────────────────────────────────── */
+.beta-form label { display: block; font-weight: 600; margin: 0 0 4px; }
+.beta-form .hint { font-size: 14px; margin: 0 0 8px; }
+.beta-form input[type="email"] {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--page);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.beta-form input:focus-visible,
+.beta-form button:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.beta-form fieldset { border: 0; padding: 0; margin: 18px 0 0; }
+.beta-form legend { font-weight: 600; padding: 0; margin-bottom: 6px; }
+.beta-form .choice { font-weight: 400; display: flex; gap: 10px; align-items: flex-start; margin: 6px 0; }
+.beta-form .choice input { margin-top: 4px; accent-color: var(--link); }
+.beta-form .consent { color: var(--muted); font-size: 14px; margin-top: 18px; }
+.beta-form button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--mist);
+  background: var(--slate);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 22px;
+  margin-top: 16px;
+  cursor: pointer;
+}
+.beta-form button:hover { background: var(--link); }
+.form-error { color: #A4402F; font-weight: 600; }
+/* Honeypot field: off-screen for people, still in the form for bots. */
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.steps { padding-left: 44px; }
+.steps li { margin: 8px 0; }
+
+@media (prefers-color-scheme: dark) {
+  .beta-form button { color: var(--slate); background: var(--mist); }
+  .form-error { color: #E58C78; }
+}
