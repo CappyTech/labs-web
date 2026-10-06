@@ -1,6 +1,7 @@
 'use strict';
 
 const cairn = require('../services/cairnService');
+const betaService = require('../services/betaService');
 
 /** Locals every Cairn-branded page needs. */
 const page = (path, extra) => ({
@@ -31,6 +32,93 @@ function security(req, res) {
     title: 'Cairn security',
     description: 'How Cairn encrypts your location, and exactly what the server can and cannot see.',
   }));
+}
+
+/** Locals for the beta pages: which platforms have a build right now. */
+const betaPage = (path, extra) => page(path, {
+  title: 'Test Cairn before it launches',
+  description: 'Sign up to try Cairn early on Android, or join the iPhone waitlist.',
+  androidOpen: betaService.isOpen('android'),
+  iosOpen: betaService.isOpen('ios'),
+  form: {},
+  error: null,
+  ...extra,
+});
+
+/**
+ * GET /beta
+ * Sign-up form for the Play internal test track (and the iOS waitlist).
+ */
+function beta(req, res) {
+  res.render('cairn/beta', betaPage('/beta'));
+}
+
+/**
+ * POST /beta
+ * Record the sign-up, then show the next steps (also emailed). Bots that
+ * fill the hidden "website" field get the thank-you page and nothing else.
+ */
+async function betaSignUp(req, res, next) {
+  const body = req.body || {};
+  const form = {
+    email: typeof body.email === 'string' ? body.email.slice(0, 254) : '',
+    platform: body.platform,
+  };
+  const retry = (status, error) =>
+    res.status(status).render('cairn/beta', betaPage('/beta', { form, error }));
+
+  if (body.website) return res.render('cairn/beta-thanks', betaPage('/beta', { tester: null, cfg: betaService.config() }));
+  if (!betaService.allow(req.ip)) return retry(429, 'Too many sign-ups from here. Try again in a few minutes.');
+
+  const email = betaService.normaliseEmail(form.email);
+  if (!email) return retry(400, 'Enter a valid email address.');
+  if (!betaService.PLATFORMS.includes(form.platform)) return retry(400, 'Choose Android or iPhone.');
+  if (body.consent !== 'yes') return retry(400, 'Tick the box to agree to how we use your email.');
+
+  try {
+    const { tester } = await betaService.signUp({ email, platform: form.platform });
+    res.render('cairn/beta-thanks', betaPage('/beta', {
+      title: 'Thanks for signing up · Cairn',
+      tester,
+      cfg: betaService.config(),
+    }));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /beta/leave?t=…
+ * Confirm leaving the beta. Deletion happens on POST, so link scanners that
+ * open the email link can't remove someone by accident.
+ */
+async function betaLeave(req, res, next) {
+  try {
+    const tester = await betaService.findByToken(req.query.t);
+    res.status(tester ? 200 : 404).render('cairn/beta-leave', betaPage('/beta/leave', {
+      title: 'Leave the Cairn beta',
+      token: tester ? tester.token : null,
+      done: false,
+      cfg: betaService.config(),
+    }));
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** POST /beta/leave — delete the sign-up for good. */
+async function betaLeaveConfirm(req, res, next) {
+  try {
+    await betaService.leave((req.body || {}).t);
+    res.render('cairn/beta-leave', betaPage('/beta/leave', {
+      title: 'You’ve left the Cairn beta',
+      token: null,
+      done: true,
+      cfg: betaService.config(),
+    }));
+  } catch (err) {
+    next(err);
+  }
 }
 
 /**
@@ -101,4 +189,7 @@ function notFound(req, res, next) {
   });
 }
 
-module.exports = { support, security, securityTxt, sitemap, robots, manifest, notFound };
+module.exports = {
+  support, security, beta, betaSignUp, betaLeave, betaLeaveConfirm,
+  securityTxt, sitemap, robots, manifest, notFound,
+};

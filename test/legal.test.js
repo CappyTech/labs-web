@@ -133,7 +133,7 @@ test('Cairn pages share large PNG previews, touch icon, manifest and en-GB', asy
 });
 
 test('every Cairn page sends the strict CSP and has no inline styles', async () => {
-  for (const p of ['/', '/support', '/security', '/privacy', '/delete']) {
+  for (const p of ['/', '/beta', '/support', '/security', '/privacy', '/delete']) {
     const r = await getRaw(p, CAIRN);
     const body = await r.text();
     assert.equal(r.status, 200, p);
@@ -177,7 +177,7 @@ test('security.txt follows RFC 9116', async () => {
 test('sitemap and robots on the Cairn host only', async () => {
   const sm = await get('/sitemap.xml', CAIRN);
   assert.equal(sm.status, 200);
-  for (const p of ['/', '/support', '/security', '/privacy', '/delete']) {
+  for (const p of ['/', '/beta', '/support', '/security', '/privacy', '/delete']) {
     assert.match(sm.body, new RegExp(`<loc>https://cairn\\.cappylabs\\.uk${p.replace(/\//g, '\\/')}</loc>`));
   }
   assert.match((await get('/robots.txt', CAIRN)).body, /Sitemap: https:\/\/cairn\.cappylabs\.uk\/sitemap\.xml/);

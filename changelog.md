@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.16.1] - 2026-10-06
+
+### Added
+- **SSH deploy to the edge server** in `.github/workflows/build.yml`. After the image is pushed, the workflow syncs `compose.yaml` to `/docker/labs-web` and recreates the `labs-web` container. It uses the same `EDGE_SSH_*` secrets as Cairn and checks first that `.compose.env` exists there.
+
+### Changed
+- The workflow runs `npm test` before building, so a failing test blocks the build and the deploy.
+- Deploys run one at a time.
+- `compose.yaml` now matches the edge server: the `labs-web` service has the WUD watch labels.
+
+### Removed
+- The `mongo-express` service, which wasn't running on the edge, and its variables in `.compose.env.example`.
+
+---
+
+## [2.16.0] - 2026-10-06
+
+### Added
+- **Cairn `/beta`**: a sign-up form for the Play internal test track, with an iPhone waitlist. Testers get the Google Group join link and the Play opt-in link on screen and by email. The Google Group is the Play tester list, so no Play API credentials are needed.
+- A cap (`CAIRN_BETA_CAP`, default 100, Play's internal-track limit) with an automatic waitlist. Waitlisted people are invited when someone leaves, and at start-up when places are free or a platform opens (e.g. once `CAIRN_BETA_IOS_URL` is set).
+- Welcome and waitlist emails with a one-click leave link (`/beta/leave`, which confirms first, then deletes), plus a "new sign-up" email to `CAIRN_BETA_NOTIFY`.
+- Spam protection: a honeypot field and a per-IP rate limit.
+- `models/BetaTester.js`, `services/betaService.js`, `services/mailService.js` (nodemailer, configured by `SMTP_URL`; mail is logged and skipped when unset) and `docs/cairn-beta.md` (one-time setup). Test count 62 -> 79.
+
+### Changed
+- The Cairn landing page and footer link to `/beta`, and the sitemap lists it.
+- The privacy policy has a "Beta testing" section, and its "Last updated" date is now 6 October 2026.
+- The beta pages send a CSP with `form-action 'self'`. Every other Cairn page still blocks forms.
+
+---
+
 ## [2.15.0] - 2026-10-01
 
 ### Added

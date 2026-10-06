@@ -1,6 +1,6 @@
 {
   "name": "labs-web",
-  "version": "2.15.0",
+  "version": "2.16.1",
   "description": "cappylabs.uk — a home for small experiments and self-hosted projects.",
   "main": "app.js",
   "scripts": {
@@ -12,7 +12,8 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-ejs-layouts": "^2.5.1",
-    "mongoose": "^8.4.4"
+    "mongoose": "^8.4.4",
+    "nodemailer": "^6.10.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
