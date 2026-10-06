@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.16.1] - 2026-10-06
+
+### Added
+- **SSH deploy to the edge server** in `.github/workflows/build.yml`. After the image is pushed, the workflow syncs `compose.yaml` to `/docker/labs-web` and recreates the `labs-web` container. It uses the same `EDGE_SSH_*` secrets as Cairn and checks first that `.compose.env` exists there.
+
+### Changed
+- The workflow runs `npm test` before building, so a failing test blocks the build and the deploy.
+- Deploys run one at a time.
+
+---
+
 ## [2.16.0] - 2026-10-06
 
 ### Added

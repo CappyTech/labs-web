@@ -1,5 +1,6 @@
 name: build
 
+# Push to main -> test -> build and push the image to GHCR -> deploy to edge over SSH.
 on:
   push:
     branches: [ main ]
@@ -9,9 +10,28 @@ on:
 # so this is hardcoded rather than derived from ${{ github.repository }}.
 env:
   IMAGE: ghcr.io/cappytech/labs-web
+  # Where compose.yaml and .compose.env live on the edge server.
+  DEPLOY_DIR: /docker/labs-web
+
+# One deploy at a time; a newer push waits rather than racing the older one.
+concurrency:
+  group: labs-web-deploy
+  cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,3 +59,52 @@ jobs:
             ${{ env.IMAGE }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Fail before touching anything if DEPLOY_DIR isn't the live install.
+      # .compose.env holds the secrets and is managed on the server by hand.
+      - name: Check the edge install
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EDGE_SSH_HOST }}
+          username: ${{ secrets.EDGE_SSH_USER }}
+          key: ${{ secrets.EDGE_SSH_KEY }}
+          envs: DEPLOY_DIR
+          script: |
+            if [ ! -f "$DEPLOY_DIR/.compose.env" ]; then
+              echo "::error::$DEPLOY_DIR/.compose.env not found on the edge. Set DEPLOY_DIR in build.yml to the labs-web directory."
+              exit 1
+            fi
+
+      # Keep the edge's compose file in lock-step with the repo (as Cairn does),
+      # so the server never runs a stale or hand-edited copy.
+      - name: Sync compose file to edge
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EDGE_SSH_HOST }}
+          username: ${{ secrets.EDGE_SSH_USER }}
+          key: ${{ secrets.EDGE_SSH_KEY }}
+          source: compose.yaml
+          target: ${{ env.DEPLOY_DIR }}
+
+      - name: Deploy to edge over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EDGE_SSH_HOST }}
+          username: ${{ secrets.EDGE_SSH_USER }}
+          key: ${{ secrets.EDGE_SSH_KEY }}
+          envs: DEPLOY_DIR
+          script: |
+            set -e
+            cd "$DEPLOY_DIR"
+            docker compose pull labs-web
+            # --force-recreate so a new :latest digest always rolls the
+            # container even if compose thinks nothing changed. Only labs-web:
+            # Mongo keeps running across deploys.
+            docker compose up -d --force-recreate --no-deps labs-web
+            docker image prune -f
