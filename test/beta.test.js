@@ -34,7 +34,7 @@ test('decideStatus invites under the cap, waitlists over it or when closed', () 
   assert.equal(beta.decideStatus('android', 0, { ...cfg, androidOptInUrl: '' }), 'waitlist');
 });
 
-test('the cap defaults to Play\'s internal-track limit of 100', () => {
+test('the cap defaults to 100', () => {
   assert.equal(beta.config().cap, 100);
 });
 

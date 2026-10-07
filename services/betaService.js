@@ -1,11 +1,11 @@
 'use strict';
 
-// Cairn beta (internal testing) sign-ups.
+// Cairn beta (closed testing) sign-ups.
 //
 // Google Play only accepts Google Groups as API-managed tester lists, so the
-// Play internal track lists one public Google Group and testers join it
+// Play closed testing track (alpha) lists one public Google Group and testers join it
 // themselves. This service sits in front of that: it records who signed up,
-// enforces a cap (Play's internal track takes at most 100 testers), emails
+// enforces a cap (our own limit; default 100), emails
 // the join + opt-in steps, tells the developer, and lets people leave.
 
 const crypto = require('crypto');
@@ -19,9 +19,9 @@ const PLATFORMS = ['android', 'ios'];
 function config() {
   const cap = Number.parseInt(process.env.CAIRN_BETA_CAP, 10);
   return {
-    // Google Group that the Play internal track lists as its testers.
+    // Google Group that the Play closed testing track lists as its testers.
     androidGroupUrl: process.env.CAIRN_BETA_ANDROID_GROUP_URL || '',
-    // Play Console → Internal testing → Testers → "Join on the web" link.
+    // Play Console → Closed testing → Alpha → Testers → "Join on the web" link.
     androidOptInUrl: process.env.CAIRN_BETA_ANDROID_OPTIN_URL || '',
     // TestFlight public link. Unset until iOS builds exist: iOS is waitlist-only.
     iosUrl: process.env.CAIRN_BETA_IOS_URL || '',

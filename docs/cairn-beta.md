@@ -1,6 +1,6 @@
 # Cairn beta sign-up — one-time setup
 
-`cairn.cappylabs.uk/beta` signs people up for the Play internal test track (and
+`cairn.cappylabs.uk/beta` signs people up for the Play closed testing track, `alpha` (and
 an iPhone waitlist). Once the steps below are done it runs on its own:
 
 1. Someone signs up → their email + platform are stored (`betatesters` collection).
@@ -20,19 +20,20 @@ No service account or API key is needed.
 
 ## Setup
 
-1. **Create the group.** groups.google.com → Create group, e.g. `cairn-testers`.
+1. **Create the group.** groups.google.com → Create group: `cappylabs-cairn-testers`.
    - Who can search for group: *Anyone on the web*
    - Who can join group: *Anyone can join*
    - Who can view conversations / post: *Group managers only* (the group is a
      list, not a mailing list)
-2. **Point the internal track at it.** Play Console → Cairn → Testing →
-   Internal testing → Testers → add the group's email
-   (`cairn-testers@googlegroups.com`) as a tester list, and save.
+2. **Point the closed track at it.** Play Console → Cairn → Testing →
+   Closed testing → Alpha → Testers → add the group's email
+   (`cappylabs-cairn-testers@googlegroups.com`) under Google Groups, and save.
+   Internal testing only takes email lists, not groups, so closed testing
+   is used. Cairn's `release.yml` uploads tag builds to `alpha`.
 3. **Copy the opt-in link** from the same page ("Join on the web").
 4. **Set the env vars** in `.compose.env` (see `.compose.env.example`):
    `CAIRN_BETA_ANDROID_GROUP_URL`, `CAIRN_BETA_ANDROID_OPTIN_URL`,
-   `SMTP_URL`, `MAIL_FROM`, and optionally `CAIRN_BETA_CAP` (default 100,
-   Play's internal-track limit) and `CAIRN_BETA_NOTIFY`.
+   `SMTP_URL`, `MAIL_FROM`, and optionally `CAIRN_BETA_CAP` (default 100) and `CAIRN_BETA_NOTIFY`.
 5. Redeploy (`docker compose pull && docker compose up -d`).
 
 Until step 4 is done, Android sign-ups are waitlisted and invited

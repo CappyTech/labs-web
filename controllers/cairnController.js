@@ -47,7 +47,7 @@ const betaPage = (path, extra) => page(path, {
 
 /**
  * GET /beta
- * Sign-up form for the Play internal test track (and the iOS waitlist).
+ * Sign-up form for the Play closed testing track (and the iOS waitlist).
  */
 function beta(req, res) {
   res.render('cairn/beta', betaPage('/beta'));
