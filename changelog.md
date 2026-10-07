@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.16.2] - 2026-10-07
+
+### Changed
+- The Cairn beta now uses Play's closed testing track (`alpha`) instead of internal testing, because internal testing doesn't accept a Google Group as its tester list. Updated the comments, `.compose.env.example` (the opt-in link is now `play.google.com/apps/testing/uk.cappylabs.cairn`), `AGENTS.md` and `docs/cairn-beta.md` to match.
+- `CAIRN_BETA_CAP` still defaults to 100, but that's now our own limit rather than Play's.
+
+---
+
 ## [2.16.1] - 2026-10-06
 
 ### Added

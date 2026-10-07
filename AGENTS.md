@@ -119,8 +119,8 @@ Defined in `.compose.env` (copy from `.compose.env.example`). All variables must
 | `MONGO_URI` | `mongodb://localhost:27017/labsweb` | MongoDB connection string |
 | `MONGO_INITDB_ROOT_USERNAME` | — | MongoDB root user (used by the mongo container) |
 | `MONGO_INITDB_ROOT_PASSWORD` | — | MongoDB root password (used by the mongo container) |
-| `CAIRN_BETA_ANDROID_GROUP_URL` | — | Google Group the Play internal track lists as testers |
-| `CAIRN_BETA_ANDROID_OPTIN_URL` | — | Play internal test opt-in ("Join on the web") link |
+| `CAIRN_BETA_ANDROID_GROUP_URL` | — | Google Group the Play closed testing track (alpha) lists as testers |
+| `CAIRN_BETA_ANDROID_OPTIN_URL` | — | Play closed testing opt-in ("Join on the web") link |
 | `CAIRN_BETA_IOS_URL` | — | TestFlight public link; empty = iPhone waitlist only |
 | `CAIRN_BETA_CAP` | `100` | Most testers invited per platform before the waitlist |
 | `CAIRN_BETA_NOTIFY` | `CAIRN_PRIVACY_EMAIL` | Address told about each beta sign-up |
