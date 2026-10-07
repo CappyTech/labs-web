@@ -20,14 +20,14 @@ No service account or API key is needed.
 
 ## Setup
 
-1. **Create the group.** groups.google.com → Create group, e.g. `cairn-testers`.
+1. **Create the group.** groups.google.com → Create group: `cappylabs-cairn-testers`.
    - Who can search for group: *Anyone on the web*
    - Who can join group: *Anyone can join*
    - Who can view conversations / post: *Group managers only* (the group is a
      list, not a mailing list)
 2. **Point the closed track at it.** Play Console → Cairn → Testing →
    Closed testing → Alpha → Testers → add the group's email
-   (`cairn-testers@googlegroups.com`) under Google Groups, and save.
+   (`cappylabs-cairn-testers@googlegroups.com`) under Google Groups, and save.
    Internal testing only takes email lists, not groups, so closed testing
    is used. Cairn's `release.yml` uploads tag builds to `alpha`.
 3. **Copy the opt-in link** from the same page ("Join on the web").
